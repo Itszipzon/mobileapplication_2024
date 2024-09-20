@@ -19,12 +19,10 @@ public interface UserRepo extends JpaRepository<User, Long> {
   Optional<User> findUserByUsernameOrEmail(String value);
 
   @Query("""
-      SELECT new no.itszipzon.dto.UserDto(u.userId, u.username, u.displayName)
+      SELECT new no.itszipzon.dto.UserDto(u.userId, u.username)
       FROM User u
       WHERE
         u.username LIKE %:value%
-      OR
-        u.displayName LIKE %:value%
       """)
   Optional<List<UserDto>> searchUsersByUsernameOrDisplayname(String value);
 
