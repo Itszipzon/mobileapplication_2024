@@ -7,19 +7,16 @@ public class UserDto {
   
   private Long userId;
   private String username;
-  private String displayName;
 
   /**
    * Constructor.
    *
    * @param userId userId
    * @param username username
-   * @param displayName displayName
    */
-  public UserDto(Long userId, String username, String displayName) {
+  public UserDto(Long userId, String username) {
     this.userId = userId;
     this.username = username;
-    this.displayName = displayName;
   }
 
   public Long getUserId() {
@@ -36,14 +33,6 @@ public class UserDto {
 
   public void setUsername(String username) {
     this.username = username;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
   }
 
 }
