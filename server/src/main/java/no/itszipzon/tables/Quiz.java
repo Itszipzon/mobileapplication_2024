@@ -47,6 +47,10 @@ public class Quiz {
   @JsonManagedReference
   private List<QuizQuestion> quizQuestions;
 
+  @OneToMany(mappedBy = "quiz")
+  @JsonManagedReference
+  private List<Category> categories;
+
   @PrePersist
   protected void onCreate() {
     LocalDateTime now = LocalDateTime.now();
