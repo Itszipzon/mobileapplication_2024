@@ -40,6 +40,9 @@ public class Quiz {
   @Column(nullable = false, name = "updatedAt")
   private LocalDateTime updatedAt;
 
+  @Column(nullable = false, name = "timer")
+  private Integer timer = 0;
+
   @OneToMany(mappedBy = "quiz")
   @JsonManagedReference
   private List<QuizQuestion> quizQuestions;
@@ -110,6 +113,14 @@ public class Quiz {
 
   public void setQuizQuestions(List<QuizQuestion> quizQuestions) {
     this.quizQuestions = quizQuestions;
+  }
+
+  public Integer getTimer() {
+    return timer;
+  }
+
+  public void setTimer(Integer timer) {
+    this.timer = timer;
   }
 
 }
