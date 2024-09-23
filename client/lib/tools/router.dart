@@ -1,4 +1,3 @@
-
 import 'package:client/screens/login.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +20,7 @@ class RouterState {
 
   late Map<String, Widget> screens = {path: screen};
   late Map<String, Object>? values = {};
+  late List<String> paths = [];
 
   void addScreen(String name, Widget screen) {
     screens[name] = screen;
@@ -44,6 +44,7 @@ class RouterState {
       return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
     setValues(screenName);
+    addPath(getScreenName(screenName));
     setPath(getScreenName(screenName));
     return getScreen();
   }
@@ -69,6 +70,29 @@ class RouterState {
 
   Map<String, Object>? getValues() {
     return values;
+  }
+
+  void addPath(String path) {
+    if (paths.contains(path)) {
+      int index = paths.indexOf(path);
+      paths = paths.sublist(0, index + 1);
+    } else {
+      paths.add(path);
+    }
+  }
+
+  int getPathsLength() {
+    return paths.length;
+  }
+
+  Widget back() {
+    if (paths.length > 1) {
+      paths.removeLast();
+      setPath(paths.last);
+      return getScreen();
+    } else {
+      return getScreen();
+    }
   }
 
   void showOverlayError(BuildContext context, String errorMessage) {
