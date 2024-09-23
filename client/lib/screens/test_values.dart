@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
-class TestValues extends StatelessWidget {
-
-  TestValues({
-      super.key,
-      required this.switchScreen,
-      this.values,
-    }) {
-      if (values != null && values!['message'] != null) {
-        message = values!['message'] as String;
-      }
-    }
+class TestPage extends StatefulWidget {
+  
+  const TestPage({super.key, required this.switchScreen, this.values,});
 
   final Function(BuildContext, String) switchScreen;
   final Map<String, Object>? values;
 
+  @override
+  TestPageState createState() => TestPageState();
+}
+
+// ignore: must_be_immutable
+class TestPageState extends State<TestPage> {
   late String message = '';
+
+  @override
+  void initState() {
+    super.initState();
+    message = widget.values!['message'].toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class TestValues extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  switchScreen(context, 'login');
+                  widget.switchScreen(context, 'login');
                 },
                 child: const Text('Go to login'),
               ),

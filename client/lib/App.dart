@@ -19,7 +19,7 @@ class _AppState extends State<App> {
   void initiateScreens() {
     _router.addScreen("register", Register(switchScreen: switchScreen));
     _router.addScreen("home", Home(switchScreen: switchScreen));
-    _router.addScreen("test", TestValues(switchScreen: switchScreen, values: getValues()));
+    _router.addScreen("test", TestPage(switchScreen: switchScreen, values: _router.values));
   }
 
   @override
@@ -53,10 +53,6 @@ class _AppState extends State<App> {
     setState(() {
       _router.switchScreen(context, screenName);
     });
-  }
-
-  Map<String, Object>? getValues() {
-    return _router.getValues();
   }
 
   List<String> getPaths() {

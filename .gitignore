@@ -3,6 +3,8 @@ server/target
 .vscode
 .DS_Store
 
+/client/build/
+
 # Miscellaneous
 *.class
 *.log
