@@ -2,7 +2,7 @@ import 'package:client/screens/home.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/screens/register.dart';
 import 'package:client/screens/test_values.dart';
-import 'package:client/tools/router.dart' as custom_router;
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatefulWidget {
@@ -13,19 +13,24 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+/*   late final custom_router.Router _router = custom_router.Router(
+      path: "login", screen: LoginScreen(switchScreen: switchScreen)); */
 
-  late final custom_router.Router _router = custom_router.Router(path: "login", screen: LoginScreen(switchScreen: switchScreen));
+    late final RouterState _router;
 
   void initiateScreens() {
+    _router.addScreen("", LoginScreen(switchScreen: switchScreen));
     _router.addScreen("register", Register(switchScreen: switchScreen));
     _router.addScreen("home", Home(switchScreen: switchScreen));
-    _router.addScreen("test", TestPage(switchScreen: switchScreen, values: _router.values));
+    _router.addScreen("test", TestPage(switchScreen: switchScreen, router: _router));
+
   }
 
   @override
   void initState() {
-    initiateScreens();
     super.initState();
+    _router = RouterState(path: 'login', screen: LoginScreen(switchScreen: switchScreen));
+    initiateScreens();
   }
 
   @override
@@ -53,9 +58,5 @@ class _AppState extends State<App> {
     setState(() {
       _router.switchScreen(context, screenName);
     });
-  }
-
-  List<String> getPaths() {
-    return _router.getPaths();
   }
 }

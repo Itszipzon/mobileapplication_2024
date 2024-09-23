@@ -1,37 +1,50 @@
+
 import 'package:client/screens/login.dart';
 import 'package:flutter/material.dart';
 
-class Router {
-  Router({required this.path, required this.screen});
+class RouterState {
+  static RouterState? _instance;
 
-  String path;
-  Widget screen;
+  late String path;
+  late Widget screen;
 
-  late Map<String, Widget> screens = {path: screen};
-  late Map<String, Object>? values = {};
-  late List<String> paths = [];
+  RouterState._internal({required this.path, required this.screen});
 
-  void addScreen(String name, Widget screen) {
-    screens[name] = screen;
-  }
-
-  Widget getScreen() {
-    return screens[path] ?? LoginScreen(switchScreen: switchScreen);
+  factory RouterState({required String path, required Widget screen}) {
+    _instance ??= RouterState._internal(path: path, screen: screen);
+    return _instance!;
   }
 
   void setPath(String newPath) {
     path = newPath;
   }
 
+  late Map<String, Widget> screens = {path: screen};
+  late Map<String, Object>? values = {};
+
+  void addScreen(String name, Widget screen) {
+    screens[name] = screen;
+  }
+
+  Widget getScreen() {
+    return screens[path] ?? Container();
+  }
+
+  void removeScreen(String name) {
+    screens.remove(name);
+  }
+
+  void clearScreens() {
+    screens = {};
+  }
+
   Widget switchScreen(BuildContext context, String screenName) {
     if (!screens.containsKey(getScreenName(screenName))) {
       showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
-      return getScreen();
+      return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
-
     setValues(screenName);
     setPath(getScreenName(screenName));
-    addToPaths(path);
     return getScreen();
   }
 
@@ -50,38 +63,12 @@ class Router {
       value = value[1].split("&");
       for (int i = 0; i < value.length; i++) {
         values![value[i].split("=")[0]] = value[i].split("=")[1];
-        print(value[i].split("=")[0] + " = " + value[i].split("=")[1]);
       }
-    }
-  }
-
-  void clearValues() {
-    values = {};
-  }
-
-  void clearScreens() {
-    screens = {};
-  }
-
-  void clearPaths() {
-    paths = [];
-  }
-
-  void addToPaths(String newPath) {
-    if (paths.contains(newPath)) {
-      int index = paths.indexOf(newPath);
-      paths = paths.sublist(0, index + 1);
-    } else {
-      paths.add(newPath);
     }
   }
 
   Map<String, Object>? getValues() {
     return values;
-  }
-
-  List<String> getPaths() {
-    return paths;
   }
 
   void showOverlayError(BuildContext context, String errorMessage) {
