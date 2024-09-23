@@ -2,7 +2,7 @@ server/target
 .env
 .vscode
 .DS_Store
-
+build/
 # Miscellaneous
 *.class
 *.log
