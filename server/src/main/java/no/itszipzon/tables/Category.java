@@ -32,4 +32,28 @@ public class Category {
   private Quiz quiz;
 
 
+  public Long getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Quiz getQuiz() {
+    return quiz;
+  }
+
+  public void setQuiz(Quiz quiz) {
+    this.quiz = quiz;
+  }
+
 }
