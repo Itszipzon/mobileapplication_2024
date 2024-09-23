@@ -8,6 +8,8 @@ class Router {
   Widget screen;
 
   late Map<String, Widget> screens = {path: screen};
+  late Map<String, Object>? values;
+  late List<String> paths = [];
 
   void addScreen(String name, Widget screen) {
     screens[name] = screen;
@@ -26,8 +28,59 @@ class Router {
       showOverlayError(context, 'Screen $screenName not found.');
       return getScreen();
     }
-    setPath(screenName);
+
+    setPath(getScreenName());
+    setValues();
+    addToPaths(path);
     return getScreen();
+  }
+
+  String getScreenName() {
+    if (path.contains("?")) {
+      return path.split("?")[0];
+    } else {
+      return path;
+    }
+  }
+
+  void setValues() {
+    values = {};
+    if (path.contains("?")) {
+      List<String> value = path.split("?");
+      value = value[1].split("&");
+      for (int i = 0; i < value.length; i++) {
+        values![value[i].split("=")[0]] = value[i];
+      }
+    }
+  }
+
+  void clearValues() {
+    values = null;
+  }
+
+  void clearScreens() {
+    screens = {};
+  }
+
+  void clearPaths() {
+    paths = [];
+  }
+
+  void addToPaths(String newPath) {
+    if (paths.contains(newPath)) {
+      int index = paths.indexOf(newPath);
+      paths = paths.sublist(0, index + 1);
+    } else {
+      paths.add(newPath);
+    }
+  }
+
+  Map<String, Object>? getValues() {
+    return values;
+  }
+
+  List<String> getPaths() {
+    return paths;
   }
 
   void showOverlayError(BuildContext context, String errorMessage) {
