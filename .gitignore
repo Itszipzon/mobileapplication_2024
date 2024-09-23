@@ -2,7 +2,6 @@ server/target
 .env
 .vscode
 .DS_Store
-build/
 # Miscellaneous
 *.class
 *.log
@@ -34,7 +33,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+/client/build/
 
 # Symbolication related
 app.*.symbols
