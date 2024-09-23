@@ -13,8 +13,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-/*   late final custom_router.Router _router = custom_router.Router(
-      path: "login", screen: LoginScreen(switchScreen: switchScreen)); */
 
     late final RouterState _router;
 
@@ -24,6 +22,7 @@ class _AppState extends State<App> {
     _router.addScreen("home", Home(switchScreen: switchScreen));
     _router.addScreen("test", TestPage(switchScreen: switchScreen, router: _router));
 
+    _router.addExcludedPaths(["", "register", "test"]);
   }
 
   @override

@@ -22,6 +22,8 @@ class RouterState {
   late Map<String, Object>? values = {};
   late List<String> paths = [];
 
+  Set<String> excludedPaths = {}; 
+
   void addScreen(String name, Widget screen) {
     screens[name] = screen;
   }
@@ -73,12 +75,29 @@ class RouterState {
   }
 
   void addPath(String path) {
+
+    if (excludedPaths.contains(path)) {
+      return;
+    }
+
     if (paths.contains(path)) {
       int index = paths.indexOf(path);
       paths = paths.sublist(0, index + 1);
     } else {
       paths.add(path);
     }
+  }
+
+  void addExcludedPath(String path) {
+    excludedPaths.add(path);
+  }
+
+  void addExcludedPaths(List<String> paths) {
+    excludedPaths.addAll(paths);
+  }
+
+  void removeExcludedPath(String path) {
+    excludedPaths.remove(path);
   }
 
   int getPathsLength() {
