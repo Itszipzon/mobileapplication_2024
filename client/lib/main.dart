@@ -1,5 +1,5 @@
-import 'package:client/App.dart';
-import 'package:client/User.dart';
+import 'package:client/app.dart';
+import 'package:client/tools/User.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

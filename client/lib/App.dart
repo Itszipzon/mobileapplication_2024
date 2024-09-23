@@ -1,7 +1,8 @@
-import 'package:client/Login.dart';
-import 'package:client/User.dart';
+import 'package:client/screens/home.dart';
+import 'package:client/screens/login.dart';
+import 'package:client/screens/register.dart';
+import 'package:client/tools/router.dart' as custom_router;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -11,27 +12,22 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  String _activeScreen = "Login";
 
-  Widget get screen {
-    switch (_activeScreen) {
-      case "Login":
-        return const LoginScreen();
-      default:
-        return const LoginScreen();
-    }
+  late final custom_router.Router _router = custom_router.Router(path: "login", screen: LoginScreen(switchScreen: switchScreen));
+
+  void initiateScreens() {
+    _router.addScreen("register", Register(switchScreen: switchScreen));
+    _router.addScreen("home", Home(switchScreen: switchScreen));
+  }
+
+  @override
+  void initState() {
+    initiateScreens();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
-
-    if (user.token != null) {
-      _activeScreen = "Home";
-    } else {
-      _activeScreen = "Login";
-    }
-
     return MaterialApp(
       home: Scaffold(
         body: Container(
@@ -45,9 +41,15 @@ class _AppState extends State<App> {
               end: Alignment.bottomRight,
             ),
           ),
-          child: screen,
+          child: _router.getScreen(),
         ),
       ),
     );
+  }
+
+  void switchScreen(BuildContext context, String screenName) {
+    setState(() {
+      _router.switchScreen(context, screenName);
+    });
   }
 }
