@@ -8,7 +8,7 @@ class Router {
   Widget screen;
 
   late Map<String, Widget> screens = {path: screen};
-  late Map<String, Object>? values;
+  late Map<String, Object>? values = {};
   late List<String> paths = [];
 
   void addScreen(String name, Widget screen) {
@@ -24,18 +24,18 @@ class Router {
   }
 
   Widget switchScreen(BuildContext context, String screenName) {
-    if (!screens.containsKey(screenName)) {
-      showOverlayError(context, 'Screen $screenName not found.');
+    if (!screens.containsKey(getScreenName(screenName))) {
+      showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
       return getScreen();
     }
 
-    setPath(getScreenName());
-    setValues();
+    setValues(screenName);
+    setPath(getScreenName(screenName));
     addToPaths(path);
     return getScreen();
   }
 
-  String getScreenName() {
+  String getScreenName(String path) {
     if (path.contains("?")) {
       return path.split("?")[0];
     } else {
@@ -43,19 +43,20 @@ class Router {
     }
   }
 
-  void setValues() {
+  void setValues(String path) {
     values = {};
     if (path.contains("?")) {
       List<String> value = path.split("?");
       value = value[1].split("&");
       for (int i = 0; i < value.length; i++) {
-        values![value[i].split("=")[0]] = value[i];
+        values![value[i].split("=")[0]] = value[i].split("=")[1];
+        print(value[i].split("=")[0] + " = " + value[i].split("=")[1]);
       }
     }
   }
 
   void clearValues() {
-    values = null;
+    values = {};
   }
 
   void clearScreens() {

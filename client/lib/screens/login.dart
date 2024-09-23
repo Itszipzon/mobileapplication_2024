@@ -66,7 +66,7 @@ class LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => widget.switchScreen(context, 'register'),
+                onPressed: () => widget.switchScreen(context, 'test?message=Hello World&second=Whats up'),
                 child: const Text("Login"),
               ),
             ],
