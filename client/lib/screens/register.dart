@@ -56,7 +56,7 @@ class RegisterScreenState extends State<Register> {
                 },
                 child: const Text('Sign up'),
               ),
-
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
