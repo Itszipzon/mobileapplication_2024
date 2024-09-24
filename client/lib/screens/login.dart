@@ -49,23 +49,40 @@ class LoginScreenState extends State<LoginScreen> {
                 'Sign in',
                 style: TextStyle(fontSize: 24),
               ),
-
               const SizedBox(height: 24),
-
               Input(labelText: "Email", controller: emailController),
-
               const SizedBox(height: 24),
-
-              Input(labelText: "Password", controller: passwordController, obscureText: true),
-              
+              Input(
+                  labelText: "Password",
+                  controller: passwordController,
+                  obscureText: true),
               const SizedBox(height: 24),
-
               SmallTextButton(
                 onPressed: () => widget.switchScreen(
                     context, 'test?message=Hello World&second=Whats up'),
                 text: 'Login',
               ),
-
+              const SizedBox(height: 24),
+              InkWell(
+                onTap: () => widget.switchScreen(context, 'test'),
+                child: const Text(
+                  'Forgot password?',
+                  style: TextStyle(color: Colors.orange),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? ", style: TextStyle(color: Colors.grey)),
+                  InkWell(
+                    onTap: () => widget.switchScreen(context, 'register'),
+                    child: const Text(
+                      'Sign up here.',
+                      style: TextStyle(color: Colors.orange),
+                    ),
+                  )
+                ],
+              )
             ],
           ),
         ),

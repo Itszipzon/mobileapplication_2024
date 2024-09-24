@@ -23,7 +23,7 @@ class RegisterScreenState extends State<Register> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Register',
+                'Sign up',
                 style: TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 24),
@@ -54,8 +54,22 @@ class RegisterScreenState extends State<Register> {
                 onPressed: () {
                   widget.switchScreen(context, 'home');
                 },
-                child: const Text('Register'),
+                child: const Text('Sign up'),
               ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account? ", style: TextStyle(color: Colors.grey)),
+                  InkWell(
+                    onTap: () => widget.switchScreen(context, 'login'),
+                    child: const Text(
+                      'Sign in here.',
+                      style: TextStyle(color: Colors.orange),
+                    ),
+                  )
+                ],
+              )
             ],
           ),
         ),
