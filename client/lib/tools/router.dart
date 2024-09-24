@@ -1,4 +1,5 @@
 import 'package:client/screens/login.dart';
+import 'package:client/tools/error_message.dart';
 import 'package:flutter/material.dart';
 
 class RouterState {
@@ -67,9 +68,11 @@ class RouterState {
     clearValues();
   }
 
+  ErrorHandler error = ErrorHandler();
+
   Widget switchScreen(BuildContext context, String screenName) {
     if (!screens.containsKey(getScreenName(screenName))) {
-      showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
+      error.showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
       return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
     clearAll();
@@ -81,10 +84,9 @@ class RouterState {
 
   Widget switchScreenWithValue(BuildContext context, String screenName, Map<String, Object>? values) {
     if (!screens.containsKey(getScreenName(screenName))) {
-      showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
+      error.showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
       return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
-    print("Running switchScreenWithValue");
     clearAll();
     setValues(values!);
     setPathVariables(screenName);
@@ -156,34 +158,5 @@ class RouterState {
     }
   }
 
-  void showOverlayError(BuildContext context, String errorMessage) {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              errorMessage,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      ),
-    );
 
-    overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
-  }
 }
