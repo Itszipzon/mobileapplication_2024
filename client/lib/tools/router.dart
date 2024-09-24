@@ -16,6 +16,7 @@ class RouterState {
   }
 
   void setValues(Map<String, Object> newValues) {
+    print(newValues);
     values = newValues;
   }
 
@@ -62,8 +63,6 @@ class RouterState {
   }
 
   void clearAll() {
-    clearScreens();
-    clearPaths();
     clearPathVariables();
     clearValues();
   }
@@ -85,6 +84,7 @@ class RouterState {
       showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
       return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
+    print("Running switchScreenWithValue");
     clearAll();
     setValues(values!);
     setPathVariables(screenName);

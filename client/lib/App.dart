@@ -38,14 +38,7 @@ class _AppState extends State<App> {
       home: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 78, 13, 151),
-                Color.fromARGB(255, 107, 15, 168),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Color.fromARGB(255, 241, 241, 241),
           ),
           child: _router.getScreen(),
         ),
@@ -53,9 +46,15 @@ class _AppState extends State<App> {
     );
   }
 
-  void switchScreen(BuildContext context, String screenName) {
+  void switchScreen(BuildContext context, String path) {
     setState(() {
-      _router.switchScreen(context, screenName);
+      _router.switchScreen(context, path);
+    });
+  }
+
+  void switchScreenWithValue(BuildContext context, String path, Map<String, Object> values) {
+    setState(() {
+      _router.switchScreenWithValue(context, path, values);
     });
   }
 }

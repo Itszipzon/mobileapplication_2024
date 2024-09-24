@@ -16,22 +16,9 @@ class TestPageState extends State<TestPage> {
 
   late String message = "Loading...";
 
-  Future<void> fetchMessage() async {
-    final response = await http.get(Uri.parse("http://localhost:8080/test")).catchError((error) {
-      print(error.toString());
-      return http.Response('Error', 500);
-    });
-    print(response.body);
-    print(response.statusCode);
-  }
-
   @override
   initState() {
     super.initState();
-    fetchMessage().then((value) {
-      setState(() {
-      });
-    });
   }
 
   @override
@@ -44,7 +31,7 @@ class TestPageState extends State<TestPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Values: $message'),
+            Text('Values: ${widget.router.values}'),
             ElevatedButton(
               onPressed: () {
                 widget.switchScreen(context, 'home');
