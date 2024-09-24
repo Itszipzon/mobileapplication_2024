@@ -1,5 +1,6 @@
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class TestPage extends StatefulWidget {
   final Function(BuildContext, String) switchScreen;
@@ -13,7 +14,25 @@ class TestPage extends StatefulWidget {
 
 class TestPageState extends State<TestPage> {
 
-  late String message;
+  late String message = "Loading...";
+
+  Future<void> fetchMessage() async {
+    final response = await http.get(Uri.parse("http://localhost:8080/test")).catchError((error) {
+      print(error.toString());
+      return http.Response('Error', 500);
+    });
+    print(response.body);
+    print(response.statusCode);
+  }
+
+  @override
+  initState() {
+    super.initState();
+    fetchMessage().then((value) {
+      setState(() {
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +44,7 @@ class TestPageState extends State<TestPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Values: ${widget.router.values}'),
+            Text('Values: $message'),
             ElevatedButton(
               onPressed: () {
                 widget.switchScreen(context, 'home');
