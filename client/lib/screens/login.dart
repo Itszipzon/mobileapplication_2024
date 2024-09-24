@@ -1,3 +1,5 @@
+import 'package:client/elements/input.dart';
+import 'package:client/elements/small_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -44,31 +46,26 @@ class LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Login',
+                'Sign in',
                 style: TextStyle(fontSize: 24),
               ),
+
               const SizedBox(height: 24),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+
+              Input(labelText: "Email", controller: emailController),
+
               const SizedBox(height: 24),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+
+              Input(labelText: "Password", controller: passwordController, obscureText: true),
+              
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => widget.switchScreen(context, 'test?message=Hello World&second=Whats up'),
-                child: const Text("Login"),
+
+              SmallTextButton(
+                onPressed: () => widget.switchScreen(
+                    context, 'test?message=Hello World&second=Whats up'),
+                text: 'Login',
               ),
+
             ],
           ),
         ),
