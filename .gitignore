@@ -3,7 +3,6 @@ for_testing/target
 .env
 .vscode
 .DS_Store
-
 # Miscellaneous
 *.class
 *.log
