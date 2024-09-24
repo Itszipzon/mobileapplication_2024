@@ -36,6 +36,20 @@ class LoginScreenState extends State<LoginScreen> {
     print('Entered email: $email\nEntered password: $password');
   }
 
+  bool loading = false;
+
+  void toggleLoading() {
+    setState(() {
+      loading = !loading;
+    });
+  }
+
+  Future<void> handleLogin() async {
+    toggleLoading();
+    await Future.delayed(const Duration(seconds: 5));
+    toggleLoading();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,11 +71,13 @@ class LoginScreenState extends State<LoginScreen> {
                   controller: passwordController,
                   obscureText: true),
               const SizedBox(height: 24),
-              SmallTextButton(
-                onPressed: () => widget.switchScreen(
-                    context, 'test?message=Hello World&second=Whats up'),
-                text: 'Login',
-              ),
+            SmallTextButton(
+              onPressed: () {
+                handleLogin();
+              },
+              text: 'Login',
+              loading: loading,
+            ),
               const SizedBox(height: 24),
               InkWell(
                 onTap: () => widget.switchScreen(context, 'test'),
