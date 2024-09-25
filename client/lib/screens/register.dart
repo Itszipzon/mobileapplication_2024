@@ -1,3 +1,5 @@
+import 'package:client/elements/input.dart';
+import 'package:client/elements/small_button.dart';
 import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
@@ -13,6 +15,33 @@ class Register extends StatefulWidget {
 }
 
 class RegisterScreenState extends State<Register> {
+  
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  bool loading = false;  
+  
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> onPressed(BuildContext context) async {
+    toggleLoading();
+/*     widget.switchScreen(context, 'home'); */
+    await Future.delayed(const Duration(seconds: 5), () {});
+    toggleLoading();
+  }
+
+  void toggleLoading() {
+    setState(() {
+      loading = !loading;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,36 +56,23 @@ class RegisterScreenState extends State<Register> {
                 style: TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 24),
-              const TextField(
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+
+              Input(labelText: "Email", controller: emailController),
+              
               const SizedBox(height: 24),
-              const TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+
+              Input(labelText: "Password", controller: passwordController, obscureText: true),
+
               const SizedBox(height: 24),
-              const TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+
+              Input(labelText: "Confirm Password", controller: confirmPasswordController, obscureText: true),
+              
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  widget.switchScreen(context, 'home');
-                },
-                child: const Text('Sign up'),
-              ),
+
+              SmallTextButton(text: "Sign up", loading: loading, onPressed: () => onPressed(context)),
+              
               const SizedBox(height: 24),
+              
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

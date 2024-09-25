@@ -14,19 +14,27 @@ class Input extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.orange, // Change this to your desired caret color
+          selectionColor: Colors.orange, // Change this to your desired selection color
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
-          borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(6)),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(6)),
+            borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+          ),
+          floatingLabelStyle: const TextStyle(color: Colors.black),
         ),
-        floatingLabelStyle: const TextStyle(color: Colors.black),
       ),
     );
   }
