@@ -2,22 +2,27 @@ import 'package:client/screens/login.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:flutter/material.dart';
 
+/// Holds all pages in the application and handles values needed for the pages.
 class RouterState {
   static RouterState? _instance;
 
   late String path;
   late Widget screen;
   late Map<String, Object>? values;
+  late Map<String, Widget> screens = {path: screen};
+  late Map<String, Object>? pathVariables = {};
+  late List<String> paths = [];
+  Set<String> excludedPaths = {}; 
 
   RouterState._internal({required this.path, required this.screen, this.values});
 
+  /// Returns the instance of the [RouterState] class.
   factory RouterState({required String path, required Widget screen, Map<String, Object>? values}) {
     _instance ??= RouterState._internal(path: path, screen: screen, values: values);
     return _instance!;
   }
 
   void setValues(Map<String, Object> newValues) {
-    print(newValues);
     values = newValues;
   }
 
@@ -28,12 +33,6 @@ class RouterState {
   void setPath(String newPath) {
     path = newPath;
   }
-
-  late Map<String, Widget> screens = {path: screen};
-  late Map<String, Object>? pathVariables = {};
-  late List<String> paths = [];
-
-  Set<String> excludedPaths = {}; 
 
   void addScreen(String name, Widget screen) {
     screens[name] = screen;
@@ -63,6 +62,7 @@ class RouterState {
     values = {};
   }
 
+  /// Clears all values and paths.
   void clearAll() {
     clearPathVariables();
     clearValues();
@@ -70,32 +70,35 @@ class RouterState {
 
   ErrorHandler error = ErrorHandler();
 
+  /// Switches to a new screen.
   Widget switchScreen(BuildContext context, String screenName) {
-    if (!screens.containsKey(getScreenName(screenName))) {
-      error.showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
+    if (!screens.containsKey(_getScreenName(screenName))) {
+      error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
       return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
     clearAll();
     setPathVariables(screenName);
-    addPath(getScreenName(screenName));
-    setPath(getScreenName(screenName));
+    addPath(_getScreenName(screenName));
+    setPath(_getScreenName(screenName));
     return getScreen();
   }
 
+  /// Switches to a new screen with values.
   Widget switchScreenWithValue(BuildContext context, String screenName, Map<String, Object>? values) {
-    if (!screens.containsKey(getScreenName(screenName))) {
-      error.showOverlayError(context, 'Screen $getScreenName(screenName) not found.');
+    if (!screens.containsKey(_getScreenName(screenName))) {
+      error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
       return screens[path] ?? LoginScreen(switchScreen: switchScreen);
     }
     clearAll();
     setValues(values!);
     setPathVariables(screenName);
-    addPath(getScreenName(screenName));
-    setPath(getScreenName(screenName));
+    addPath(_getScreenName(screenName));
+    setPath(_getScreenName(screenName));
     return getScreen();
   }
 
-  String getScreenName(String path) {
+  /// Returns the name of the screen without the path variables.
+  String _getScreenName(String path) {
     if (path.contains("?")) {
       return path.split("?")[0];
     } else {
@@ -103,6 +106,7 @@ class RouterState {
     }
   }
 
+  /// Sets the path variables.
   void setPathVariables(String path) {
     pathVariables = {};
     if (path.contains("?")) {
@@ -118,6 +122,7 @@ class RouterState {
     return pathVariables;
   }
 
+  /// Adds a path to the path list.
   void addPath(String path) {
 
     if (excludedPaths.contains(path)) {
@@ -132,22 +137,27 @@ class RouterState {
     }
   }
 
+  /// Adds a new excluded path to the list.
   void addExcludedPath(String path) {
     excludedPaths.add(path);
   }
 
+  /// Adds a list of excluded paths to the list.
   void addExcludedPaths(List<String> paths) {
     excludedPaths.addAll(paths);
   }
 
+  /// Removes an excluded path from the list.
   void removeExcludedPath(String path) {
     excludedPaths.remove(path);
   }
 
-  int getPathsLength() {
+
+  int _getPathsLength() {
     return paths.length;
   }
 
+  /// Returns the previous screen.
   Widget back() {
     if (paths.length > 1) {
       paths.removeLast();

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// A small button with text.
+/// The button can be in loading state where the button is disabled and loading symbol is shown.
 class SmallTextButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
@@ -16,11 +18,14 @@ class SmallTextButton extends StatefulWidget {
   SmallTextButtonState createState() => SmallTextButtonState();
 }
 
+/// The state of the [SmallTextButton] widget.
 class SmallTextButtonState extends State<SmallTextButton> {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: widget.loading ? null : widget.onPressed,
+
+      onPressed: widget.loading ? null : widget.onPressed, // Disable the button when loading
+
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color>(
           (Set<WidgetState> states) {
@@ -32,11 +37,11 @@ class SmallTextButtonState extends State<SmallTextButton> {
         ),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(6), // Set the border radius
           ),
         ),
       ),
-      child: widget.loading
+      child: widget.loading // Show a loading indicator if loading is true
           ? const SizedBox(
               width: 20,
               height: 20,

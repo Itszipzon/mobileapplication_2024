@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// Handles error messages.
 class ErrorHandler {
+
+  /// Shows an error message as an overlay.
   void showOverlayError(BuildContext context, String errorMessage) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
@@ -31,4 +34,5 @@ class ErrorHandler {
       overlayEntry.remove();
     });
   }
+
 }
