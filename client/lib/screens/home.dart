@@ -1,3 +1,4 @@
+import 'package:client/elements/small_button.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -12,19 +13,15 @@ class Home extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                switchScreen(context, 'login');
-              },
-              child: const Text('Login'),
-            ),
+            SmallTextButton(text: "Login", onPressed: () {
+              switchScreen(context, 'login');
+            }),
+
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                switchScreen(context, 'register');
-              },
-              child: const Text('Register'),
-            ),
+
+            SmallTextButton(text: "Register", onPressed: () {
+              switchScreen(context, 'register');
+            }),
           ],
         ),
       ),
