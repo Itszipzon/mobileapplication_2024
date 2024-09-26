@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,6 +21,18 @@ class TestPageState extends State<TestPage> {
   @override
   initState() {
     super.initState();
+    http.get(Uri.parse('http://localhost:8080/test')).then((response) {
+      if (response.statusCode == 200) {
+        var r = jsonDecode(response.body);
+        setState(() {
+          message = r['message'];
+        });
+      } else {
+        setState(() {
+          message = 'Failed to load message';
+        });
+      }
+    });
   }
 
   @override
@@ -31,7 +45,7 @@ class TestPageState extends State<TestPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Values: ${widget.router.values}'),
+            Text('Values: ${message}'),
             ElevatedButton(
               onPressed: () {
                 widget.switchScreen(context, 'home');
