@@ -16,8 +16,8 @@ class BottomNavbar extends StatefulWidget {
 
 class BottomNavbarState extends State<BottomNavbar> {
 
-  void onPressed(String path) {
-    widget.switchScreen(context, 'home');
+  void onPressed(BuildContext context, String path) {
+    widget.switchScreen(context, path);
   }
 
   @override
@@ -34,11 +34,11 @@ class BottomNavbarState extends State<BottomNavbar> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconTextButton(icon: Icons.local_fire_department, text: "Feed", onPressed: () => onPressed("home"), active: widget.path == "home"),
+              IconTextButton(icon: Icons.local_fire_department, text: "Feed", onPressed: () => onPressed(context, "home"), active: widget.path == "home"),
               IconTextButton(
-                  icon: Icons.grid_view, text: "Categories", onPressed: () => onPressed("categories"), active: widget.path == "categories"),
+                  icon: Icons.grid_view, text: "Categories", onPressed: () => onPressed(context, "categories"), active: widget.path == "categories"),
               IconTextButton(
-                  icon: Icons.person, text: "Profile", onPressed: () => onPressed("profile"), active: widget.path == "profile"),
+                  icon: Icons.person, text: "Profile", onPressed: () => onPressed(context, "profile"), active: widget.path == "profile"),
             ],
           ),
         ),

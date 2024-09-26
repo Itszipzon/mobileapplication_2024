@@ -113,22 +113,21 @@ class IconTextButtonState extends State<IconTextButton> {
     return SizedBox(
       height: double.infinity,
       width: 113,
-      child: ElevatedButton(
-        onPressed: widget.active ? null : widget.onPressed,
-        style: ButtonStyle(
-          padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
-          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6), // Set the border radius
-            ),
+      child: GestureDetector(
+        onTap: widget.active ? null : widget.onPressed,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 241, 241, 241), // Background color
+            borderRadius: BorderRadius.circular(0), // Border radius
+            border: Border.all(color: Colors.transparent), // Border color
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(widget.icon, color: widget.active ? Colors.orange : Colors.black),
-            Text(widget.text, style: const TextStyle(color: Colors.black)),
-          ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(widget.icon, size: 24, color: widget.active ? Colors.orange : Colors.black),
+              Text(widget.text, style: const TextStyle(color: Colors.black)),
+            ],
+          ),
         ),
       ),
     );

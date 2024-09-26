@@ -1,5 +1,7 @@
+import 'package:client/screens/categories.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/login.dart';
+import 'package:client/screens/profile.dart';
 import 'package:client/screens/register.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +18,10 @@ class _AppState extends State<App> {
     late final RouterState _router;
 
   void initiateScreens() {
-    _router.addScreen("", LoginScreen(switchScreen: switchScreen));
     _router.addScreen("register", Register(switchScreen: switchScreen));
     _router.addScreen("home", Home(switchScreen: switchScreen));
+    _router.addScreen("categories", Categories(switchScreen: switchScreen));
+    _router.addScreen("profile", Profile(switchScreen: switchScreen));
 
     _router.addExcludedPaths(["", "register", "test"]);
   }

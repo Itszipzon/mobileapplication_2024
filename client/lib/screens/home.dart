@@ -1,6 +1,5 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/quiz_post.dart';
-import 'package:client/elements/button.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -35,6 +34,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 241, 241, 241),
       body: ListView(
         children: posts,
       ),
