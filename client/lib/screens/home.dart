@@ -1,5 +1,5 @@
 import 'package:client/elements/quiz_post.dart';
-import 'package:client/elements/small_button.dart';
+import 'package:client/elements/button.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
