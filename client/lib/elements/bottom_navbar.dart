@@ -34,9 +34,9 @@ class BottomNavbarState extends State<BottomNavbar> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconTextButton(icon: Icons.feed, text: "Feed", onPressed: () => onPressed("home"), active: widget.path == "home"),
+              IconTextButton(icon: Icons.local_fire_department, text: "Feed", onPressed: () => onPressed("home"), active: widget.path == "home"),
               IconTextButton(
-                  icon: Icons.four_k, text: "Categories", onPressed: () => onPressed("categories"), active: widget.path == "categories"),
+                  icon: Icons.grid_view, text: "Categories", onPressed: () => onPressed("categories"), active: widget.path == "categories"),
               IconTextButton(
                   icon: Icons.person, text: "Profile", onPressed: () => onPressed("profile"), active: widget.path == "profile"),
             ],
