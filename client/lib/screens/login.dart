@@ -22,7 +22,7 @@ class LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
+  void login() {
     String email = emailController.text;
     String password = passwordController.text;
 
