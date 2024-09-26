@@ -80,7 +80,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
               const SizedBox(height: 24),
               InkWell(
-                onTap: () => widget.switchScreen(context, 'test'),
+                onTap: () => widget.switchScreen(context, 'home'),
                 child: const Text(
                   'Forgot password?',
                   style: TextStyle(color: Colors.orange),
