@@ -28,5 +28,10 @@ public class Test {
 
     return new ResponseEntity<>(map, HttpStatus.OK);
   }
+
+  @GetMapping("/bool")
+  public ResponseEntity<Boolean> testBool() {
+    return new ResponseEntity<>(false, HttpStatus.OK);
+  }
   
 }

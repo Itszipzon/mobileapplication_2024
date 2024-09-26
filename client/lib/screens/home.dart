@@ -12,7 +12,6 @@ class Home extends StatelessWidget {
   final List<Widget> posts = [];
 
   void _initPosts() {
-
     for (int i = 0; i < 5; i++) {
       if (i == 5 - 1) {
         posts.add(const QuizPost());
