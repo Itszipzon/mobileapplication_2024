@@ -16,6 +16,7 @@ class Register extends StatefulWidget {
 
 class RegisterScreenState extends State<Register> {
   
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
@@ -55,6 +56,10 @@ class RegisterScreenState extends State<Register> {
                 'Sign up',
                 style: TextStyle(fontSize: 24),
               ),
+              const SizedBox(height: 24),
+
+              Input(labelText: "Username", controller: usernameController),
+
               const SizedBox(height: 24),
 
               Input(labelText: "Email", controller: emailController),
