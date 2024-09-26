@@ -21,7 +21,7 @@ class TestPageState extends State<TestPage> {
   @override
   initState() {
     super.initState();
-    http.get(Uri.parse('http://localhost:8080/test')).then((response) {
+/*     http.get(Uri.parse('http://localhost:8080/test')).then((response) {
       if (response.statusCode == 200) {
         var r = jsonDecode(response.body);
         setState(() {
@@ -32,7 +32,7 @@ class TestPageState extends State<TestPage> {
           message = 'Failed to load message';
         });
       }
-    });
+    }); */
   }
 
   @override

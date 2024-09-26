@@ -1,30 +1,43 @@
+import 'package:client/elements/quiz_post.dart';
 import 'package:client/elements/small_button.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key, required this.switchScreen});
+  Home({super.key, required this.switchScreen}) {
+    _initPosts();
+  }
 
   final Function(BuildContext, String) switchScreen;
   
+  final List<Widget> posts = [];
+
+  void _initPosts() {
+
+    for (int i = 0; i < 5; i++) {
+      if (i == 5 - 1) {
+        posts.add(const QuizPost());
+      } else {
+        Widget post = Column(
+          children: [
+            const SizedBox(height: 20,),
+            const QuizPost(),
+            Container(
+              color: Colors.grey,
+              child: (const SizedBox(height: 1, width: double.infinity,)),
+            )
+          ],
+        );
+        posts.add(post);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SmallTextButton(text: "Login", onPressed: () {
-              switchScreen(context, 'login');
-            }),
-
-            const SizedBox(height: 24),
-
-            SmallTextButton(text: "Register", onPressed: () {
-              switchScreen(context, 'register');
-            }),
-          ],
-        ),
-      ),
+      body: ListView(
+        children: posts,
+      )
     );
   }
 }
