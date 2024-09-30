@@ -40,6 +40,9 @@ class User extends ChangeNotifier {
 
     final response = await http.get(Uri.parse('http://localhost:8080/api/user/insession'));
     bool json = jsonDecode(response.body);
+    if (!json) {
+      clear();
+    }
     return json;
   }
 
