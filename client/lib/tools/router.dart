@@ -99,8 +99,10 @@ class RouterState {
 
   /// Returns the name of the screen without the path variables.
   String _getScreenName(String path) {
+
     if (path.contains("?")) {
       return path.split("?")[0];
+
     } else {
       return path;
     }
@@ -109,13 +111,17 @@ class RouterState {
   /// Sets the path variables.
   void setPathVariables(String path) {
     pathVariables = {};
+
     if (path.contains("?")) {
       List<String> value = path.split("?");
       value = value[1].split("&");
+
       for (int i = 0; i < value.length; i++) {
         pathVariables![value[i].split("=")[0]] = value[i].split("=")[1];
       }
+
     }
+
   }
 
   Map<String, Object>? getPathVariables() {
@@ -152,7 +158,6 @@ class RouterState {
     excludedPaths.remove(path);
   }
 
-
   int _getPathsLength() {
     return paths.length;
   }
@@ -167,6 +172,5 @@ class RouterState {
       return getScreen();
     }
   }
-
 
 }
