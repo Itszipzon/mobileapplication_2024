@@ -1,12 +1,13 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
 
-  const Register({super.key, required this.switchScreen});
+  const Register({super.key, required this.router});
 
-  final Function(BuildContext, String) switchScreen;
+  final RouterState router;
 
   @override
   State<StatefulWidget> createState() {
@@ -83,7 +84,7 @@ class RegisterScreenState extends State<Register> {
                 children: [
                   const Text("Already have an account? ", style: TextStyle(color: Colors.grey)),
                   InkWell(
-                    onTap: () => widget.switchScreen(context, 'login'),
+                    onTap: () => widget.router.switchScreen(context, 'login'),
                     child: const Text(
                       'Sign in here.',
                       style: TextStyle(color: Colors.orange),

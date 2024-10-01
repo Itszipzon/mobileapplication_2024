@@ -18,10 +18,10 @@ class _AppState extends State<App> {
     late final RouterState _router;
 
   void initiateScreens() {
-    _router.addScreen("register", Register(switchScreen: switchScreen));
-    _router.addScreen("home", Home(switchScreen: switchScreen));
-    _router.addScreen("categories", Categories(switchScreen: switchScreen));
-    _router.addScreen("profile", Profile(switchScreen: switchScreen));
+    _router.addScreen("register", Register(router: _router));
+    _router.addScreen("home", Home(router: _router));
+    _router.addScreen("categories", Categories(router: _router));
+    _router.addScreen("profile", Profile(router: _router));
 
     _router.addExcludedPaths(["", "register", "test"]);
   }
@@ -29,7 +29,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    _router = RouterState(path: 'login', screen: LoginScreen(switchScreen: switchScreen));
+    _router = RouterState(path: 'login', screen: LoginScreen(router: _router));
     initiateScreens();
   }
 

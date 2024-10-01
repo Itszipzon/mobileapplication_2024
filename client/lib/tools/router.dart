@@ -74,7 +74,7 @@ class RouterState {
   Widget switchScreen(BuildContext context, String screenName) {
     if (!screens.containsKey(_getScreenName(screenName))) {
       error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
-      return screens[path] ?? LoginScreen(switchScreen: switchScreen);
+      return screens[path] ?? LoginScreen(router: this);
     }
     clearAll();
     setPathVariables(screenName);
@@ -87,7 +87,7 @@ class RouterState {
   Widget switchScreenWithValue(BuildContext context, String screenName, Map<String, Object>? values) {
     if (!screens.containsKey(_getScreenName(screenName))) {
       error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
-      return screens[path] ?? LoginScreen(switchScreen: switchScreen);
+      return screens[path] ?? LoginScreen(router: this);
     }
     clearAll();
     setValues(values!);

@@ -1,13 +1,14 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/quiz_post.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  Home({super.key, required this.switchScreen}) {
+  Home({super.key, required this.router}) {
     _initPosts();
   }
 
-  final Function(BuildContext, String) switchScreen;
+  final RouterState router;
   
   final List<Widget> posts = [];
 
@@ -38,7 +39,7 @@ class Home extends StatelessWidget {
       body: ListView(
         children: posts,
       ),
-      bottomNavigationBar: BottomNavbar(path: "home", switchScreen: switchScreen,),
+      bottomNavigationBar: BottomNavbar(path: "home", router: router,),
     );
   }
 }

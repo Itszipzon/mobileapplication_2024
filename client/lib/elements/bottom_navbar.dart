@@ -1,12 +1,13 @@
 import 'package:client/elements/button.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavbar extends StatefulWidget {
   const BottomNavbar(
-      {super.key, required this.path, required this.switchScreen});
+      {super.key, required this.path, required this.router});
 
   final String path;
-  final Function(BuildContext, String) switchScreen;
+  final RouterState router;
 
   @override
   State<StatefulWidget> createState() {
@@ -17,7 +18,7 @@ class BottomNavbar extends StatefulWidget {
 class BottomNavbarState extends State<BottomNavbar> {
 
   void onPressed(BuildContext context, String path) {
-    widget.switchScreen(context, path);
+    widget.router.switchScreen(context, path);
   }
 
   @override

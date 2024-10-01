@@ -1,11 +1,12 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.switchScreen});
+  const LoginScreen({super.key, required this.router});
 
-  final Function(BuildContext, String) switchScreen;
+  final RouterState router;
 
   @override
   LoginScreenState createState() => LoginScreenState();
@@ -80,7 +81,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
               const SizedBox(height: 24),
               InkWell(
-                onTap: () => widget.switchScreen(context, 'home'),
+                onTap: () => widget.router.switchScreen(context, 'home'),
                 child: const Text(
                   'Forgot password?',
                   style: TextStyle(color: Colors.orange),
@@ -91,7 +92,7 @@ class LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Text("Don't have an account? ", style: TextStyle(color: Colors.grey)),
                   InkWell(
-                    onTap: () => widget.switchScreen(context, 'register'),
+                    onTap: () => widget.router.switchScreen(context, 'register'),
                     child: const Text(
                       'Sign up here.',
                       style: TextStyle(color: Colors.orange),
