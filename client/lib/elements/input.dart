@@ -15,11 +15,13 @@ class Input extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
+
     return Theme(
       data: Theme.of(context).copyWith(
-        textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Colors.orange, // The color of the cursor
-          selectionColor: Colors.orange, // The color of text when marked
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: primary, // The color of the cursor
+          selectionColor: primary, // The color of text when marked
         ),
       ),
       child: TextField(

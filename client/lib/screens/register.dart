@@ -46,6 +46,9 @@ class RegisterScreenState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
+    
+    final primary = Theme.of(context).primaryColor;
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -85,9 +88,9 @@ class RegisterScreenState extends State<Register> {
                   const Text("Already have an account? ", style: TextStyle(color: Colors.grey)),
                   InkWell(
                     onTap: () => widget.router.switchScreen(context, 'login'),
-                    child: const Text(
+                    child: Text(
                       'Sign in here.',
-                      style: TextStyle(color: Colors.orange),
+                      style: TextStyle(color: primary),
                     ),
                   )
                 ],

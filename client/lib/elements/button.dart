@@ -20,8 +20,12 @@ class SmallTextButton extends StatefulWidget {
 
 /// The state of the [SmallTextButton] widget.
 class SmallTextButtonState extends State<SmallTextButton> {
+
   @override
   Widget build(BuildContext context) {
+
+    final primary = Theme.of(context).primaryColor;
+
     return ElevatedButton(
       onPressed: widget.loading
           ? null
@@ -31,9 +35,9 @@ class SmallTextButtonState extends State<SmallTextButton> {
         backgroundColor: WidgetStateProperty.resolveWith<Color>(
           (Set<WidgetState> states) {
             if (states.contains(WidgetState.disabled)) {
-              return Colors.orange; // Color when the button is disabled
+              return primary; // Color when the button is disabled
             }
-            return Colors.orange; // Color when the button is enabled
+            return primary; // Color when the button is enabled
           },
         ),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
@@ -110,6 +114,9 @@ class IconTextButton extends StatefulWidget {
 class IconTextButtonState extends State<IconTextButton> {
   @override
   Widget build(BuildContext context) {
+    
+    final primary = Theme.of(context).primaryColor;
+
     return SizedBox(
       height: double.infinity,
       width: 113,
@@ -124,7 +131,7 @@ class IconTextButtonState extends State<IconTextButton> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon, size: 24, color: widget.active ? Colors.orange : Colors.black),
+              Icon(widget.icon, size: 24, color: widget.active ? primary : Colors.black),
               Text(widget.text, style: const TextStyle(color: Colors.black)),
             ],
           ),

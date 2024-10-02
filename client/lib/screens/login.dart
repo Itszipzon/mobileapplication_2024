@@ -53,6 +53,9 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
+    final primary = Theme.of(context).primaryColor;
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -82,9 +85,9 @@ class LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               InkWell(
                 onTap: () => widget.router.switchScreen(context, 'home'),
-                child: const Text(
+                child: Text(
                   'Forgot password?',
-                  style: TextStyle(color: Colors.orange),
+                  style: TextStyle(color: primary),
                 ),
               ),
               Row(
@@ -93,9 +96,9 @@ class LoginScreenState extends State<LoginScreen> {
                   const Text("Don't have an account? ", style: TextStyle(color: Colors.grey)),
                   InkWell(
                     onTap: () => widget.router.switchScreen(context, 'register'),
-                    child: const Text(
+                    child: Text(
                       'Sign up here.',
-                      style: TextStyle(color: Colors.orange),
+                      style: TextStyle(color: primary),
                     ),
                   )
                 ],
