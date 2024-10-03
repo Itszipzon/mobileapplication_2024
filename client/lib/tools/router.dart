@@ -16,17 +16,13 @@ static RouterState? _instance;
   Set<String> excludedPaths = {}; 
 
   RouterState._internal({required this.path, required this.screen, this.values}) {
-    initiateScreens();
+    Screens().initiateScreens(this);
   }
 
   /// Returns the instance of the [RouterState] class.
   factory RouterState({required String path, required Widget screen, Map<String, Object>? values}) {
     _instance ??= RouterState._internal(path: path, screen: screen, values: values);
     return _instance!;
-  }
-
-  void initiateScreens() {
-    Screens().initiateScreens(this);
   }
 
   void setValues(Map<String, Object> newValues) {
