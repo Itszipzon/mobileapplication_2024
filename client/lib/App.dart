@@ -24,7 +24,7 @@ class _AppState extends State<App> {
     _router.addScreen("profile", Profile(router: _router));
 
     _router.addExcludedPaths(["", "register", "test"]);
-  }
+  } 
 
   @override
   void initState() {
