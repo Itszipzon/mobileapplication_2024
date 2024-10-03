@@ -101,6 +101,10 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                   )
                 ],
+              ),
+              InkWell(
+                onTap: () => router.switchScreenWithValue(context, 'test?id=This is id from path variable', {"id": "This is id from query parameter"}),
+                child: const Text('Test'),
               )
             ],
           ),
