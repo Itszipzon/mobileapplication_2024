@@ -1,6 +1,6 @@
+import 'package:client/app_settings.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/tools/error_message.dart';
-import 'package:client/screens.dart';
 import 'package:flutter/material.dart';
 
 /// Holds all pages in the application and handles values needed for the pages.
@@ -16,7 +16,7 @@ static RouterState? _instance;
   Set<String> excludedPaths = {}; 
 
   RouterState._internal({required this.path, required this.screen, this.values}) {
-    Screens().initiateScreens(this);
+    AppSettings.initiateScreens(this);
   }
 
   /// Returns the instance of the [RouterState] class.
