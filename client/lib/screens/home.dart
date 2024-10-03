@@ -1,14 +1,11 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/quiz_post.dart';
-import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  Home({super.key, required this.router}) {
+  Home({super.key}) {
     _initPosts();
   }
-
-  final RouterState router;
   
   final List<Widget> posts = [];
 
@@ -35,11 +32,11 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 241, 241, 241),
+      backgroundColor: const Color.fromARGB(255, 241, 241, 241),
       body: ListView(
         children: posts,
       ),
-      bottomNavigationBar: BottomNavbar(path: "home", router: router,),
+      bottomNavigationBar: const BottomNavbar(path: "home",),
     );
   }
 }

@@ -1,10 +1,7 @@
-import 'package:client/screens/categories.dart';
-import 'package:client/screens/home.dart';
-import 'package:client/screens/login.dart';
-import 'package:client/screens/profile.dart';
-import 'package:client/screens/register.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/router_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -15,22 +12,13 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
 
-    late final RouterState _router;
-
-  void initiateScreens() {
-    _router.addScreen("register", Register(router: _router));
-    _router.addScreen("home", Home(router: _router));
-    _router.addScreen("categories", Categories(router: _router));
-    _router.addScreen("profile", Profile(router: _router));
-
-    _router.addExcludedPaths(["", "register", "test"]);
-  } 
+  late RouterState _router;
 
   @override
-  void initState() {
-    super.initState();
-    _router = RouterState(path: 'login', screen: LoginScreen(router: _router));
-    initiateScreens();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    print("didChangeDependencies");
+    _router = RouterProvider.of(context);
   }
 
   @override
@@ -41,21 +29,13 @@ class _AppState extends State<App> {
           decoration: const BoxDecoration(
             color: Color.fromARGB(255, 241, 241, 241),
           ),
-          child: _router.getScreen(),
+          child: Consumer<RouterState>(
+            builder: (context, router, child) {
+              return _router.getScreen();
+            },
+          ),
         ),
       ),
     );
-  }
-
-  void switchScreen(BuildContext context, String path) {
-    setState(() {
-      _router.switchScreen(context, path);
-    });
-  }
-
-  void switchScreenWithValue(BuildContext context, String path, Map<String, Object> values) {
-    setState(() {
-      _router.switchScreenWithValue(context, path, values);
-    });
   }
 }

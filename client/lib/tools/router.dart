@@ -1,10 +1,11 @@
 import 'package:client/screens/login.dart';
 import 'package:client/tools/error_message.dart';
+import 'package:client/screens.dart';
 import 'package:flutter/material.dart';
 
 /// Holds all pages in the application and handles values needed for the pages.
-class RouterState {
-  static RouterState? _instance;
+class RouterState extends ChangeNotifier {
+static RouterState? _instance;
 
   late String path;
   late Widget screen;
@@ -14,12 +15,18 @@ class RouterState {
   late List<String> paths = [];
   Set<String> excludedPaths = {}; 
 
-  RouterState._internal({required this.path, required this.screen, this.values});
+  RouterState._internal({required this.path, required this.screen, this.values}) {
+    initiateScreens();
+  }
 
   /// Returns the instance of the [RouterState] class.
   factory RouterState({required String path, required Widget screen, Map<String, Object>? values}) {
     _instance ??= RouterState._internal(path: path, screen: screen, values: values);
     return _instance!;
+  }
+
+  void initiateScreens() {
+    Screens().initiateScreens(this);
   }
 
   void setValues(Map<String, Object> newValues) {
@@ -74,12 +81,13 @@ class RouterState {
   Widget switchScreen(BuildContext context, String screenName) {
     if (!screens.containsKey(_getScreenName(screenName))) {
       error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
-      return screens[path] ?? LoginScreen(router: this);
+      return screens[path] ?? const LoginScreen();
     }
     clearAll();
     setPathVariables(screenName);
     addPath(_getScreenName(screenName));
     setPath(_getScreenName(screenName));
+    notifyListeners();
     return getScreen();
   }
 
@@ -87,13 +95,14 @@ class RouterState {
   Widget switchScreenWithValue(BuildContext context, String screenName, Map<String, Object>? values) {
     if (!screens.containsKey(_getScreenName(screenName))) {
       error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
-      return screens[path] ?? LoginScreen(router: this);
+      return screens[path] ?? const LoginScreen();
     }
     clearAll();
     setValues(values!);
     setPathVariables(screenName);
     addPath(_getScreenName(screenName));
     setPath(_getScreenName(screenName));
+    notifyListeners();
     return getScreen();
   }
 
@@ -141,6 +150,7 @@ class RouterState {
     } else {
       paths.add(path);
     }
+    notifyListeners();
   }
 
   /// Adds a new excluded path to the list.
