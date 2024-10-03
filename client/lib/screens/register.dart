@@ -45,7 +45,7 @@ class RegisterScreenState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     
-    final primary = Theme.of(context).primaryColor;
+    final theme = Theme.of(context);
     final router = RouterProvider.of(context);
 
     return Scaffold(
@@ -89,7 +89,7 @@ class RegisterScreenState extends State<Register> {
                     onTap: () => router.switchScreen(context, ''),
                     child: Text(
                       'Sign in here.',
-                      style: TextStyle(color: primary),
+                      style: TextStyle(color: theme.primaryColor),
                     ),
                   )
                 ],

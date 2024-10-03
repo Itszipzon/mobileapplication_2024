@@ -1,6 +1,7 @@
 import 'package:client/tools/router.dart';
 import 'package:client/tools/router_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class App extends StatefulWidget {
@@ -11,7 +12,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-
   late RouterState _router;
 
   @override
@@ -23,7 +23,16 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+
+    // The theme of the application.
+    final theme = ThemeData(
+      primaryColor: Colors.orange,
+      useMaterial3: true,
+      textTheme: GoogleFonts.robotoTextTheme(),
+    );
+
     return MaterialApp(
+      theme: theme,
       home: Scaffold(
         body: Container(
           decoration: const BoxDecoration(

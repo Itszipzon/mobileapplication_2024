@@ -52,7 +52,7 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     
-    final primary = Theme.of(context).primaryColor;
+    final theme = Theme.of(context);
     final router = RouterProvider.of(context);
 
     return Scaffold(
@@ -78,7 +78,7 @@ class LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 handleLogin();
               },
-              text: 'Login',
+              text: 'Sign In',
               loading: loading,
             ),
               const SizedBox(height: 24),
@@ -86,7 +86,7 @@ class LoginScreenState extends State<LoginScreen> {
                 onTap: () => router.switchScreen(context, 'home'),
                 child: Text(
                   'Forgot password?',
-                  style: TextStyle(color: primary),
+                  style: TextStyle(color: theme.primaryColor),
                 ),
               ),
               Row(
@@ -97,7 +97,7 @@ class LoginScreenState extends State<LoginScreen> {
                     onTap: () => router.switchScreen(context, 'register'),
                     child: Text(
                       'Sign up here.',
-                      style: TextStyle(color: primary),
+                      style: TextStyle(color: theme.primaryColor),
                     ),
                   )
                 ],
