@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Test.
  */
 @RestController
-@RequestMapping("/test")
+@RequestMapping("test")
 public class Test {
 
   /**
@@ -20,16 +20,16 @@ public class Test {
    *
    * @return the response entity
    */
-  @GetMapping()
+  @GetMapping("map")
   public ResponseEntity<Map<String, String>> test() {
     HashMap<String, String> map = new HashMap<>();
-    map.put("message", "This is a message sent from the server to the client");
+    map.put("id", "This is id from spring boot");
     map.put("from", "Test");
 
     return new ResponseEntity<>(map, HttpStatus.OK);
   }
 
-  @GetMapping("/bool")
+  @GetMapping("bool")
   public ResponseEntity<Boolean> testBool() {
     return new ResponseEntity<>(false, HttpStatus.OK);
   }

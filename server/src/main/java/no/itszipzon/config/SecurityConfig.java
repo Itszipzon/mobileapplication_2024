@@ -44,7 +44,7 @@ public class SecurityConfig {
 
     List<String> allowedOrigins = new ArrayList<>(
         List.of(
-          "http://localhost:5173"
+          "http://localhost"
         )
     );
     CorsConfiguration configuration = new CorsConfiguration();
