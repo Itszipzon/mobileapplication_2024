@@ -17,7 +17,6 @@ class _AppState extends State<App> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print("didChangeDependencies");
     _router = RouterProvider.of(context);
   }
 

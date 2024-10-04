@@ -26,21 +26,27 @@ class TestScreenState extends State<Test> {
   Future<void> fetchMessage() async {
     http.Response response;
 
-    String url;
-    if (Platform.isAndroid) {
-      url = 'http://10.0.2.2:8080/test/map';
-    } else {
-      url = 'http://localhost:8080/test/map';
-    }
+    try {
+      String url;
+      if (Platform.isAndroid) {
+        url = 'http://10.0.2.2:8080/test/map';
+      } else {
+        url = 'http://localhost:8080/test/map';
+      }
 
-    response = await http.get(Uri.parse(url));
+      response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      var r = jsonDecode(response.body);
-      setState(() {
-        httpId = r['id'];
-      });
-    } else {
+      if (response.statusCode == 200) {
+        var r = jsonDecode(response.body);
+        setState(() {
+          httpId = r['id'];
+        });
+      } else {
+        setState(() {
+          httpId = 'Failed to load message';
+        });
+      }
+    } catch (e) {
       setState(() {
         httpId = 'Failed to load message';
       });

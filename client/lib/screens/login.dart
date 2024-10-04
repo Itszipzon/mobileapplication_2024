@@ -32,7 +32,6 @@ class LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    print('Entered email: $email\nEntered password: $password');
   }
 
   bool loading = false;
