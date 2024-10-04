@@ -59,7 +59,7 @@ class BottomNavbarState extends State<BottomNavbar> {
               ),
               Expanded(
                 child: IconTextButton(
-                  icon: Icons.play_arrow,
+                  icon: Icons.play_arrow_rounded,
                   text: "Join",
                   onPressed: () => onPressed(context, "join", router),
                   active: widget.path == "join",
