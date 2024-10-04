@@ -22,12 +22,13 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return MaterialApp(
       theme: AppSettings.getTheme(),
       home: Scaffold(
         body: Container(
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 241, 241, 241),
+          decoration: BoxDecoration(
+            color: theme.canvasColor,
           ),
           child: Consumer<RouterState>(
             builder: (context, router, child) {
