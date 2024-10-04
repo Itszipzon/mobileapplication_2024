@@ -15,7 +15,7 @@ class Test extends StatefulWidget {
 }
 
 class TestScreenState extends State<Test> {
-  String message = "";
+  String httpId = "";
 
   @override
   void initState() {
@@ -26,29 +26,23 @@ class TestScreenState extends State<Test> {
   Future<void> fetchMessage() async {
     http.Response response;
 
-    try {
-      String url;
-      if (Platform.isAndroid) {
-        url = 'http://10.0.2.2:8080/test/map';
-      } else {
-        url = 'http://localhost:8080/test/map';
-      }
+    String url;
+    if (Platform.isAndroid) {
+      url = 'http://10.0.2.2:8080/test/map';
+    } else {
+      url = 'http://localhost:8080/test/map';
+    }
 
-      response = await http.get(Uri.parse(url));
+    response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        var r = jsonDecode(response.body);
-        setState(() {
-          message = r['id'];
-        });
-      } else {
-        setState(() {
-          message = 'Failed to load message';
-        });
-      }
-    } catch (e) {
+    if (response.statusCode == 200) {
+      var r = jsonDecode(response.body);
       setState(() {
-        print('Error: $e');
+        httpId = r['id'];
+      });
+    } else {
+      setState(() {
+        httpId = 'Failed to load message';
       });
     }
   }
@@ -64,7 +58,7 @@ class TestScreenState extends State<Test> {
           children: [
             Text(router.getValues()!["id"].toString()),
             Text(router.getPathVariables()!["id"].toString()),
-            Text(message),
+            Text(httpId),
           ],
         ),
       ),
