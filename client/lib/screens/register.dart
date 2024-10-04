@@ -86,7 +86,7 @@ class RegisterScreenState extends State<Register> {
                 children: [
                   const Text("Already have an account? ", style: TextStyle(color: Colors.grey)),
                   InkWell(
-                    onTap: () => router.switchScreen(context, ''),
+                    onTap: () => router.setPath(context, ''),
                     child: Text(
                       'Sign in here.',
                       style: TextStyle(color: theme.primaryColor),

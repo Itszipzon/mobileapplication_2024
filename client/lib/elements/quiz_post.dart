@@ -11,7 +11,7 @@ class QuizPost extends StatelessWidget {
     final router = RouterProvider.of(context);
     return InkWell(
         onTap: () {
-          router.switchScreen(context, path);
+          router.setPath(context, path);
         },
         child: SizedBox(
           child: Container(

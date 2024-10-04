@@ -83,7 +83,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
               const SizedBox(height: 24),
               InkWell(
-                onTap: () => router.switchScreen(context, 'home'),
+                onTap: () => router.setPath(context, 'home'),
                 child: Text(
                   'Forgot password?',
                   style: TextStyle(color: theme.primaryColor),
@@ -94,7 +94,7 @@ class LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Text("Don't have an account? ", style: TextStyle(color: Colors.grey)),
                   InkWell(
-                    onTap: () => router.switchScreen(context, 'register'),
+                    onTap: () => router.setPath(context, 'register'),
                     child: Text(
                       'Sign up here.',
                       style: TextStyle(color: theme.primaryColor),
@@ -103,7 +103,7 @@ class LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               InkWell(
-                onTap: () => router.switchScreenWithValue(context, 'test?id=This is id from path variable', {"id": "This is id from query parameter"}),
+                onTap: () => router.setPath(context, 'test?id=This is id from path variable', values: {"id": "This is id from query parameter"}),
                 child: const Text('Test'),
               )
             ],

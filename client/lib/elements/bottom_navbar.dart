@@ -18,7 +18,7 @@ class BottomNavbar extends StatefulWidget {
 class BottomNavbarState extends State<BottomNavbar> {
 
   void onPressed(BuildContext context, String path, RouterState router) {
-    router.switchScreen(context, path);
+    router.setPath(context, path);
   }
 
   @override

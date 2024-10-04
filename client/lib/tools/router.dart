@@ -3,21 +3,23 @@ import 'package:client/screens/login.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:flutter/material.dart';
 
-/// Holds all pages in the application and handles values needed for the pages.
 class RouterState extends ChangeNotifier {
 static RouterState? _instance;
 
-  late String path;
-  late Widget screen;
-  late Map<String, Object>? values;
-  late Map<String, Widget> screens = {path: screen};
-  late Map<String, Object>? pathVariables = {};
-  late List<String> paths = [];
+  late String _path;
+  late Widget _screen;
+  late Map<String, Object>? _values;
+  late Map<String, Widget> _screens = {_path: _screen};
+  late Map<String, Object>? _pathVariables = {};
+  late List<String> _paths = [];
   Set<String> excludedPaths = {}; 
 
-  RouterState._internal({required this.path, required this.screen, this.values}) {
+  RouterState._internal({required String path, required Widget screen, Map<String, Object>? values}) 
+      : _path = path, _screen = screen, _values = values {
     AppSettings.initiateScreens(this);
   }
+  
+  ErrorHandler error = ErrorHandler();
 
   /// Returns the instance of the [RouterState] class.
   factory RouterState({required String path, required Widget screen, Map<String, Object>? values}) {
@@ -25,81 +27,60 @@ static RouterState? _instance;
     return _instance!;
   }
 
-  void setValues(Map<String, Object> newValues) {
-    values = newValues;
-  }
-
   Map<String, Object>? getValues() {
-    return values;
+    return _values;
   }
 
-  void setPath(String newPath) {
-    path = newPath;
+  /// Sets a new path linked to a screen.
+  void setPath(BuildContext context, String path, {Map<String, Object>? values}) {    
+    if (!_screens.containsKey(_getScreenName(path))) {
+      error.showOverlayError(context, 'Screen ${_getScreenName(path)} not found.');
+      return;
+    }
+    clear();
+    _path = _getScreenName(path);
+    addPath(_getScreenName(path));
+    _values = values;
+    _setPathVariables(path);
+    notifyListeners();
   }
 
   void addScreen(String name, Widget screen) {
-    screens[name] = screen;
+    _screens[name] = screen;
   }
 
   Widget getScreen() {
-    return screens[path] ?? Container();
+    return _screens[_path] ?? const LoginScreen();
   }
 
   void removeScreen(String name) {
-    screens.remove(name);
+    _screens.remove(name);
   }
 
   void clearScreens() {
-    screens = {};
+    _screens = {};
   }
 
   void clearPaths() {
-    paths = [];
+    _paths = [];
   }
 
   void clearPathVariables() {
-    pathVariables = {};
+    _pathVariables = {};
   }
 
   void clearValues() {
-    values = {};
+    _values = {};
   }
 
-  /// Clears all values and paths.
-  void clearAll() {
-    clearPathVariables();
-    clearValues();
+  /// Returns the path variables.
+  Map<String, Object>? getPathVariables() {
+    return _pathVariables;
   }
 
-  ErrorHandler error = ErrorHandler();
-
-  /// Switches to a new screen.
-  Widget switchScreen(BuildContext context, String screenName) {
-    if (!screens.containsKey(_getScreenName(screenName))) {
-      error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
-      return screens[path] ?? const LoginScreen();
-    }
-    clearAll();
-    setPathVariables(screenName);
-    addPath(_getScreenName(screenName));
-    setPath(_getScreenName(screenName));
-    notifyListeners();
-    return getScreen();
-  }
-
-  /// Switches to a new screen with values.
-  Widget switchScreenWithValue(BuildContext context, String screenName, Map<String, Object>? values) {
-    if (!screens.containsKey(_getScreenName(screenName))) {
-      error.showOverlayError(context, 'Screen $_getScreenName(screenName) not found.');
-      return screens[path] ?? const LoginScreen();
-    }
-    clearAll();
-    setValues(values!);
-    setPathVariables(screenName);
-    addPath(_getScreenName(screenName));
-    setPath(_getScreenName(screenName));
-    notifyListeners();
-    return getScreen();
+  void clear() {
+    _values = {};
+    _pathVariables = {};
   }
 
   /// Returns the name of the screen without the path variables.
@@ -114,23 +95,27 @@ static RouterState? _instance;
   }
 
   /// Sets the path variables.
-  void setPathVariables(String path) {
-    pathVariables = {};
+  void _setPathVariables(String path) {
+    _pathVariables = {};
 
     if (path.contains("?")) {
       List<String> value = path.split("?");
       value = value[1].split("&");
 
       for (int i = 0; i < value.length; i++) {
-        pathVariables![value[i].split("=")[0]] = value[i].split("=")[1];
+        _pathVariables![value[i].split("=")[0]] = value[i].split("=")[1];
       }
 
     }
 
   }
 
-  Map<String, Object>? getPathVariables() {
-    return pathVariables;
+  void addExcludedPaths(List<String> paths) {
+    excludedPaths.addAll(paths);
+  }
+
+  void addExcludedPath(String path) {
+    excludedPaths.add(path);
   }
 
   /// Adds a path to the path list.
@@ -140,43 +125,13 @@ static RouterState? _instance;
       return;
     }
 
-    if (paths.contains(path)) {
-      int index = paths.indexOf(path);
-      paths = paths.sublist(0, index + 1);
+    if (_paths.contains(path)) {
+      int index = _paths.indexOf(path);
+      _paths = _paths.sublist(0, index + 1);
     } else {
-      paths.add(path);
+      _paths.add(path);
     }
     notifyListeners();
-  }
-
-  /// Adds a new excluded path to the list.
-  void addExcludedPath(String path) {
-    excludedPaths.add(path);
-  }
-
-  /// Adds a list of excluded paths to the list.
-  void addExcludedPaths(List<String> paths) {
-    excludedPaths.addAll(paths);
-  }
-
-  /// Removes an excluded path from the list.
-  void removeExcludedPath(String path) {
-    excludedPaths.remove(path);
-  }
-
-  int getPathsLength() {
-    return paths.length;
-  }
-
-  /// Returns the previous screen.
-  Widget back() {
-    if (paths.length > 1) {
-      paths.removeLast();
-      setPath(paths.last);
-      return getScreen();
-    } else {
-      return getScreen();
-    }
   }
 
 }
