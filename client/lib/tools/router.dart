@@ -4,7 +4,7 @@ import 'package:client/tools/error_message.dart';
 import 'package:flutter/material.dart';
 
 class RouterState extends ChangeNotifier {
-static RouterState? _instance;
+  static RouterState? _instance;
 
   late String _path;
   late Widget _screen;
@@ -12,18 +12,27 @@ static RouterState? _instance;
   late Map<String, Widget> _screens = {_path: _screen};
   late Map<String, Object>? _pathVariables = {};
   late List<String> _paths = [];
-  Set<String> excludedPaths = {}; 
+  Set<String> excludedPaths = {};
 
-  RouterState._internal({required String path, required Widget screen, Map<String, Object>? values}) 
-      : _path = path, _screen = screen, _values = values {
+  RouterState._internal(
+      {required String path,
+      required Widget screen,
+      Map<String, Object>? values})
+      : _path = path,
+        _screen = screen,
+        _values = values {
     AppSettings.initiateScreens(this);
   }
-  
+
   ErrorHandler error = ErrorHandler();
 
   /// Returns the instance of the [RouterState] class.
-  factory RouterState({required String path, required Widget screen, Map<String, Object>? values}) {
-    _instance ??= RouterState._internal(path: path, screen: screen, values: values);
+  factory RouterState(
+      {required String path,
+      required Widget screen,
+      Map<String, Object>? values}) {
+    _instance ??=
+        RouterState._internal(path: path, screen: screen, values: values);
     return _instance!;
   }
 
@@ -32,9 +41,11 @@ static RouterState? _instance;
   }
 
   /// Sets a new path linked to a screen.
-  void setPath(BuildContext context, String path, {Map<String, Object>? values}) {    
+  void setPath(BuildContext context, String path,
+      {Map<String, Object>? values}) {
     if (!_screens.containsKey(_getScreenName(path))) {
-      error.showOverlayError(context, 'Screen ${_getScreenName(path)} not found.');
+      error.showOverlayError(
+          context, 'Screen ${_getScreenName(path)} not found.');
       return;
     }
     clear();
@@ -85,10 +96,8 @@ static RouterState? _instance;
 
   /// Returns the name of the screen without the path variables.
   String _getScreenName(String path) {
-
     if (path.contains("?")) {
       return path.split("?")[0];
-
     } else {
       return path;
     }
@@ -105,9 +114,7 @@ static RouterState? _instance;
       for (int i = 0; i < value.length; i++) {
         _pathVariables![value[i].split("=")[0]] = value[i].split("=")[1];
       }
-
     }
-
   }
 
   void addExcludedPaths(List<String> paths) {
@@ -118,9 +125,12 @@ static RouterState? _instance;
     excludedPaths.add(path);
   }
 
+  int getPathsLength() {
+    return _paths.length;
+  }
+
   /// Adds a path to the path list.
   void addPath(String path) {
-
     if (excludedPaths.contains(path)) {
       return;
     }
@@ -134,4 +144,12 @@ static RouterState? _instance;
     notifyListeners();
   }
 
+  void goBack(BuildContext context) {
+    if (_paths.length > 1) {
+      _paths.removeLast();
+      setPath(context, _paths.last);
+    } else {
+      error.showOverlayError(context, 'No previous path found.');
+    }
+  }
 }
