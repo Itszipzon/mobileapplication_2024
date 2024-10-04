@@ -6,7 +6,7 @@ class Home extends StatelessWidget {
   Home({super.key}) {
     _initPosts();
   }
-  
+
   final List<Widget> posts = [];
 
   void _initPosts() {
@@ -16,11 +16,16 @@ class Home extends StatelessWidget {
       } else {
         Widget post = Column(
           children: [
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             FeedCategory(category: "Category $i"),
             Container(
               color: Colors.grey,
-              child: (const SizedBox(height: 1, width: double.infinity,)),
+              child: (const SizedBox(
+                height: 1,
+                width: double.infinity,
+              )),
             )
           ],
         );
@@ -36,7 +41,9 @@ class Home extends StatelessWidget {
       body: ListView(
         children: posts,
       ),
-      bottomNavigationBar: const BottomNavbar(path: "home",),
+      bottomNavigationBar: const BottomNavbar(
+        path: "home",
+      ),
     );
   }
 }

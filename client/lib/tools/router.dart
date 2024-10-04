@@ -24,8 +24,6 @@ class RouterState extends ChangeNotifier {
     AppSettings.initiateScreens(this);
   }
 
-  ErrorHandler error = ErrorHandler();
-
   /// Returns the instance of the [RouterState] class.
   factory RouterState(
       {required String path,
@@ -44,7 +42,7 @@ class RouterState extends ChangeNotifier {
   void setPath(BuildContext context, String path,
       {Map<String, Object>? values}) {
     if (!_screens.containsKey(_getScreenName(path))) {
-      error.showOverlayError(
+      ErrorHandler.showOverlayError(
           context, 'Screen ${_getScreenName(path)} not found.');
       return;
     }
@@ -149,7 +147,7 @@ class RouterState extends ChangeNotifier {
       _paths.removeLast();
       setPath(context, _paths.last);
     } else {
-      error.showOverlayError(context, 'No previous path found.');
+      ErrorHandler.showOverlayError(context, 'No previous path found.');
     }
   }
 }

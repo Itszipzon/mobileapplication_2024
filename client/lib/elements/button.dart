@@ -20,10 +20,8 @@ class SmallTextButton extends StatefulWidget {
 
 /// The state of the [SmallTextButton] widget.
 class SmallTextButtonState extends State<SmallTextButton> {
-
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
 
     return ElevatedButton(
@@ -93,7 +91,6 @@ class LargeImageButtonState extends State<LargeImageButton> {
 }
 
 class IconTextButton extends StatefulWidget {
-
   final IconData icon;
   final VoidCallback onPressed;
   final String text;
@@ -114,7 +111,6 @@ class IconTextButton extends StatefulWidget {
 class IconTextButtonState extends State<IconTextButton> {
   @override
   Widget build(BuildContext context) {
-    
     final theme = Theme.of(context);
 
     return SizedBox(
@@ -131,7 +127,9 @@ class IconTextButtonState extends State<IconTextButton> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon, size: 24, color: widget.active ? theme.primaryColor : Colors.black),
+              Icon(widget.icon,
+                  size: 24,
+                  color: widget.active ? theme.primaryColor : Colors.black),
               Text(widget.text, style: const TextStyle(color: Colors.black)),
             ],
           ),

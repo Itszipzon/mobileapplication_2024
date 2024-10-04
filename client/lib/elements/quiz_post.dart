@@ -35,7 +35,7 @@ class QuizPost extends StatelessWidget {
                       ClipOval(
                         child: Image(
                           image: NetworkImage(
-                            "https://s3-alpha-sig.figma.com/img/0eca/bb54/59bcff2ad62e84f254bb90af501fae16?Expires=1728259200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=B5XDz4kWXaF~34~sZGaWxo4Jd1~lFfQzCLX5TOQ2VrmYwSgt5buMORIWL0faLh9P5pyHl2TJfe3NTeCksrOm71-TxOaKNgNPzDiawji5R8QB1IqxUtOJRJj2UZzlINyySo8Ma-7~WNc28v6HTE4PV7UHyW-JMRSvhRCLCfJNdGzObmCge9e7HN6W1ERBq5atmTj4z54C7uQMiBtoXwD1pLKheXeFV-jl7E9ce491Wsb9~hhvZxgMdQrBmCDrWMjZhxJGMZ0U7XJvf7uPw-cRvCntZSbmGw2t1GVWPk1lvRPhKF0pNlcFeDNcfGhL4oDiHLx5zjawb7wxTpNJiCyWEw__",
+                            "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia-cldnry.s-nbcnews.com%2Fimage%2Fupload%2Fnewscms%2F2021_51%2F1824063%2Fjaden-smith-kb-main-211224.jpg&f=1&nofb=1&ipt=d85d8ff12568b5a86082486d5c62f44e2462dd0691d08949907688fecbfbd696&ipo=images",
                           ),
                           height: 50,
                           width: 50,

@@ -51,7 +51,6 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     final theme = Theme.of(context);
     final router = RouterProvider.of(context);
 
@@ -74,13 +73,13 @@ class LoginScreenState extends State<LoginScreen> {
                   controller: passwordController,
                   obscureText: true),
               const SizedBox(height: 24),
-            SmallTextButton(
-              onPressed: () {
-                handleLogin();
-              },
-              text: 'Sign In',
-              loading: loading,
-            ),
+              SmallTextButton(
+                onPressed: () {
+                  handleLogin();
+                },
+                text: 'Sign In',
+                loading: loading,
+              ),
               const SizedBox(height: 24),
               InkWell(
                 onTap: () => router.setPath(context, 'home'),
@@ -92,7 +91,8 @@ class LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Don't have an account? ", style: TextStyle(color: Colors.grey)),
+                  const Text("Don't have an account? ",
+                      style: TextStyle(color: Colors.grey)),
                   InkWell(
                     onTap: () => router.setPath(context, 'register'),
                     child: Text(
@@ -103,7 +103,9 @@ class LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               InkWell(
-                onTap: () => router.setPath(context, 'test?id=This is id from path variable', values: {"id": "This is id from query parameter"}),
+                onTap: () => router.setPath(
+                    context, 'test?id=This is id from path variable',
+                    values: {"id": "This is id from query parameter"}),
                 child: const Text('Test'),
               )
             ],

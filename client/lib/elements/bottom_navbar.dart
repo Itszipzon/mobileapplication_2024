@@ -4,8 +4,7 @@ import 'package:client/tools/router_provider.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavbar extends StatefulWidget {
-  const BottomNavbar(
-      {super.key, required this.path});
+  const BottomNavbar({super.key, required this.path});
 
   final String path;
 
@@ -16,7 +15,6 @@ class BottomNavbar extends StatefulWidget {
 }
 
 class BottomNavbarState extends State<BottomNavbar> {
-
   void onPressed(BuildContext context, String path, RouterState router) {
     router.setPath(context, path);
   }
@@ -36,11 +34,21 @@ class BottomNavbarState extends State<BottomNavbar> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconTextButton(icon: Icons.local_fire_department, text: "Feed", onPressed: () => onPressed(context, "home", router), active: widget.path == "home"),
               IconTextButton(
-                  icon: Icons.grid_view, text: "Categories", onPressed: () => onPressed(context, "categories", router), active: widget.path == "categories"),
+                  icon: Icons.local_fire_department,
+                  text: "Feed",
+                  onPressed: () => onPressed(context, "home", router),
+                  active: widget.path == "home"),
               IconTextButton(
-                  icon: Icons.person, text: "Profile", onPressed: () => onPressed(context, "profile", router), active: widget.path == "profile"),
+                  icon: Icons.grid_view,
+                  text: "Categories",
+                  onPressed: () => onPressed(context, "categories", router),
+                  active: widget.path == "categories"),
+              IconTextButton(
+                  icon: Icons.person,
+                  text: "Profile",
+                  onPressed: () => onPressed(context, "profile", router),
+                  active: widget.path == "profile"),
             ],
           ),
         ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ErrorHandler {
 
   /// Shows an error message as an overlay.
-  void showOverlayError(BuildContext context, String errorMessage) {
+  static void showOverlayError(BuildContext context, String errorMessage) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -34,5 +34,4 @@ class ErrorHandler {
       overlayEntry.remove();
     });
   }
-
 }

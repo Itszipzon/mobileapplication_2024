@@ -13,5 +13,4 @@ class Categories extends StatelessWidget {
       bottomNavigationBar: BottomNavbar(path: "categories"),
     );
   }
-  
 }

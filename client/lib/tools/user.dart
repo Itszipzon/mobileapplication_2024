@@ -38,7 +38,8 @@ class User extends ChangeNotifier {
       return false;
     }
 
-    final response = await http.get(Uri.parse('http://localhost:8080/api/user/insession'));
+    final response =
+        await http.get(Uri.parse('http://localhost:8080/api/user/insession'));
     bool json = jsonDecode(response.body);
     if (!json) {
       clear();

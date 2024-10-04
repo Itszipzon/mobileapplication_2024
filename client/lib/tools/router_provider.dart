@@ -11,7 +11,8 @@ class RouterProvider extends InheritedWidget {
   });
 
   static RouterState of(BuildContext context) {
-    final RouterProvider? provider = context.dependOnInheritedWidgetOfExactType<RouterProvider>();
+    final RouterProvider? provider =
+        context.dependOnInheritedWidgetOfExactType<RouterProvider>();
     assert(provider != null, 'No RouterProvider found in context');
     return provider!.router;
   }
