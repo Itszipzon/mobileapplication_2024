@@ -13,7 +13,7 @@ class ErrorHandler {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            margin: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(top: 50, right: 10),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.redAccent,
