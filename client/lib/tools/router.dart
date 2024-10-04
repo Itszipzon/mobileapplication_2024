@@ -164,7 +164,7 @@ static RouterState? _instance;
     excludedPaths.remove(path);
   }
 
-  int _getPathsLength() {
+  int getPathsLength() {
     return paths.length;
   }
 
