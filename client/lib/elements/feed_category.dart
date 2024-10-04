@@ -12,7 +12,7 @@ class FeedCategory extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(left: 16),
           child: Text(category,
               style:
                   const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),

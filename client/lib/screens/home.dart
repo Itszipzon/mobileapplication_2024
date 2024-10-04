@@ -16,7 +16,7 @@ class Home extends StatelessWidget {
       } else {
         Widget post = Column(
           children: [
-            const SizedBox(height: 20,),
+            const SizedBox(height: 6,),
             FeedCategory(category: "Category $i"),
             Container(
               color: Colors.grey,
