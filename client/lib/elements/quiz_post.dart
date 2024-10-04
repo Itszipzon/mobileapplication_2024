@@ -15,7 +15,7 @@ class QuizPost extends StatelessWidget {
         },
         child: SizedBox(
           child: Container(
-              padding: const EdgeInsets.only(left: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
