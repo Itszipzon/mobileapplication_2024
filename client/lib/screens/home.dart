@@ -1,5 +1,5 @@
 import 'package:client/elements/bottom_navbar.dart';
-import 'package:client/elements/quiz_post.dart';
+import 'package:client/elements/feed_category.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -12,12 +12,12 @@ class Home extends StatelessWidget {
   void _initPosts() {
     for (int i = 0; i < 5; i++) {
       if (i == 5 - 1) {
-        posts.add(const QuizPost(path: "",));
+        posts.add(FeedCategory(category: "Category $i"));
       } else {
         Widget post = Column(
           children: [
             const SizedBox(height: 20,),
-            const QuizPost(path: "",),
+            FeedCategory(category: "Category $i"),
             Container(
               color: Colors.grey,
               child: (const SizedBox(height: 1, width: double.infinity,)),

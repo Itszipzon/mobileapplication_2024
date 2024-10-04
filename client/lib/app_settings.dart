@@ -24,7 +24,7 @@ class AppSettings {
   /// Returns the theme for the application.
   static ThemeData getTheme() {
     return ThemeData(
-      primaryColor: Colors.orange,
+      primaryColor: Colors.blue,
       useMaterial3: true,
       textTheme: GoogleFonts.robotoTextTheme(),
     );

@@ -14,7 +14,6 @@ class QuizPost extends StatelessWidget {
           router.switchScreen(context, path);
         },
         child: SizedBox(
-          height: 303,
           child: Container(
               padding: const EdgeInsets.all(16),
               child: const Column(
@@ -25,8 +24,8 @@ class QuizPost extends StatelessWidget {
                     image: NetworkImage(
                       "https://cdn1.epicgames.com/offer/e860fa919120430ca12c557bb676bc6a/EGST_StoreLandscape_2560x1440_2560x1440-e7beda03979167bed00fb2c73bb7998a",
                     ),
-                    height: 205,
-                    width: double.infinity,
+                    height: 96,
+                    width: 212,
                     fit: BoxFit.cover,
                   ),
                   SizedBox(height: 8),
@@ -49,13 +48,16 @@ class QuizPost extends StatelessWidget {
                         children: [
                           Text("Starwars Quiz"),
                           SizedBox(height: 4),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text("Jan Nor"),
                               SizedBox(width: 8),
-                              Text("169 Views"),
-                              SizedBox(width: 8),
-                              Text("6 days ago"),
+                              Row(children: [
+                                Text("169 Views"),
+                                SizedBox(width: 8),
+                                Text("6 days ago")
+                              ]),
                             ],
                           ),
                         ],
