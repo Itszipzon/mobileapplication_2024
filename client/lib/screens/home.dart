@@ -12,12 +12,12 @@ class Home extends StatelessWidget {
   void _initPosts() {
     for (int i = 0; i < 5; i++) {
       if (i == 5 - 1) {
-        posts.add(const QuizPost());
+        posts.add(const QuizPost(path: "",));
       } else {
         Widget post = Column(
           children: [
             const SizedBox(height: 20,),
-            const QuizPost(),
+            const QuizPost(path: "",),
             Container(
               color: Colors.grey,
               child: (const SizedBox(height: 1, width: double.infinity,)),
