@@ -138,3 +138,37 @@ class IconTextButtonState extends State<IconTextButton> {
     );
   }
 }
+
+class BigIconButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const BigIconButton({
+    required this.icon,
+    required this.onPressed,
+    super.key,
+  });
+
+  @override
+  BigIconButtonState createState() => BigIconButtonState();
+}
+
+class BigIconButtonState extends State<BigIconButton> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: widget.onPressed,
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.primaryColor,
+          borderRadius: const BorderRadius.all(Radius.circular(6)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(widget.icon, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
