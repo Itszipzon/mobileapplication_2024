@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
 class ApiHandler {
 
-  static const String _url = "http://localhost:8080/api";
+  static final String _url = Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
