@@ -1,7 +1,5 @@
-import 'dart:convert';
-
+import 'package:client/tools/api_handler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A class that holds the user's token.
@@ -34,17 +32,7 @@ class User extends ChangeNotifier {
   }
 
   Future<bool> inSession() async {
-    if (_token == null || _token!.isEmpty) {
-      return false;
-    }
-
-    final response =
-        await http.get(Uri.parse('http://localhost:8080/api/user/insession'));
-    bool json = jsonDecode(response.body);
-    if (!json) {
-      clear();
-    }
-    return json;
+    return ApiHandler.userInSession(_token!);
   }
 
   Future<void> _saveToken() async {
