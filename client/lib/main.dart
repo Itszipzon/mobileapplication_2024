@@ -1,4 +1,4 @@
-import 'package:client/main_app.dart';
+import 'package:client/app.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/tools/User.dart';
 import 'package:client/tools/router.dart';
