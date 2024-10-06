@@ -26,6 +26,14 @@ class _AppState extends State<App> {
     return MaterialApp(
       theme: AppSettings.getTheme(),
       home: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              _router.setPath(context, "path_search");
+            },
+          ),
+        ),
         body: Container(
           decoration: BoxDecoration(
             color: theme.canvasColor,
