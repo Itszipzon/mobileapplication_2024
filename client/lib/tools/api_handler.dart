@@ -9,7 +9,7 @@ class ApiHandler {
 
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
-    final response = await http.get(Uri.parse('${ApiHandler._url}/api/user/insession'), headers: {
+    final response = await http.get(Uri.parse('$_url/api/user/insession'), headers: {
       "Authorization" : "Bearer $token"
     });
     return jsonDecode(response.body);
@@ -17,7 +17,7 @@ class ApiHandler {
 
   /// Gets the user.
   static Future<Map<String,Object>> getUser(String token) async {
-    final response = await http.get(Uri.parse('${ApiHandler._url}/api/user'), headers: {
+    final response = await http.get(Uri.parse('$_url/api/user'), headers: {
       "Authorization" : "Bearer $token"
     });
     return jsonDecode(response.body);
@@ -25,7 +25,7 @@ class ApiHandler {
 
   /// Logs in the user.
   static Future<String> login(String email, String password) async {
-    final response = await http.post(Uri.parse('${ApiHandler._url}/api/user/login'), body: {
+    final response = await http.post(Uri.parse('$_url/api/user/login'), body: {
       'email': email,
       'password': password
     });
@@ -38,7 +38,7 @@ class ApiHandler {
 
   /// Registers the user.
   static Future<bool> register(String email, String password, String confirmPassword, String username) async {
-    final response = await http.post(Uri.parse('${ApiHandler._url}/api/user/register'), body: {
+    final response = await http.post(Uri.parse('$_url/api/user/register'), body: {
       'email': email,
       'password': password,
       'confirmPassword': confirmPassword,
@@ -49,12 +49,12 @@ class ApiHandler {
 
   /// Logs out the user.
   static Future<bool> logout() async {
-    final response = await http.post(Uri.parse('${ApiHandler._url}/api/user/logout'));
+    final response = await http.post(Uri.parse('$_url/api/user/logout'));
     return jsonDecode(response.body);
   }
 
   static Future<bool> usernameExists(String username) async {
-    final response = await http.get(Uri.parse('${ApiHandler._url}/api/user/usernameexists/$username'));
+    final response = await http.get(Uri.parse('$_url/api/user/usernameexists/$username'));
     return jsonDecode(response.body);
   }
 }
