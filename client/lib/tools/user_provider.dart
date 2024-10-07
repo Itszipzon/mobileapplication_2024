@@ -13,7 +13,7 @@ class UserProvider extends InheritedWidget {
   static User of(BuildContext context) {
     final UserProvider? provider =
         context.dependOnInheritedWidgetOfExactType<UserProvider>();
-    assert(provider != null, 'No RouterProvider found in context');
+    assert(provider != null, 'No UserProvider found in context');
     return provider!.user;
   }
   
