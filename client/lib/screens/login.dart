@@ -67,11 +67,12 @@ class LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
               Input(
-                labelText: "Email",
+                labelText: "Username or Email",
                 controller: emailController,
                 onReturn: (_) {
                   passwordFocusNode.requestFocus();
                 },
+                icon: Icons.login,
               ),
               const SizedBox(height: 24),
               Input(
@@ -82,6 +83,7 @@ class LoginScreenState extends State<LoginScreen> {
                 onReturn: (_) {
                   handleLogin();
                 },
+                icon: Icons.lock,
               ),
               const SizedBox(height: 24),
               SmallTextButton(

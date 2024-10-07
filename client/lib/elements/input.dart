@@ -7,6 +7,7 @@ class Input extends StatelessWidget {
   final bool obscureText;
   final void Function(String)? onReturn;
   final FocusNode? focusNode;
+  final IconData? icon;
 
   const Input({
     super.key,
@@ -15,6 +16,7 @@ class Input extends StatelessWidget {
     this.obscureText = false,
     this.onReturn,
     this.focusNode,
+    this.icon,
   });
 
   @override
@@ -50,6 +52,7 @@ class Input extends StatelessWidget {
           ),
           floatingLabelStyle: const TextStyle(
               color: Colors.black), // Set the color of the label when floating
+          prefixIcon: icon != null ? Icon(icon) : null,
         ),
       ),
     );

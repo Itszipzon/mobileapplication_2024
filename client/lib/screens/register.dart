@@ -70,6 +70,7 @@ class RegisterScreenState extends State<Register> {
                 onReturn: (_) {
                   emailFocusNode.requestFocus();
                 },
+                icon: Icons.person,
               ),
               const SizedBox(height: 24),
               Input(
@@ -80,6 +81,7 @@ class RegisterScreenState extends State<Register> {
                 onReturn: (_) {
                   passwordFocusNode.requestFocus();
                 },
+                icon: Icons.email,
               ),
               const SizedBox(height: 24),
               Input(
@@ -90,6 +92,7 @@ class RegisterScreenState extends State<Register> {
                 onReturn: (_) {
                   confirmPasswordFocusNode.requestFocus();
                 },
+                icon: Icons.lock,
               ),
               const SizedBox(height: 24),
               Input(
@@ -100,6 +103,7 @@ class RegisterScreenState extends State<Register> {
                 onReturn: (_) {
                   onPressed(context);
                 },
+                icon: Icons.lock,
               ),
               const SizedBox(height: 24),
               SmallTextButton(
