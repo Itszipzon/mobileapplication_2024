@@ -45,6 +45,14 @@ class User extends ChangeNotifier {
     return ApiHandler.userInSession(_token!);
   }
 
+  Future<bool> logout() async {
+    final bool result = await ApiHandler.logout(_token);
+    if (result) {
+      clear();
+    }
+    return result;
+  }
+
   Future<void> _saveToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_token', _token ?? '');

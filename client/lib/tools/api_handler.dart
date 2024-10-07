@@ -8,7 +8,10 @@ class ApiHandler {
   static final String _url = Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
   /// Checks if the user is in session.
-  static Future<bool> userInSession(String token) async {
+  static Future<bool> userInSession(String? token) async {
+    if (token == null) {
+      return false;
+    }
     final response = await http.get(Uri.parse('$_url/api/user/insession'), headers: {
       "Authorization" : "Bearer $token"
     });
@@ -16,7 +19,10 @@ class ApiHandler {
   }
 
   /// Gets the user.
-  static Future<Map<String,Object>> getUser(String token) async {
+  static Future<Map<String,Object>> getUser(String? token) async {
+    if (token == null) {
+      return {};
+    }
     final response = await http.get(Uri.parse('$_url/api/user'), headers: {
       "Authorization" : "Bearer $token"
     });
@@ -48,8 +54,14 @@ class ApiHandler {
   }
 
   /// Logs out the user.
-  static Future<bool> logout() async {
-    final response = await http.post(Uri.parse('$_url/api/user/logout'));
+  static Future<bool> logout(String? token) async {
+    if (token == null) {
+      return false;
+    }
+    final response = await http.post(Uri.parse('$_url/api/user/logout'), headers: 
+      {
+        "Authorization" : "Bearer $token"
+      });
     return jsonDecode(response.body);
   }
 
