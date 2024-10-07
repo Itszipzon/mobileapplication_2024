@@ -6,8 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class User extends ChangeNotifier {
   String? _token;
 
-  String? get token => _token;
-
   User() {
     _loadToken();
   }
