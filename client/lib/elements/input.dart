@@ -5,12 +5,14 @@ class Input extends StatelessWidget {
   final String labelText;
   final TextEditingController controller;
   final bool obscureText;
+  final void Function(String)? onReturn;
 
   const Input({
     super.key,
     required this.labelText,
     required this.controller,
     this.obscureText = false,
+    this.onReturn,
   });
 
   @override
@@ -27,6 +29,7 @@ class Input extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText, // Hide the text if true (for passwords)
+        onSubmitted: onReturn, // Call the function when the user presses enter
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: const TextStyle(

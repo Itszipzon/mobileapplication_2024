@@ -27,7 +27,9 @@ class PathSearch extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Input(labelText: "Path", controller: pathController),
+                    child: Input(labelText: "Path", controller: pathController, onReturn: (String path) {
+                      router.setPath(context, path);
+                    }),
                   ),
                   BigIconButton(icon: Icons.search, onPressed: () {
                     router.setPath(context, pathController.text);
