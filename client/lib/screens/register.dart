@@ -13,11 +13,14 @@ class Register extends StatefulWidget {
 }
 
 class RegisterScreenState extends State<Register> {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  final emailFocusNode = FocusNode();
+  final passwordFocusNode = FocusNode();
+  final confirmPasswordFocusNode = FocusNode();
 
   bool loading = false;
 
@@ -25,6 +28,8 @@ class RegisterScreenState extends State<Register> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
+    usernameController.dispose();
     super.dispose();
   }
 
@@ -58,19 +63,44 @@ class RegisterScreenState extends State<Register> {
                 style: TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 24),
-              Input(labelText: "Username", controller: usernameController),
-              const SizedBox(height: 24),
-              Input(labelText: "Email", controller: emailController),
+              Input(
+                labelText: "Username",
+                controller: usernameController,
+                obscureText: false,
+                onReturn: (_) {
+                  emailFocusNode.requestFocus();
+                },
+              ),
               const SizedBox(height: 24),
               Input(
-                  labelText: "Password",
-                  controller: passwordController,
-                  obscureText: true),
+                labelText: "Email",
+                controller: emailController,
+                obscureText: false,
+                focusNode: emailFocusNode,
+                onReturn: (_) {
+                  passwordFocusNode.requestFocus();
+                },
+              ),
               const SizedBox(height: 24),
               Input(
-                  labelText: "Confirm Password",
-                  controller: confirmPasswordController,
-                  obscureText: true),
+                labelText: "Password",
+                controller: passwordController,
+                obscureText: true,
+                focusNode: passwordFocusNode,
+                onReturn: (_) {
+                  confirmPasswordFocusNode.requestFocus();
+                },
+              ),
+              const SizedBox(height: 24),
+              Input(
+                labelText: "Confirm Password",
+                controller: confirmPasswordController,
+                obscureText: true,
+                focusNode: confirmPasswordFocusNode,
+                onReturn: (_) {
+                  onPressed(context);
+                },
+              ),
               const SizedBox(height: 24),
               SmallTextButton(
                   text: "Sign up",

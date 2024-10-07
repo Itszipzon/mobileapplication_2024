@@ -6,6 +6,7 @@ class Input extends StatelessWidget {
   final TextEditingController controller;
   final bool obscureText;
   final void Function(String)? onReturn;
+  final FocusNode? focusNode;
 
   const Input({
     super.key,
@@ -13,6 +14,7 @@ class Input extends StatelessWidget {
     required this.controller,
     this.obscureText = false,
     this.onReturn,
+    this.focusNode,
   });
 
   @override
@@ -28,8 +30,9 @@ class Input extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
-        obscureText: obscureText, // Hide the text if true (for passwords)
+        obscureText: obscureText,
         onSubmitted: onReturn, // Call the function when the user presses enter
+        focusNode: focusNode,
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: const TextStyle(

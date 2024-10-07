@@ -11,8 +11,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  final passwordFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -31,7 +33,6 @@ class LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-
   }
 
   bool loading = false;
@@ -65,12 +66,23 @@ class LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 24),
-              Input(labelText: "Email", controller: emailController),
+              Input(
+                labelText: "Email",
+                controller: emailController,
+                onReturn: (_) {
+                  passwordFocusNode.requestFocus();
+                },
+              ),
               const SizedBox(height: 24),
               Input(
-                  labelText: "Password",
-                  controller: passwordController,
-                  obscureText: true),
+                labelText: "Password",
+                controller: passwordController,
+                obscureText: true,
+                focusNode: passwordFocusNode,
+                onReturn: (_) {
+                  handleLogin();
+                },
+              ),
               const SizedBox(height: 24),
               SmallTextButton(
                 onPressed: () {
