@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:client/elements/button.dart';
 import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/user.dart';
+import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,12 +18,20 @@ class Test extends StatefulWidget {
 
 class TestScreenState extends State<Test> {
   String httpId = "";
+  late User user;
 
   @override
   void initState() {
     super.initState();
     fetchMessage();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = UserProvider.of(context);
+  }
+
 
   Future<void> fetchMessage() async {
     http.Response response;
@@ -65,6 +75,9 @@ class TestScreenState extends State<Test> {
             Text(router.getValues()!["id"].toString()),
             Text(router.getPathVariables()!["id"].toString()),
             Text(httpId),
+            BigIconButton(icon: Icons.person, onPressed: () {
+              user.getToken();
+            }),
           ],
         ),
       ),

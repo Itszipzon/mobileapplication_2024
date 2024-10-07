@@ -26,6 +26,10 @@ class User extends ChangeNotifier {
     notifyListeners();
   }
 
+  String getToken() {
+    return _token!;
+  }
+
   /// Returns the authorization header.
   String getAuthorizationHeader() {
     return 'Bearer $_token';
