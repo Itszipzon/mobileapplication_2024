@@ -27,6 +27,9 @@ class User extends ChangeNotifier {
   }
 
   String getToken() {
+    if (_token == null) {
+      return '';
+    }
     return _token!;
   }
 
@@ -36,6 +39,9 @@ class User extends ChangeNotifier {
   }
 
   Future<bool> inSession() async {
+    if (_token == null) {
+      return false;
+    }
     return ApiHandler.userInSession(_token!);
   }
 
