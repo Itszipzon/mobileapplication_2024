@@ -1,6 +1,9 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/tools/router.dart';
 import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/user.dart';
+import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
@@ -13,6 +16,9 @@ class Register extends StatefulWidget {
 }
 
 class RegisterScreenState extends State<Register> {
+  late final RouterState router;
+  late final User user;
+
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -33,9 +39,27 @@ class RegisterScreenState extends State<Register> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router = RouterProvider.of(context);
+      user = UserProvider.of(context);
+      _checkUserSession();
+    });
+  }
+
+  /// Check if the user is already logged in
+  Future<void> _checkUserSession() async {
+    if (!await user.inSession()) {
+      if (mounted) {
+        router.setPath(context, 'home');
+      }
+    }
+  }
+
   Future<void> onPressed(BuildContext context) async {
     toggleLoading();
-/*     widget.switchScreen(context, 'home'); */
     await Future.delayed(const Duration(seconds: 5), () {});
     toggleLoading();
   }
@@ -49,7 +73,6 @@ class RegisterScreenState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final router = RouterProvider.of(context);
 
     return Scaffold(
       body: Center(

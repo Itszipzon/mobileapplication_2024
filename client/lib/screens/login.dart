@@ -1,6 +1,9 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/tools/router.dart';
 import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/user.dart';
+import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,12 +18,33 @@ class LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   final passwordFocusNode = FocusNode();
+  late final RouterState router;
+  late final User user;
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router = RouterProvider.of(context);
+      user = UserProvider.of(context);
+      _checkUserSession();
+    });
+  }
+
+  /// Check if the user is already logged in
+  Future<void> _checkUserSession() async {
+    if (!await user.inSession()) {
+      if (mounted) {
+        router.setPath(context, 'home');
+      }
+    }
   }
 
   void login() {
@@ -52,7 +76,6 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final router = RouterProvider.of(context);
 
     return Scaffold(
       body: Center(

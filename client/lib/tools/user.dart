@@ -33,13 +33,13 @@ class User extends ChangeNotifier {
 
   /// Returns the authorization header.
   String getAuthorizationHeader() {
+    if (_token == null) {
+      return '';
+    }
     return 'Bearer $_token';
   }
 
   Future<bool> inSession() async {
-    if (_token == null) {
-      return false;
-    }
     return ApiHandler.userInSession(_token!);
   }
 
