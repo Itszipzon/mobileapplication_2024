@@ -75,7 +75,11 @@ class TestScreenState extends State<Test> {
             Text(router.getValues()!["id"].toString()),
             Text(router.getPathVariables()!["id"].toString()),
             Text(httpId),
-            BigIconButton(icon: Icons.person, onPressed: () {
+            BigIconButton(
+              icon: Icons.person,
+              height: 56,
+              width: 56,
+              onPressed: () {
               user.clear();
             }),
           ],

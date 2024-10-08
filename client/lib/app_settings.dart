@@ -1,5 +1,6 @@
 import 'package:client/screens/categories.dart';
 import 'package:client/screens/home.dart';
+import 'package:client/screens/join.dart';
 import 'package:client/screens/path_search.dart';
 import 'package:client/screens/profile.dart';
 import 'package:client/screens/register.dart';
@@ -17,6 +18,7 @@ class AppSettings {
     router.addScreen("home", Home());
     router.addScreen("categories", const Categories());
     router.addScreen("profile", const Profile());
+    router.addScreen("join", const Join());
     router.addScreen('test', const Test());
     router.addScreen('path_search', const PathSearch());
 

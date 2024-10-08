@@ -31,7 +31,9 @@ class PathSearch extends StatelessWidget {
                       router.setPath(context, path);
                     }),
                   ),
-                  BigIconButton(icon: Icons.search, onPressed: () {
+                  BigIconButton(
+                    icon: Icons.search,
+                    onPressed: () {
                     router.setPath(context, pathController.text);
                   })
                 ],

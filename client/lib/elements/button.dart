@@ -139,35 +139,40 @@ class IconTextButtonState extends State<IconTextButton> {
   }
 }
 
-class BigIconButton extends StatefulWidget {
+class BigIconButton extends StatelessWidget { 
   final IconData icon;
   final VoidCallback onPressed;
+  final int? height;
+  final int? width;
 
   const BigIconButton({
     required this.icon,
     required this.onPressed,
+    this.height,
+    this.width,
     super.key,
   });
-
-  @override
-  BigIconButtonState createState() => BigIconButtonState();
-}
-
-class BigIconButtonState extends State<BigIconButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return GestureDetector(
-      onTap: widget.onPressed,
+      onTap: onPressed,
       child: Container(
+        height: height?.toDouble() ?? 48,
         decoration: BoxDecoration(
           color: theme.primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(6)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Icon(widget.icon, color: Colors.white),
-        ),
+        child: (height != null && width != null
+            ? SizedBox(
+                height: height!.toDouble(),
+                width: width!.toDouble(),
+                child: Icon(icon, color: Colors.white),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(icon, color: Colors.white),
+              )),
       ),
     );
   }

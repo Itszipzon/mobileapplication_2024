@@ -49,18 +49,16 @@ class BottomNavbarState extends State<BottomNavbar> {
                   active: widget.path == "categories",
                 ),
               ),
-              SizedBox(
-                width: 40, // Adjust the width as needed
-                height: 40, // Adjust the height as needed
-                child: BigIconButton(
+                BigIconButton(
+                  height: 56,
+                  width: 56,
                   icon: Icons.add,
                   onPressed: () => onPressed(context, "create", router),
                 ),
-              ),
               Expanded(
                 child: IconTextButton(
                   icon: Icons.play_arrow_rounded,
-                  text: "Join",
+                  text: "Join Game",
                   onPressed: () => onPressed(context, "join", router),
                   active: widget.path == "join",
                 ),
