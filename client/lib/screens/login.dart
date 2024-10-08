@@ -40,7 +40,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   /// Check if the user is already logged in
   Future<void> _checkUserSession() async {
-    if (!await user.inSession()) {
+    if (await user.inSession()) {
       if (mounted) {
         router.setPath(context, 'home');
       }

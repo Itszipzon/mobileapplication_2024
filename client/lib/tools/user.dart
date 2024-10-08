@@ -40,7 +40,7 @@ class User extends ChangeNotifier {
   }
 
   Future<bool> inSession() async {
-    return ApiHandler.userInSession(_token!);
+    return ApiHandler.userInSession(_token);
   }
 
   Future<bool> logout() async {
