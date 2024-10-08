@@ -13,11 +13,16 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late RouterState _router;
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _router = RouterProvider.of(context);
+    if (!_isInitialized) {
+      _router = RouterProvider.of(context);
+      AppSettings.initiateScreens(_router);
+      _isInitialized = true;
+    }
   }
 
   @override

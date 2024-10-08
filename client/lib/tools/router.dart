@@ -1,4 +1,3 @@
-import 'package:client/app_settings.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +16,10 @@ class RouterState extends ChangeNotifier {
   RouterState._internal(
       {required String path,
       required Widget screen,
-      Map<String, Object>? values})
-      : _path = path,
-        _screen = screen,
-        _values = values {
-    AppSettings.initiateScreens(this);
+      Map<String, Object>? values}) {
+    _path = path;
+    _screen = screen;
+    _values = values;
   }
 
   /// Returns the instance of the [RouterState] class.
