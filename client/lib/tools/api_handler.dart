@@ -8,10 +8,7 @@ class ApiHandler {
   static final String _url = Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
   /// Checks if the user is in session.
-  static Future<bool> userInSession(String? token) async {
-    if (token == null) {
-      return false;
-    }
+  static Future<bool> userInSession(String token) async {
     final response = await http.get(Uri.parse('$_url/api/user/insession'), headers: {
       "Authorization" : "Bearer $token"
     });

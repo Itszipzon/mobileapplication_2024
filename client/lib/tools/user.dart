@@ -40,7 +40,14 @@ class User extends ChangeNotifier {
   }
 
   Future<bool> inSession() async {
-    return ApiHandler.userInSession(_token);
+    if (_token == null) {
+      return false;
+    }
+    final bool result = await ApiHandler.userInSession(_token!);
+    if (!result) {
+      clear();
+    }
+    return result;
   }
 
   Future<bool> logout() async {
