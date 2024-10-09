@@ -120,7 +120,6 @@ class IconTextButtonState extends State<IconTextButton> {
         onTap: widget.active ? null : widget.onPressed,
         child: Container(
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 241, 241, 241), // Background color
             borderRadius: BorderRadius.circular(0), // Border radius
             border: Border.all(color: Colors.transparent), // Border color
           ),
@@ -139,7 +138,7 @@ class IconTextButtonState extends State<IconTextButton> {
   }
 }
 
-class BigIconButton extends StatelessWidget { 
+class BigIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final int? height;

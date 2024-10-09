@@ -24,7 +24,7 @@ class BottomNavbarState extends State<BottomNavbar> {
     final router = RouterProvider.of(context);
     final theme = Theme.of(context);
     return Container(
-      color: theme.canvasColor,
+      color: Color.fromARGB(255, 255, 255, 255),
       height: 80,
       child: Align(
         alignment: Alignment.center,
@@ -49,12 +49,12 @@ class BottomNavbarState extends State<BottomNavbar> {
                   active: widget.path == "categories",
                 ),
               ),
-                BigIconButton(
-                  height: 56,
-                  width: 56,
-                  icon: Icons.add,
-                  onPressed: () => onPressed(context, "create", router),
-                ),
+              BigIconButton(
+                height: 56,
+                width: 56,
+                icon: Icons.add,
+                onPressed: () => onPressed(context, "create", router),
+              ),
               Expanded(
                 child: IconTextButton(
                   icon: Icons.play_arrow_rounded,
