@@ -6,8 +6,9 @@ class Categories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Color(0xffF1F1F1), 
+      backgroundColor: theme.canvasColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -39,12 +40,13 @@ class Categories extends StatelessWidget {
 
   Widget _buildCategoryCard(
       BuildContext context, IconData icon, String title, int quizCount) {
+    final theme = Theme.of(context);
     return Container(
       child: Card(
-        color: const Color(0xFFFF8000), 
+        color: theme.primaryColor,
         elevation: 4.0,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, 
+          borderRadius: BorderRadius.zero,
         ),
         child: InkWell(
           onTap: () {
@@ -53,18 +55,16 @@ class Categories extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 60.0, color: Colors.white), 
+              Icon(icon, size: 60.0, color: Colors.white),
               const SizedBox(height: 16.0),
               Text(
                 title,
-                style: const TextStyle(
-                    fontSize: 20.0, color: Colors.white), 
+                style: const TextStyle(fontSize: 20.0, color: Colors.white),
               ),
               const SizedBox(height: 8.0),
               Text(
                 "$quizCount Quizzes",
-                style: const TextStyle(
-                    color: Colors.white70), 
+                style: const TextStyle(color: Colors.white70),
               ),
             ],
           ),
