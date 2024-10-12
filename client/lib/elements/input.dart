@@ -8,6 +8,7 @@ class Input extends StatelessWidget {
   final void Function(String)? onReturn;
   final FocusNode? focusNode;
   final IconData? icon;
+  final bool enabled;
 
   const Input({
     super.key,
@@ -17,6 +18,7 @@ class Input extends StatelessWidget {
     this.onReturn,
     this.focusNode,
     this.icon,
+    this.enabled = true,
   });
 
   @override
@@ -33,6 +35,7 @@ class Input extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        enabled: enabled,
         onSubmitted: onReturn, // Call the function when the user presses enter
         focusNode: focusNode,
         decoration: InputDecoration(

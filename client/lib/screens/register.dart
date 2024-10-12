@@ -88,6 +88,7 @@ class RegisterScreenState extends State<Register> {
               const SizedBox(height: 24),
               Input(
                 labelText: "Username",
+                enabled: !loading,
                 controller: usernameController,
                 obscureText: false,
                 onReturn: (_) {
@@ -99,6 +100,7 @@ class RegisterScreenState extends State<Register> {
               Input(
                 labelText: "Email",
                 controller: emailController,
+                enabled: !loading,
                 obscureText: false,
                 focusNode: emailFocusNode,
                 onReturn: (_) {
@@ -109,6 +111,7 @@ class RegisterScreenState extends State<Register> {
               const SizedBox(height: 24),
               Input(
                 labelText: "Password",
+                enabled: !loading,
                 controller: passwordController,
                 obscureText: true,
                 focusNode: passwordFocusNode,
@@ -120,6 +123,7 @@ class RegisterScreenState extends State<Register> {
               const SizedBox(height: 24),
               Input(
                 labelText: "Confirm Password",
+                enabled: !loading,
                 controller: confirmPasswordController,
                 obscureText: true,
                 focusNode: confirmPasswordFocusNode,
