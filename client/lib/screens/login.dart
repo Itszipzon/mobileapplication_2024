@@ -34,18 +34,18 @@ class LoginScreenState extends State<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = RouterProvider.of(context);
       user = UserProvider.of(context);
-      _checkUserSession();
+      /* _checkUserSession(); */
     });
   }
 
   /// Check if the user is already logged in
-  Future<void> _checkUserSession() async {
+/*   Future<void> _checkUserSession() async {
     if (await user.inSession()) {
       if (mounted) {
         router.setPath(context, 'home');
       }
     }
-  }
+  } */
 
   void login() {
     String email = emailController.text;

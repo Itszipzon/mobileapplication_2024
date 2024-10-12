@@ -24,7 +24,7 @@ class BottomNavbarState extends State<BottomNavbar> {
     final router = RouterProvider.of(context);
     final theme = Theme.of(context);
     return Container(
-      color: Color.fromARGB(255, 255, 255, 255),
+      color: theme.canvasColor,
       height: 80,
       child: Align(
         alignment: Alignment.center,
