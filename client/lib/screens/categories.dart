@@ -1,3 +1,4 @@
+import 'package:client/elements/card.dart';
 import 'package:flutter/material.dart';
 import 'package:client/elements/bottom_navbar.dart';
 
@@ -23,11 +24,11 @@ class Categories extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16.0,
                 mainAxisSpacing: 16.0,
-                children: [
-                  _buildCategoryCard(context, Icons.star, "General", 128),
-                  _buildCategoryCard(context, Icons.movie, "Pop Cult", 58),
-                  _buildCategoryCard(context, Icons.history, "History", 89),
-                  _buildCategoryCard(context, Icons.science, "Science", 69),
+                children: const [
+                  CategoryCard(icon: Icons.star, title: "General", quizCount: 128),
+                  CategoryCard(icon: Icons.movie, title: "Pop Cult", quizCount: 58),
+                  CategoryCard(icon: Icons.history, title: "History", quizCount: 89),
+                  CategoryCard(icon: Icons.science, title: "Science", quizCount: 69),
                 ],
               ),
             ),
@@ -35,41 +36,6 @@ class Categories extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const BottomNavbar(path: "categories"),
-    );
-  }
-
-  Widget _buildCategoryCard(
-      BuildContext context, IconData icon, String title, int quizCount) {
-    final theme = Theme.of(context);
-    return Container(
-      child: Card(
-        color: theme.primaryColor,
-        elevation: 4.0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
-        child: InkWell(
-          onTap: () {
-            // Handle category tap
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 60.0, color: Colors.white),
-              const SizedBox(height: 16.0),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 20.0, color: Colors.white),
-              ),
-              const SizedBox(height: 8.0),
-              Text(
-                "$quizCount Quizzes",
-                style: const TextStyle(color: Colors.white70),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
