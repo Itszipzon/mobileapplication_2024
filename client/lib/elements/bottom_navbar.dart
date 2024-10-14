@@ -3,18 +3,10 @@ import 'package:client/tools/router.dart';
 import 'package:client/tools/router_provider.dart';
 import 'package:flutter/material.dart';
 
-class BottomNavbar extends StatefulWidget {
+class BottomNavbar extends StatelessWidget {
+  final String path;
   const BottomNavbar({super.key, required this.path});
 
-  final String path;
-
-  @override
-  State<StatefulWidget> createState() {
-    return BottomNavbarState();
-  }
-}
-
-class BottomNavbarState extends State<BottomNavbar> {
   void onPressed(BuildContext context, String path, RouterState router) {
     router.setPath(context, path);
   }
@@ -38,7 +30,7 @@ class BottomNavbarState extends State<BottomNavbar> {
                   icon: Icons.local_fire_department,
                   text: "Feed",
                   onPressed: () => onPressed(context, "home", router),
-                  active: widget.path == "home",
+                  active: path == "home",
                 ),
               ),
               Expanded(
@@ -46,7 +38,7 @@ class BottomNavbarState extends State<BottomNavbar> {
                   icon: Icons.grid_view,
                   text: "Categories",
                   onPressed: () => onPressed(context, "categories", router),
-                  active: widget.path == "categories",
+                  active: path == "categories",
                 ),
               ),
               BigIconButton(
@@ -60,7 +52,7 @@ class BottomNavbarState extends State<BottomNavbar> {
                   icon: Icons.play_arrow_rounded,
                   text: "Join Game",
                   onPressed: () => onPressed(context, "join", router),
-                  active: widget.path == "join",
+                  active: path == "join",
                 ),
               ),
               Expanded(
@@ -68,7 +60,7 @@ class BottomNavbarState extends State<BottomNavbar> {
                   icon: Icons.person,
                   text: "Profile",
                   onPressed: () => onPressed(context, "profile", router),
-                  active: widget.path == "profile",
+                  active: path == "profile",
                 ),
               ),
             ],

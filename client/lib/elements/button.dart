@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// A small button with text.
-/// The button can be in loading state where the button is disabled and loading symbol is shown.
-class SmallTextButton extends StatefulWidget {
+class SmallTextButton extends StatelessWidget {
+
   final String text;
   final VoidCallback onPressed;
   final bool loading;
@@ -12,22 +12,15 @@ class SmallTextButton extends StatefulWidget {
     required this.onPressed,
     this.loading = false,
     super.key,
-  });
-
-  @override
-  SmallTextButtonState createState() => SmallTextButtonState();
-}
-
-/// The state of the [SmallTextButton] widget.
-class SmallTextButtonState extends State<SmallTextButton> {
+  }); 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return ElevatedButton(
-      onPressed: widget.loading
+      onPressed: loading
           ? null
-          : widget.onPressed, // Disable the button when loading
+          : onPressed, // Disable the button when loading
 
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color>(
@@ -44,7 +37,7 @@ class SmallTextButtonState extends State<SmallTextButton> {
           ),
         ),
       ),
-      child: widget.loading // Show a loading indicator if loading is true
+      child: loading // Show a loading indicator if loading is true
           ? const SizedBox(
               width: 20,
               height: 20,
@@ -53,12 +46,12 @@ class SmallTextButtonState extends State<SmallTextButton> {
                 strokeWidth: 2.0,
               ),
             )
-          : Text(widget.text, style: const TextStyle(color: Colors.white)),
+          : Text(text, style: const TextStyle(color: Colors.white)),
     );
   }
 }
 
-class LargeImageButton extends StatefulWidget {
+class LargeImageButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final String icon;
@@ -69,12 +62,6 @@ class LargeImageButton extends StatefulWidget {
     required this.icon,
     super.key,
   });
-
-  @override
-  LargeImageButtonState createState() => LargeImageButtonState();
-}
-
-class LargeImageButtonState extends State<LargeImageButton> {
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
@@ -90,7 +77,7 @@ class LargeImageButtonState extends State<LargeImageButton> {
   }
 }
 
-class IconTextButton extends StatefulWidget {
+class IconTextButton extends StatelessWidget {  
   final IconData icon;
   final VoidCallback onPressed;
   final String text;
@@ -105,11 +92,6 @@ class IconTextButton extends StatefulWidget {
   });
 
   @override
-  IconTextButtonState createState() => IconTextButtonState();
-}
-
-class IconTextButtonState extends State<IconTextButton> {
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -117,7 +99,7 @@ class IconTextButtonState extends State<IconTextButton> {
       height: double.infinity,
       width: 113,
       child: GestureDetector(
-        onTap: widget.active ? null : widget.onPressed,
+        onTap: active ? null : onPressed,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(0), // Border radius
@@ -126,10 +108,10 @@ class IconTextButtonState extends State<IconTextButton> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(widget.icon,
+              Icon(icon,
                   size: 24,
-                  color: widget.active ? theme.primaryColor : Colors.black),
-              Text(widget.text, style: const TextStyle(color: Colors.black)),
+                  color: active ? theme.primaryColor : Colors.black),
+              Text(text, style: const TextStyle(color: Colors.black)),
             ],
           ),
         ),
