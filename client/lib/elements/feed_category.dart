@@ -1,3 +1,4 @@
+import 'package:client/dummy_data.dart';
 import 'package:client/elements/quiz_post.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +25,7 @@ class FeedCategory extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: 10,
             itemBuilder: (context, index) {
-              return const QuizPost(path: "");
+              return QuizPost(path: "", thumbnail: DummyData.thumbnail, profilePicture: DummyData.profilePicture);
             },
           ),
         ),
