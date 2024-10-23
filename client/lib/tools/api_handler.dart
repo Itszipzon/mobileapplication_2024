@@ -29,8 +29,10 @@ class ApiHandler {
 
   /// Logs in the user.
   static Future<Response> login(String email, String password) async {
-    final response = await http.post(Uri.parse('$_url/api/user/login'), body: jsonEncode({
-      'email': email,
+    final response = await http.post(Uri.parse('$_url/api/user/login'), headers: {
+      'Content-Type': 'application/json'
+    }, body: jsonEncode({
+      'user': email,
       'password': password
     }));
     return response;

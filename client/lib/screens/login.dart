@@ -1,5 +1,6 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/router_provider.dart';
 import 'package:client/tools/user.dart';
@@ -68,11 +69,28 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  Future<void> handleLogin() async {
+ Future<void> handleLogin() async {
     toggleLoading();
-    await Future.delayed(const Duration(seconds: 5));
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    final response =
+        await ApiHandler.login(emailController.text, passwordController.text);
+    
+
+    if (response.statusCode == 200) {
+      user.setToken(response.body);
+
+      if (mounted) {
+        router.setPath(context, "home");
+      }
+    } else {
+      print("Error");
+    }
+
     toggleLoading();
   }
+
 
   @override
   Widget build(BuildContext context) {
