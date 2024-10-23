@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 class ApiHandler {
 
@@ -40,14 +41,21 @@ class ApiHandler {
   }
 
   /// Registers the user.
-  static Future<bool> register(String email, String password, String confirmPassword, String username) async {
-    final response = await http.post(Uri.parse('$_url/api/user/register'), body: {
-      'email': email,
-      'password': password,
-      'confirmPassword': confirmPassword,
-      'username': username
-    });
-    return jsonDecode(response.body);
+  static Future<Response> register(String email, String password, String confirmPassword, String username, bool terms) async {
+    final response = await http.post(
+      Uri.parse('$_url/api/user/register'),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'confirmPassword': confirmPassword,
+        'username': username,
+        'terms': terms
+      }),
+    );
+    return response;
   }
 
   /// Logs out the user.

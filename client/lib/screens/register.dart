@@ -1,5 +1,6 @@
 import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/router_provider.dart';
 import 'package:client/tools/user.dart';
@@ -23,6 +24,7 @@ class RegisterScreenState extends State<Register> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  bool terms = false;
 
   final emailFocusNode = FocusNode();
   final passwordFocusNode = FocusNode();
@@ -59,9 +61,62 @@ class RegisterScreenState extends State<Register> {
   }
 
   Future<void> onPressed(BuildContext context) async {
+    String username = usernameController.text;
+    String email = emailController.text;
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
+
+    RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+    if (username.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty ||
+        !terms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields.')),
+      );
+      return;
+    }
+
+    if (!emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email.')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match.')),
+      );
+      return;
+    }
+
+    if (!terms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please accept the terms.')),
+      );
+      return;
+    }
     toggleLoading();
-    await Future.delayed(const Duration(seconds: 5), () {});
-    toggleLoading();
+    await Future.delayed(const Duration(seconds: 2), () {});
+    try {
+      final result = await ApiHandler.register(email, password, confirmPassword, username, terms);
+      if (result.statusCode == 200) {
+        router.setPath(context, '');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.body)),
+        );
+        toggleLoading();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+      toggleLoading();
+    }
   }
 
   void toggleLoading() {
@@ -133,6 +188,19 @@ class RegisterScreenState extends State<Register> {
                 icon: Icons.lock,
               ),
               const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Checkbox(value: terms, onChanged: (bool? value) {
+                    setState(() {
+                      terms = value!;
+                    }
+                    );
+                  }
+                  ),
+                  const Text("I accept the terms and conditions.")
+                ],
+              ),
               SmallTextButton(
                   text: "Sign up",
                   loading: loading,
