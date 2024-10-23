@@ -72,12 +72,20 @@ public class UserApi {
     return new ResponseEntity<>(map, HttpStatus.OK);
   }
 
+  /**
+   * Check if user is in session.
+   *
+   * @param authorizationHeader Authorization header.
+   * @return User.
+   */
   @GetMapping("/insession")
   public ResponseEntity<Boolean> userInSession(
       @RequestHeader("Authorization") String authorizationHeader) {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ") || authorizationHeader.length() < 7) {
-          return new ResponseEntity<>(false, HttpStatus.OK);
-        }
+    if (authorizationHeader == null
+        || !authorizationHeader.startsWith("Bearer ")
+        || authorizationHeader.length() < 7) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
     return new ResponseEntity<>(sessionManager.hasSession(authorizationHeader.substring(7)),
         HttpStatus.OK);
   }

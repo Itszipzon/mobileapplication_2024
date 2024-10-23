@@ -35,7 +35,6 @@ class LoginScreenState extends State<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = RouterProvider.of(context);
       user = UserProvider.of(context);
-      user.clear();
       _checkUserSession();
     });
   }
