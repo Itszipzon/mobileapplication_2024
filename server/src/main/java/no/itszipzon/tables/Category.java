@@ -27,7 +27,7 @@ public class Category {
   private String name;
 
   @ManyToOne(cascade = CascadeType.MERGE)
-  @JoinColumn(name = "quizId", referencedColumnName = "categoryId")
+  @JoinColumn(name = "quizId", referencedColumnName = "quizId")
   @JsonBackReference
   private Quiz quiz;
 

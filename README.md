@@ -1,0 +1,16 @@
+# Startup
+
+## .env variables
+SERVER_PORT =
+
+DATABASE_URL = {REQUIRED}</br>
+DATABASE_USERNAME = {REQUIRED}</br>
+DATABASE_PASSWORD = </br>
+DATABASE_DRIVER = {REQUIRED}
+
+KEY_NAME = </br>
+CERT_PASS = </br>
+USE_SSL = false </br>
+
+ADMIN_USER = {REQUIRED}</br>
+ADMIN_PASS = {REQUIRED}</br>

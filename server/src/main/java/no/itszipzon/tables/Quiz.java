@@ -1,11 +1,15 @@
 package no.itszipzon.tables;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -42,6 +46,11 @@ public class Quiz {
 
   @Column(nullable = false, name = "timer")
   private Integer timer = 0;
+
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "userId", referencedColumnName = "userId")
+  @JsonBackReference
+  private User user;
 
   @OneToMany(mappedBy = "quiz")
   @JsonManagedReference
