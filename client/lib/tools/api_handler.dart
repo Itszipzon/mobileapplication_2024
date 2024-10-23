@@ -28,16 +28,12 @@ class ApiHandler {
   }
 
   /// Logs in the user.
-  static Future<String> login(String email, String password) async {
-    final response = await http.post(Uri.parse('$_url/api/user/login'), body: {
+  static Future<Response> login(String email, String password) async {
+    final response = await http.post(Uri.parse('$_url/api/user/login'), body: jsonEncode({
       'email': email,
       'password': password
-    });
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return "";
-    }
+    }));
+    return response;
   }
 
   /// Registers the user.
