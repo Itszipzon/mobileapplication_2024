@@ -24,8 +24,8 @@ class HomeState extends State<Home> {
       router = RouterProvider.of(context);
       user = UserProvider.of(context);
       _checkUserSession();
-      _initPosts();
     });
+    _initPosts();
   }
 
   final List<Widget> posts = [];
