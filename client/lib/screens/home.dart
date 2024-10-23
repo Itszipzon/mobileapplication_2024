@@ -30,13 +30,13 @@ class HomeState extends State<Home> {
   final List<Widget> posts = [];
 
   Future<void> _checkUserSession() async {
-    if (!await user.inSession()) {
+/*     if (!await user.inSession()) {
       if (mounted) {
         router.setPath(context, '');
       }
     } else {
       _initPosts();
-    }
+    } */
   }
 
   void _initPosts() {
