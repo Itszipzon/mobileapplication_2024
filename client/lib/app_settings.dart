@@ -2,7 +2,6 @@ import 'package:client/screens/categories.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/join.dart';
 import 'package:client/screens/path_search.dart';
-import 'package:client/screens/profile.dart';
 import 'package:client/screens/register.dart';
 import 'package:client/screens/test.dart';
 import 'package:client/tools/router.dart';
@@ -15,9 +14,8 @@ class AppSettings {
   /// Initiates all the screens in the application.
   static void initiateScreens(RouterState router) {
     router.addScreen("register", const Register());
-    router.addScreen("home", Home());
+    router.addScreen("home", const Home());
     router.addScreen("categories", const Categories());
-    router.addScreen("profile", const Profile());
     router.addScreen("join", const Join());
     router.addScreen('test', const Test());
     router.addScreen('path_search', const PathSearch());
