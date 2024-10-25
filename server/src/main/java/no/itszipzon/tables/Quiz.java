@@ -136,4 +136,12 @@ public class Quiz {
     this.timer = timer;
   }
 
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public User getUser() {
+    return this.user;
+  }
+
 }

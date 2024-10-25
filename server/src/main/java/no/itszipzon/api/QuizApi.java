@@ -10,6 +10,7 @@ import no.itszipzon.repo.QuizOptionRepo;
 import no.itszipzon.tables.Quiz;
 import no.itszipzon.tables.QuizQuestion;
 import no.itszipzon.tables.User;
+import no.itszipzon.repo.UserRepo;
 import no.itszipzon.tables.QuizOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,10 @@ public class QuizApi {
     private QuizOptionRepo quizOptionRepo;
 
     @Autowired
-  private SessionManager sessionManager;
+    private SessionManager sessionManager;
+
+    @Autowired
+    private UserRepo userRepo;
 
     @GetMapping
     @Transactional(readOnly = true)
@@ -53,28 +57,46 @@ public class QuizApi {
     }
 
 
-    //not working :( 
     @PostMapping
     public ResponseEntity<Boolean> createQuiz(@RequestBody Map<String, Object> quiz) {
-        System.out.println(quiz.toString());
+        String title = quiz.get("title").toString();
+        String description = quiz.get("description").toString();
+        String thumbnail = quiz.get("thumbnail").toString();
+        int timer = (int) quiz.get("timer");
+        Long userId = ((Number) quiz.get("userId")).longValue();
+        Quiz newQuiz = new Quiz();
+        User quizUser = userRepo.findById(userId).get();
+        newQuiz.setTitle(title);
+        newQuiz.setDescription(description);
+        newQuiz.setThumbnail(thumbnail);
+        newQuiz.setTimer(timer);
+        newQuiz.setUser(quizUser);
+        quizRepo.save(newQuiz);
+
+        List<Map<String, Object>> questions = (List<Map<String, Object>>) quiz.get("quizQuestions");
+        for (Map<String, Object> question : questions) {
+            String questionText = (String) question.get("question");
+            QuizQuestion quizQuestion = new QuizQuestion();
+            quizQuestion.setQuestion(questionText);
+            quizQuestion.setQuiz(newQuiz);
+            quizQuestionRepo.save(quizQuestion);
+            List<Map<String, Object>> options = (List<Map<String, Object>>) question.get("quizOptions");
+            for (Map<String, Object> option : options) {
+                String optionText = (String) option.get("option");
+                boolean isCorrect = (boolean) option.get("correct");
+                QuizOption quizOption = new QuizOption();
+                quizOption.setQuizQuestion(quizQuestion);
+                quizOption.setCorrect(isCorrect);
+                quizOption.setOption(optionText);
+                quizOptionRepo.save(quizOption);
+                // Process each option if needed
+            }
+        }
         return new ResponseEntity<>(true, HttpStatus.CREATED);
     }
     
 
-    @PutMapping("/{id}")
-    public ResponseEntity<QuizDto> updateQuiz(@PathVariable Long id, @RequestBody Quiz updatedQuiz) {
-        return quizRepo.findById(id).map(quiz -> {
-            quiz.setTitle(updatedQuiz.getTitle());
-            quiz.setDescription(updatedQuiz.getDescription());
-            quiz.setThumbnail(updatedQuiz.getThumbnail());
-            quiz.setTimer(updatedQuiz.getTimer());
-            quiz.setUpdatedAt(LocalDateTime.now());
-            Quiz savedQuiz = quizRepo.save(quiz);
-            return ResponseEntity.ok(mapToQuizDto(savedQuiz));
-        }).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-
+    // not working :(
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuiz(@PathVariable Long id) {
         if (quizRepo.existsById(id)) {
@@ -84,52 +106,6 @@ public class QuizApi {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/{quizId}/questions")
-    public ResponseEntity<QuizQuestionDto> addQuestionToQuiz(@PathVariable Long quizId,
-            @RequestBody QuizQuestion question) {
-        return quizRepo.findById(quizId).map(quiz -> {
-            question.setQuiz(quiz);
-            QuizQuestion savedQuestion = quizQuestionRepo.save(question);
-            return new ResponseEntity<>(mapToQuestionDto(savedQuestion), HttpStatus.CREATED);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/{quizId}/questions")
-    public ResponseEntity<List<QuizQuestionDto>> getQuestionsByQuizId(@PathVariable Long quizId) {
-        return quizRepo.findById(quizId)
-                .map(quiz -> {
-                    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream()
-                            .map(this::mapToQuestionDto)
-                            .collect(Collectors.toList());
-                    return ResponseEntity.ok(questionsDto);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/questions/{questionId}/options")
-    public ResponseEntity<QuizOptionDto> addOptionToQuestion(@PathVariable Long questionId,
-            @RequestBody QuizOption option) {
-        return quizQuestionRepo.findById(questionId).map(question -> {
-            option.setQuizQuestion(question);
-            QuizOption savedOption = quizOptionRepo.save(option);
-            return new ResponseEntity<>(
-                    new QuizOptionDto(savedOption.getQuizOptionId(), savedOption.getOption(), savedOption.isCorrect()),
-                    HttpStatus.CREATED);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/questions/{questionId}/options")
-    public ResponseEntity<List<QuizOptionDto>> getOptionsByQuestionId(@PathVariable Long questionId) {
-        return quizQuestionRepo.findById(questionId)
-                .map(question -> {
-                    List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
-                            .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOption(),
-                                    option.isCorrect()))
-                            .collect(Collectors.toList());
-                    return ResponseEntity.ok(optionsDto);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
 
     private QuizDto mapToQuizDto(Quiz quiz) {
         List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream().map(this::mapToQuestionDto)
