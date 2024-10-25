@@ -2,81 +2,100 @@ package no.itszipzon.dto;
 
 import java.util.List;
 
+/**
+ * QuizDto.
+ */
 public class QuizDto {
 
-    private long id;
-    private String title;
-    private String description;
-    private String thumbnail;
-    private Integer timer;
-    private List<QuizQuestionDto> quizQuestions;
+  private long id;
+  private String title;
+  private String description;
+  private String thumbnail;
+  private Integer timer;
+  private List<QuizQuestionDto> quizQuestions;
 
+  /**
+   * QuizDto.
+   *
+   * @param id id.
+   * @param title title.
+   * @param description description.
+   * @param thumbnail thumbnail.
+   * @param timer timer.
+   */
+  public QuizDto(long id, String title, String description, String thumbnail, Integer timer) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.thumbnail = thumbnail;
+    this.timer = timer;
+  }
 
-    public QuizDto(long id, String title, String description, String thumbnail, Integer timer) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.thumbnail = thumbnail;
-        this.timer = timer;
-    }
+  /**
+   * QuizDto.
+   *
+   * @param id id.
+   * @param title title.
+   * @param description description.
+   * @param thumbnail thumbnail.
+   * @param timer timer.
+   * @param quizQuestions quizQuestions.
+   */
+  public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
+      List<QuizQuestionDto> quizQuestions) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.thumbnail = thumbnail;
+    this.timer = timer;
+    this.quizQuestions = quizQuestions;
+  }
 
+  public long getId() {
+    return id;
+  }
 
-    public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
-            List<QuizQuestionDto> quizQuestions) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.thumbnail = thumbnail;
-        this.timer = timer;
-        this.quizQuestions = quizQuestions;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
- 
-    public long getId() {
-        return id;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public String getThumbnail() {
+    return thumbnail;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setThumbnail(String thumbnail) {
+    this.thumbnail = thumbnail;
+  }
 
-    public String getThumbnail() {
-        return thumbnail;
-    }
+  public Integer getTimer() {
+    return timer;
+  }
 
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
-    }
+  public void setTimer(Integer timer) {
+    this.timer = timer;
+  }
 
-    public Integer getTimer() {
-        return timer;
-    }
+  public List<QuizQuestionDto> getQuizQuestions() {
+    return quizQuestions;
+  }
 
-    public void setTimer(Integer timer) {
-        this.timer = timer;
-    }
-
-    public List<QuizQuestionDto> getQuizQuestions() {
-        return quizQuestions;
-    }
-
-    public void setQuizQuestions(List<QuizQuestionDto> quizQuestions) {
-        this.quizQuestions = quizQuestions;
-    }
+  public void setQuizQuestions(List<QuizQuestionDto> quizQuestions) {
+    this.quizQuestions = quizQuestions;
+  }
 }

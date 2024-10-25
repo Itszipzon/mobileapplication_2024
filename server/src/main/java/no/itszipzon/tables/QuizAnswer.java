@@ -23,17 +23,17 @@ public class QuizAnswer {
   @Column(name = "quizAnswerId")
   private Long quizAnswerId;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizQuestionId", referencedColumnName = "quizQuestionId")
   @JsonBackReference
   private QuizQuestion quizOption;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizOptionId", referencedColumnName = "quizOptionId")
   @JsonBackReference
   private QuizOption quizQuestion;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizAttemptId", referencedColumnName = "quizAttemptId")
   @JsonBackReference
   private QuizAttempt quizAttempt;

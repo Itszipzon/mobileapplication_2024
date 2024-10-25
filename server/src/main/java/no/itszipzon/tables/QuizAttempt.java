@@ -27,12 +27,12 @@ public class QuizAttempt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizAttemptId;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "userId", referencedColumnName = "userId")
   @JsonBackReference
   private User user;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizId", referencedColumnName = "quizId")
   @JsonBackReference
   private Quiz quiz;

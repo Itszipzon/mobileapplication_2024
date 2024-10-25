@@ -47,7 +47,7 @@ public class Quiz {
   @Column(nullable = false, name = "timer")
   private Integer timer = 0;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "userId", referencedColumnName = "userId")
   @JsonBackReference
   private User user;
