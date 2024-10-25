@@ -1,15 +1,15 @@
 package no.itszipzon.tables;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 
 /**
  * Category.
@@ -26,9 +26,10 @@ public class Category {
   @Column(nullable = false, name = "name")
   private String name;
 
-  @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
-  @JsonManagedReference
-  private List<Quiz> quizes;
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "quizId", referencedColumnName = "quizId")
+  @JsonBackReference
+  private Quiz quiz;
 
 
   public Long getCategoryId() {
@@ -47,12 +48,12 @@ public class Category {
     this.name = name;
   }
 
-  public List<Quiz> getQuizes() {
-    return quizes;
+  public Quiz getQuiz() {
+    return quiz;
   }
 
-  public void setQuizes(List<Quiz> quizes) {
-    this.quizes = quizes;
+  public void setQuiz(Quiz quiz) {
+    this.quiz = quiz;
   }
 
 }

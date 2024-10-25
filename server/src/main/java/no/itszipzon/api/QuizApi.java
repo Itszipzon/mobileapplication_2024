@@ -65,6 +65,7 @@ public class QuizApi {
   @GetMapping("/{id}")
   public ResponseEntity<QuizDto> getQuizById(@PathVariable Long id) {
     Optional<Quiz> quiz = quizRepo.findById(id);
+
     return quiz.map(value -> ResponseEntity.ok(mapToQuizDto(value))).orElseGet(
       () -> ResponseEntity.notFound().build());
   }
@@ -77,6 +78,7 @@ public class QuizApi {
    */
   @PostMapping
   public ResponseEntity<Boolean> createQuiz(@RequestBody Map<String, Object> quiz) {
+
     String title = quiz.get("title").toString();
     String description = quiz.get("description").toString();
     String thumbnail = quiz.get("thumbnail").toString();
@@ -84,6 +86,7 @@ public class QuizApi {
     Long userId = ((Number) quiz.get("userId")).longValue();
     Quiz newQuiz = new Quiz();
     User quizUser = userRepo.findById(userId).get();
+
     newQuiz.setTitle(title);
     newQuiz.setDescription(description);
     newQuiz.setThumbnail(thumbnail);
@@ -95,30 +98,41 @@ public class QuizApi {
     if (!(questionsObj instanceof List)) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
+
     List<?> questionsList = (List<?>) questionsObj;
+
     List<Map<String, Object>> questions = questionsList.stream()
         .filter(Map.class::isInstance)
         .map(Map.class::cast)
         .collect(Collectors.toList());
+
     for (Map<String, Object> question : questions) {
+
       String questionText = (String) question.get("question");
       QuizQuestion quizQuestion = new QuizQuestion();
+
       quizQuestion.setQuestion(questionText);
       quizQuestion.setQuiz(newQuiz);
       quizQuestionRepo.save(quizQuestion);
       Object optionsObj = question.get("quizOptions");
+
       if (!(optionsObj instanceof List)) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
+
       List<?> optionsList = (List<?>) optionsObj;
+
       List<Map<String, Object>> options = optionsList.stream()
           .filter(Map.class::isInstance)
           .map(Map.class::cast)
           .collect(Collectors.toList());
+
       for (Map<String, Object> option : options) {
+
         String optionText = (String) option.get("option");
         boolean isCorrect = (boolean) option.get("correct");
         QuizOption quizOption = new QuizOption();
+
         quizOption.setQuizQuestion(quizQuestion);
         quizOption.setCorrect(isCorrect);
         quizOption.setOption(optionText);
@@ -158,12 +172,14 @@ public class QuizApi {
   }
 
   private QuizQuestionDto mapToQuestionDto(QuizQuestion question) {
+
     List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
         .map(option -> new QuizOptionDto(
           option.getQuizOptionId(),
           option.getOption(),
           option.isCorrect()))
         .collect(Collectors.toList());
+    
     return new QuizQuestionDto(question.getQuizQuestionId(), question.getQuestion(), optionsDto);
   }
 }
