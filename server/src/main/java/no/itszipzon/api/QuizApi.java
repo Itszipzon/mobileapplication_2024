@@ -11,7 +11,6 @@ import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.repo.QuizOptionRepo;
 import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
-import no.itszipzon.repo.UserRepo;
 import no.itszipzon.tables.Quiz;
 import no.itszipzon.tables.QuizOption;
 import no.itszipzon.tables.QuizQuestion;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,9 +46,6 @@ public class QuizApi {
 
   @Autowired
   private SessionManager sessionManager;
-
-  @Autowired
-  private UserRepo userRepo;
 
   @GetMapping
   @Transactional(readOnly = true)
@@ -77,15 +74,26 @@ public class QuizApi {
    * @return If the quiz was created.
    */
   @PostMapping
-  public ResponseEntity<Boolean> createQuiz(@RequestBody Map<String, Object> quiz) {
+  public ResponseEntity<Boolean> createQuiz(
+      @RequestBody Map<String, Object> quiz,
+      @RequestHeader("Authorization") String authorizationHeader) {
+
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+    
+    String token = authorizationHeader.substring(7);
+    
+    if (!sessionManager.hasSession(token)) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     String title = quiz.get("title").toString();
     String description = quiz.get("description").toString();
     String thumbnail = quiz.get("thumbnail").toString();
     int timer = (int) quiz.get("timer");
-    Long userId = ((Number) quiz.get("userId")).longValue();
     Quiz newQuiz = new Quiz();
-    User quizUser = userRepo.findById(userId).get();
+    User quizUser = sessionManager.getUser(token);
 
     newQuiz.setTitle(title);
     newQuiz.setDescription(description);
