@@ -57,6 +57,7 @@ public class QuizApi {
     }
 
 
+
     @PostMapping
     public ResponseEntity<Boolean> createQuiz(@RequestBody Map<String, Object> quiz) {
         String title = quiz.get("title").toString();
@@ -94,18 +95,15 @@ public class QuizApi {
         }
         return new ResponseEntity<>(true, HttpStatus.CREATED);
     }
-    
 
-    // not working :(
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteQuiz(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteQuiz(@PathVariable Long id) {
         if (quizRepo.existsById(id)) {
             quizRepo.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return new ResponseEntity<>(true, HttpStatus.CREATED);
         }
-        return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(false, HttpStatus.CREATED);
     }
-
 
     private QuizDto mapToQuizDto(Quiz quiz) {
         List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream().map(this::mapToQuestionDto)

@@ -29,7 +29,7 @@ public class QuizOption {
   @Column(nullable = false, name = "correct")
   private boolean correct;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizQuestionId", referencedColumnName = "quizQuestionId")
   @JsonBackReference
   private QuizQuestion quizQuestion;

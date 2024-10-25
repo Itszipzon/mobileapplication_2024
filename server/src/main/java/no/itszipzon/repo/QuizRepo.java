@@ -19,4 +19,6 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
 
     @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions" })
     Optional<Quiz> findById(Long id);
+
+
 }
