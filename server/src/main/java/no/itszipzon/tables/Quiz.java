@@ -58,7 +58,7 @@ public class Quiz {
 
   @OneToMany(mappedBy = "quiz")
   @JsonManagedReference
-  private List<Category> categories;
+  private List<QuizCategory> categories;
 
   @PrePersist
   protected void onCreate() {
