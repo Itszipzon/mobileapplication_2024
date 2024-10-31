@@ -113,6 +113,33 @@ public class UserApi {
   }
 
   /**
+   * Check if user is in session.
+   *
+   * @param authorizationHeader User token.
+   * @return Boolean.
+   */
+  @GetMapping("/insession")
+  public ResponseEntity<Boolean> inSession(
+      @RequestHeader("Authorization") String authorizationHeader) {
+
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
+
+    String token = authorizationHeader.substring(7);
+
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
+
+    System.out.println("Checking if " + claims.getSubject() + " is in session");
+
+    return new ResponseEntity<>(true, HttpStatus.OK);
+  }
+
+  /**
    * Registers a new user.
    *
    * @param values User values to register.
