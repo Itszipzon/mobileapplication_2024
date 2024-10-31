@@ -70,10 +70,6 @@ public class JwtUtil {
     }
   }
 
-  public String extractUsername(String token) {
-    return extractClaims(token).getSubject();
-  }
-
   private Date convertToDate(LocalDateTime localDateTime) {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
   }

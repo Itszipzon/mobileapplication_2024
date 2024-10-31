@@ -242,7 +242,7 @@ public class UserApi {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    String username = jwtUtil.extractUsername(token);
+    String username = claims.getSubject();
 
     Optional<User> user = userRepo.findUserByUsername(username);
 
@@ -292,8 +292,7 @@ public class UserApi {
     if (!claims.get("role", String.class).equals("admin")) {
       return new ResponseEntity<Boolean>(false, HttpStatus.UNAUTHORIZED);
     }
-    Optional<User> user = userRepo.findUserByUsername(
-        jwtUtil.extractUsername(entity.get("username")));
+    Optional<User> user = userRepo.findUserByUsername(claims.getSubject());
     if (user.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -303,7 +302,7 @@ public class UserApi {
     user.get().setBanned(bannedTo);
     userRepo.save(user.get());
     Logger.info("User " + bannedUser.getUsername() + " was banned by "
-        + jwtUtil.extractUsername(token));
+        + claims.getSubject());
     return new ResponseEntity<>(true, HttpStatus.OK);
   }
 
@@ -345,7 +344,7 @@ public class UserApi {
         return new ResponseEntity<>("File too big", HttpStatus.BAD_REQUEST);
       }
 
-      String username = jwtUtil.extractUsername(token);
+      String username = claims.getSubject();
       String pfpName = Tools.addImage(username, image, "pfp");
 
       if (pfpName.isEmpty()) {
@@ -391,7 +390,7 @@ public class UserApi {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    String username = jwtUtil.extractUsername(token);
+    String username = claims.getSubject();
     if (mapUsername.equalsIgnoreCase(username)
         && mapEmail.equalsIgnoreCase(claims.get("email", String.class))
         && mapUsername.equalsIgnoreCase(username) && mapNewPassword.isEmpty()) {
