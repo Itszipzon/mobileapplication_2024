@@ -38,6 +38,7 @@ class _AppState extends State<App> {
               _router.setPath(context, "path_search");
             },
           ),
+          title: const Image(image: AssetImage("assets/logo.png"), height: 30),
         ),
         body: Container(
           decoration: BoxDecoration(

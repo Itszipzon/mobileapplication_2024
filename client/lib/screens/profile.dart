@@ -16,7 +16,7 @@ class Profile extends StatefulWidget {
 class ProfileState extends State<Profile> {
   late final RouterState router;
   late final User user;
-  Map<String, dynamic> profile = {"username": "", "email": "", "pfp": ""};
+  Map<String, dynamic> profile = {};
 
   @override
   void initState() {
@@ -38,53 +38,59 @@ class ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Row(
-              // Profile Picture and Name
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    print("Not implemented yet");
-                  },
-                  child: ClipOval(
-                    child: ProfilePicture(url: profile["pfp"].toString()),
+    return profile.isEmpty
+        ? const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.orange,
+                strokeWidth: 2.0,
+              ),
+            ),
+            bottomNavigationBar: BottomNavbar(path: "profile"),
+          )
+        : Scaffold(
+            body: Container(
+              margin: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Row(
+                    // Profile Picture and Name
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          print("Not implemented yet");
+                        },
+                        child: ClipOval(
+                          child: ProfilePicture(url: profile["pfp"].toString()),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "@${profile["username"]}",
+                          ),
+                          Text(
+                            profile["email"].toString(),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile["username"].toString().isEmpty
-                          ? "Loading..."
-                          : "@${profile["username"]}",
-                    ),
-                    Text(
-                      profile["email"].toString().isEmpty
-                          ? "Loading..."
-                          : profile["email"].toString(),
-                    ),
-                  ],
-                )
-              ],
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Row(
+                    //
+                    children: [],
+                  )
+                ],
+              ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            const Row(
-              //
-              children: [],
-            )
-          ],
-        ),
-      ),
-      bottomNavigationBar: const BottomNavbar(path: "profile"),
-    );
+            bottomNavigationBar: const BottomNavbar(path: "profile"),
+          );
   }
 }
