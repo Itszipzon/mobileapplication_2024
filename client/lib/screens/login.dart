@@ -42,21 +42,7 @@ class LoginScreenState extends State<LoginScreen> {
   /// Check if the user is already logged in
   Future<void> _checkUserSession() async {
     if (await user.inSession()) {
-      if (mounted) {
-        router.setPath(context, 'home');
-      }
-    }
-  }
-
-  void login() {
-    String email = emailController.text;
-    String password = passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in both fields.')),
-      );
-      return;
+      router.setPath(context, 'home');
     }
   }
 

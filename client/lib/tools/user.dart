@@ -68,4 +68,8 @@ class User extends ChangeNotifier {
     _token = prefs.getString('user_token');
     notifyListeners();
   }
+
+  Future<Map<String, dynamic>> getProfile() async {
+    return await ApiHandler.getProfile(_token!);
+  }
 }

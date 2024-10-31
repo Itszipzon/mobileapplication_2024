@@ -1,10 +1,13 @@
+import 'package:client/elements/profile_picture.dart';
 import 'package:client/tools/router_provider.dart';
 import 'package:flutter/material.dart';
 
 class QuizPost extends StatelessWidget {
-  const QuizPost({super.key, required this.path,
-  required this.thumbnail,
-  required this.profilePicture});
+  const QuizPost(
+      {super.key,
+      required this.path,
+      required this.thumbnail,
+      required this.profilePicture});
 
   final String path;
   final String thumbnail;
@@ -35,11 +38,9 @@ class QuizPost extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClipOval(
-                        child: Image(
-                          image: NetworkImage(profilePicture),
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
+                        child: ProfilePicture(
+                          url: profilePicture,
+                          size: 50,
                         ),
                       ),
                       const SizedBox(width: 8),

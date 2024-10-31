@@ -72,4 +72,11 @@ class ApiHandler {
     final response = await http.get(Uri.parse('$_url/api/user/usernameexists/$username'));
     return jsonDecode(response.body);
   }
+
+  static Future<Map<String, dynamic>> getProfile(String token) async {
+    final response = await http.get(Uri.parse('$_url/api/user'), headers: {
+      "Authorization" : "Bearer $token"
+    });
+    return jsonDecode(response.body);
+  }
 }
