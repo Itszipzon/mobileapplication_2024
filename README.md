@@ -19,23 +19,29 @@ ADMIN_PASS = {REQUIRED}</br>
 env example>
 
 
-SERVER_PORT = 8080
+SERVER_PORT = 8080</br>
 
-DATABASE_URL = jdbc:mysql://localhost:3306/mobilapp
-DATABASE_USERNAME = root
-DATABASE_PASSWORD =
-DATABASE_DRIVER = com.mysql.cj.jdbc.Driver
+DATABASE_URL = jdbc:mysql://localhost:3306/mobilapp</br>
+DATABASE_USERNAME = root</br>
+DATABASE_PASSWORD =</br>
+DATABASE_DRIVER = com.mysql.cj.jdbc.Driver</br>
 
-KEY_NAME =
-CERT_PASS =
-USE_SSL = false
+KEY_NAME =</br>
+CERT_PASS =</br>
+USE_SSL = false</br>
 
-ADMIN_USER = Jan
-ADMIN_PASS = 123ijHUIHI7
+ADMIN_USER = {Required}</br>
+ADMIN_PASS = {Required}</br>
+
+JWT_SECRET = {Required} 
+
+### To generate a JWT_SECRET securely
+```bash
+openssl rand -base64 32
+```
 
 
-
-properties example: 
+## properties example: 
 
 
 spring.servlet.multipart.max-file-size=4MB
@@ -63,3 +69,5 @@ spring.security.user.password=${ADMIN_PASS}
 spring.jpa.open-in-view=false
 
 spring.output.ansi.enabled=always
+
+jwt.secret=${JWT_SECRET}

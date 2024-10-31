@@ -9,6 +9,8 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 import no.itszipzon.tables.User;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -168,6 +170,15 @@ public class Tools {
       e.printStackTrace();
       return "";
     }
+  }
+
+  public static boolean matchPasswords(String password, String hashedPassword) {
+    return BCrypt.checkpw(password, hashedPassword);
+  }
+
+  public static String hashPassword(String password) {
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    return encoder.encode(password);
   }
 
 }

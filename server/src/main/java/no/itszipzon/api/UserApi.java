@@ -1,13 +1,14 @@
 package no.itszipzon.api;
 
+import io.jsonwebtoken.Claims;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import no.itszipzon.Logger;
 import no.itszipzon.Tools;
-import no.itszipzon.config.SessionManager;
+import no.itszipzon.config.JwtUtil;
 import no.itszipzon.repo.UserRepo;
 import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserApi {
 
   @Autowired
-  private SessionManager sessionManager;
+  private UserRepo userRepo;
 
   @Autowired
-  private UserRepo userRepo;
+  private JwtUtil jwtUtil;
 
   /**
    * Get user.
@@ -53,43 +54,28 @@ public class UserApi {
 
     String token = authorizationHeader.substring(7);
 
-    if (!sessionManager.hasSession(token)) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    try {
+      Claims claims = jwtUtil.extractClaims(token);
+
+      if (claims == null) {
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+      }
+
+      Map<String, Object> map = new HashMap<>();
+      map.put("username", claims.getSubject());
+      map.put("email", claims.get("email", String.class));
+      map.put("role", claims.get("role", String.class));
+      map.put("created", claims.get("created", Date.class));
+      map.put("updated", claims.get("updated", Date.class));
+      map.put("pfp", claims.get("profilePicture", String.class));
+
+      Logger.log("User " + claims.getSubject() + " requested their own information");
+      return new ResponseEntity<>(map, HttpStatus.OK);
+
+    } catch (Exception e) {
+      
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
-    User user = sessionManager.getUser(token);
-
-    Map<String, Object> map = new HashMap<>();
-    map.put("id", user.getId());
-    map.put("username", user.getUsername());
-    map.put("email", user.getEmail());
-    map.put("role", user.getRole());
-    map.put("created", user.getCreatedAt());
-    map.put("updated", user.getUpdatedAt());
-    map.put("pfp", user.getProfilePicture());
-
-    Logger.log("User " + user.getUsername() + " requested their own information");
-    return new ResponseEntity<>(map, HttpStatus.OK);
-  }
-
-  /**
-   * Check if user is in session.
-   *
-   * @param authorizationHeader Authorization header.
-   * @return User.
-   */
-  @GetMapping("/insession")
-  public ResponseEntity<Boolean> userInSession(
-      @RequestHeader("Authorization") String authorizationHeader) {
-
-    if (authorizationHeader == null
-        || !authorizationHeader.startsWith("Bearer ")
-        || authorizationHeader.length() < 7) {
-      return new ResponseEntity<>(false, HttpStatus.OK);
-    }
-
-    return new ResponseEntity<>(sessionManager.hasSession(authorizationHeader.substring(7)),
-        HttpStatus.OK);
   }
 
   @GetMapping("/usernameexists/{username}")
@@ -113,12 +99,17 @@ public class UserApi {
 
     String token = authorizationHeader.substring(7);
 
-    if (!sessionManager.hasSession(token)) {
-      return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-    Logger.info("Checking if " + sessionManager.getUser(token).getUsername() + " is admin");
-    return new ResponseEntity<>(sessionManager.getUser(token).getRole().equals("admin"),
-        HttpStatus.OK);
+
+    if (!claims.get("role", String.class).equals("admin")) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
+
+    return new ResponseEntity<>(true, HttpStatus.OK);
   }
 
   /**
@@ -160,12 +151,12 @@ public class UserApi {
     }
 
     try {
-      
+
       User user = new User();
       user.setUsername(values.get("username"));
       user.setEmail(values.get("email"));
       user.setTerms(LocalDateTime.now());
-      user.setPassword(sessionManager.encryptPassword(values.get("password")));
+      user.setPassword(Tools.hashPassword(values.get("password")));
       userRepo.save(user);
 
       Logger.log("User " + user.getUsername() + " registered");
@@ -198,25 +189,15 @@ public class UserApi {
       return new ResponseEntity<>("User is banned", HttpStatus.NOT_ACCEPTABLE);
     }
 
-    if (sessionManager.checkPassword(values.get("password"), loggedInUser.get().getPassword())) {
-
-      User neededValuesUser = new User();
-      neededValuesUser.setId(loggedInUser.get().getId());
-      neededValuesUser.setUsername(loggedInUser.get().getUsername());
-      neededValuesUser.setEmail(loggedInUser.get().getEmail());
-      neededValuesUser.setProfilePicture(loggedInUser.get().getProfilePicture());
-      neededValuesUser.setRole(loggedInUser.get().getRole());
-      neededValuesUser.setCreatedAt(loggedInUser.get().getCreatedAt());
-      neededValuesUser.setUpdatedAt(loggedInUser.get().getUpdatedAt());
-
-      String token = Tools.generateToken(sessionManager.getSessions());
-
-      sessionManager.addSession(token, neededValuesUser);
-
+    if (Tools.matchPasswords(values.get("password"), loggedInUser.get().getPassword())) {
+      
       loggedInUser.get().setLastLoggedIn(LocalDateTime.now());
       userRepo.save(loggedInUser.get());
 
       Logger.log("User " + loggedInUser.get().getUsername() + " logged in");
+
+      String token = jwtUtil.generateToken(loggedInUser.get(), (24 * 30));
+      
       return new ResponseEntity<>(token, HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Username or password is not correct", HttpStatus.UNAUTHORIZED);
@@ -233,13 +214,7 @@ public class UserApi {
   public ResponseEntity<String> logout(@RequestBody String token) {
     token = token.replace("=", "");
     System.out.println("Logging out");
-    if (sessionManager.hasSession(token)) {
-      Logger.log("User " + sessionManager.getUser(token).getUsername() + " logged out");
-      sessionManager.removeSession(token);
-      return new ResponseEntity<>("Logged out", HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>("Invalid session", HttpStatus.UNAUTHORIZED);
-    }
+    return new ResponseEntity<>("Logged out", HttpStatus.OK);
   }
 
   /**
@@ -249,26 +224,33 @@ public class UserApi {
    * @return Response.
    */
   @PostMapping("/changepassword")
-  public ResponseEntity<String> changePassword(@RequestBody Map<String, String> map) {
-    String token = map.get("token");
-
-    if (!sessionManager.hasSession(token)) {
-      return new ResponseEntity<>("Invalid session", HttpStatus.UNAUTHORIZED);
+  public ResponseEntity<String> changePassword(
+      @RequestBody Map<String, String> map,
+      @RequestHeader("Authorization") String authorizationHeader) {
+    
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    System.out.println(map.toString());
+    String token = authorizationHeader.substring(7);
 
     String oldPassword = map.get("oldPassword");
 
-    User user = sessionManager.getUser(token);
+    Claims claims = jwtUtil.extractClaims(token);
 
-    Optional<User> userFromDb = userRepo.findUserByUsername(user.getUsername());
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 
-    if (userFromDb.isEmpty()) {
+    String username = jwtUtil.extractUsername(token);
+
+    Optional<User> user = userRepo.findUserByUsername(username);
+
+    if (user.isEmpty()) {
       return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
     }
 
-    if (!sessionManager.checkPassword(oldPassword, userFromDb.get().getPassword())) {
+    if (!Tools.matchPasswords(oldPassword, user.get().getPassword())) {
       return new ResponseEntity<>("Old password is not correct", HttpStatus.BAD_REQUEST);
     }
 
@@ -279,9 +261,8 @@ public class UserApi {
       return new ResponseEntity<>("Passwords do not match", HttpStatus.BAD_REQUEST);
     }
 
-    user.setPassword(sessionManager.encryptPassword(newPassword));
-    userRepo.save(user);
-    Logger.info("User " + user.getUsername() + " changed password");
+    userRepo.save(user.get());
+    Logger.info("User " + user.get().getUsername() + " changed password");
     return new ResponseEntity<>("Password changed", HttpStatus.OK);
   }
 
@@ -292,23 +273,37 @@ public class UserApi {
    * @return Response.
    */
   @PostMapping("/ban")
-  public ResponseEntity<Boolean> banUser(@RequestBody HashMap<String, String> entity) {
+  public ResponseEntity<Boolean> banUser(
+      @RequestBody HashMap<String, String> entity,
+      @RequestHeader("Authorization") String authorizationHeader) {
 
-    String adminUid = UUID.fromString(entity.get("uid")).toString();
-
-    if (!sessionManager.getUser(adminUid).getRole().equalsIgnoreCase("admin")) {
-      return new ResponseEntity<Boolean>(false, HttpStatus.UNAUTHORIZED);
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    User bannedUser = sessionManager.getUser(entity.get("bannedUser"));
+    String token = authorizationHeader.substring(7);
+
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    if (!claims.get("role", String.class).equals("admin")) {
+      return new ResponseEntity<Boolean>(false, HttpStatus.UNAUTHORIZED);
+    }
+    Optional<User> user = userRepo.findUserByUsername(
+        jwtUtil.extractUsername(entity.get("username")));
+    if (user.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    User bannedUser = user.get();
     LocalDateTime bannedTo = LocalDateTime.parse(entity.get("bannedTo"));
 
-    Optional<User> user = userRepo.findUserByUsername(bannedUser.getUsername());
     user.get().setBanned(bannedTo);
     userRepo.save(user.get());
-    sessionManager.terminateSessions(user.get());
-    Logger.info("User " + bannedUser.getUsername()
-        + " was banned by " + sessionManager.getUser(adminUid).getUsername());
+    Logger.info("User " + bannedUser.getUsername() + " was banned by "
+        + jwtUtil.extractUsername(token));
     return new ResponseEntity<>(true, HttpStatus.OK);
   }
 
@@ -328,11 +323,11 @@ public class UserApi {
 
     String token = authorizationHeader.substring(7);
 
-    if (!sessionManager.hasSession(token)) {
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
-    User user = sessionManager.getUser(token);
 
     try {
 
@@ -350,24 +345,19 @@ public class UserApi {
         return new ResponseEntity<>("File too big", HttpStatus.BAD_REQUEST);
       }
 
-      String pfpName = Tools.addImage(user.getUsername(), image, "pfp");
+      String username = jwtUtil.extractUsername(token);
+      String pfpName = Tools.addImage(username, image, "pfp");
 
       if (pfpName.isEmpty()) {
         return new ResponseEntity<>("Could not update image", HttpStatus.INTERNAL_SERVER_ERROR);
       }
 
-      User userFromDb = userRepo.findUserByUsername(user.getUsername()).get();
+      User userFromDb = userRepo.findUserByUsername(username).get();
 
       userFromDb.setProfilePicture(pfpName);
 
-      for (User u : sessionManager.getSessions().values()) {
-        if (u.getUsername().equals(user.getUsername())) {
-          u.setProfilePicture(pfpName);
-        }
-      }
-
       userRepo.save(userFromDb);
-      return new ResponseEntity<>("Image updated", HttpStatus.OK);
+      return new ResponseEntity<>(jwtUtil.generateToken(userFromDb, 24 * 30), HttpStatus.OK);
     } catch (Exception e) {
       e.printStackTrace();
       Logger.error(e.getMessage());
@@ -382,8 +372,7 @@ public class UserApi {
    * @return Response.
    */
   @PutMapping("/update")
-  public ResponseEntity<String> updateUser(
-      @RequestBody Map<String, String> user,
+  public ResponseEntity<String> updateUser(@RequestBody Map<String, String> user,
       @RequestHeader("Authorization") String authorizationHeader) {
 
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -392,20 +381,20 @@ public class UserApi {
 
     String token = authorizationHeader.substring(7);
 
-    if (!sessionManager.hasSession(token)) {
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-
-    User sessionUser = sessionManager.getUser(token);
-
     String mapEmail = user.get("email");
     String mapUsername = user.get("username");
     String mapNewPassword = user.get("newPassword");
 
-    if (mapUsername.equalsIgnoreCase(sessionUser.getUsername())
-        && mapEmail.equalsIgnoreCase(sessionUser.getEmail())
-        && mapUsername.equalsIgnoreCase(sessionUser.getUsername())
-        && mapNewPassword.isEmpty()) {
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    String username = jwtUtil.extractUsername(token);
+    if (mapUsername.equalsIgnoreCase(username)
+        && mapEmail.equalsIgnoreCase(claims.get("email", String.class))
+        && mapUsername.equalsIgnoreCase(username) && mapNewPassword.isEmpty()) {
       return new ResponseEntity<>("No changes", HttpStatus.BAD_REQUEST);
     }
 
@@ -423,11 +412,11 @@ public class UserApi {
 
     String oldPassword = user.get("oldPassword");
 
-    if (!sessionManager.checkPassword(oldPassword, userToUpdate.getPassword())) {
+    if (!Tools.matchPasswords(oldPassword, userToUpdate.getPassword())) {
       return new ResponseEntity<>("Current password is not correct", HttpStatus.BAD_REQUEST);
     }
 
-    if (!mapUsername.isEmpty() && !mapUsername.equalsIgnoreCase(sessionUser.getUsername())) {
+    if (!mapUsername.isEmpty() && !mapUsername.equalsIgnoreCase(username)) {
 
       if (!mapUsername.isEmpty()
           && !mapUsername.matches("^(?!.*\\.{2})(?!.*\\.$)[a-zA-Z0-9._]{1,30}$")
@@ -438,26 +427,15 @@ public class UserApi {
     }
 
     if (!mapNewPassword.isEmpty() && mapNewPassword.length() >= 8) {
-      userToUpdate.setPassword(sessionManager.encryptPassword(mapNewPassword));
+      userToUpdate.setPassword(Tools.hashPassword(mapNewPassword));
     }
 
-    if (!mapEmail.isEmpty() && !mapEmail.equalsIgnoreCase(sessionUser.getEmail())) {
+    if (!mapEmail.isEmpty() && !mapEmail.equalsIgnoreCase(claims.get("email", String.class))) {
       userToUpdate.setEmail(mapEmail);
-    }
-
-    for (User u : sessionManager.getSessions().values()) {
-      if (u.getUsername().equals(sessionUser.getUsername())) {
-        if (!mapEmail.isEmpty()) {
-          u.setEmail(userToUpdate.getEmail());
-        }
-        if (!mapUsername.isEmpty()) {
-          u.setUsername(userToUpdate.getUsername());
-        }
-      }
     }
 
     userRepo.save(userToUpdate);
 
-    return new ResponseEntity<>("User updated", HttpStatus.OK);
+    return new ResponseEntity<>(jwtUtil.generateToken(userToUpdate, 24 * 30), HttpStatus.OK);
   }
 }
