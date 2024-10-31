@@ -1,6 +1,8 @@
 package no.itszipzon.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -63,9 +65,10 @@ public class JwtUtil {
             .build()
             .parseClaimsJws(token)
             .getBody();
-    } catch (io.jsonwebtoken.ExpiredJwtException e) {
+    } catch (ExpiredJwtException e) {
       return null;
-    } catch (io.jsonwebtoken.JwtException e) {
+    } catch (JwtException e) {
+      e.printStackTrace();
       return null;
     }
   }
