@@ -26,6 +26,7 @@ void didChangeDependencies() {
 
 2. If this is your first time running the project, make sure to install the necessary dependencies:
    ```bash
+   cd client
    flutter pub get
    ```
 
