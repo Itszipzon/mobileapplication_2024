@@ -23,22 +23,11 @@ class HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = RouterProvider.of(context);
       user = UserProvider.of(context);
-      _checkUserSession();
     });
     _initPosts();
   }
 
   final List<Widget> posts = [];
-
-  Future<void> _checkUserSession() async {
-/*     if (!await user.inSession()) {
-      if (mounted) {
-        router.setPath(context, '');
-      }
-    } else {
-      _initPosts();
-    } */
-  }
 
   void _initPosts() {
     for (int i = 0; i < 5; i++) {

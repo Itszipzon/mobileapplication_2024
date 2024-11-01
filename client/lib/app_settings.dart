@@ -17,7 +17,7 @@ class AppSettings {
     router.addScreen("register", const Register());
     router.addScreen("home", const Home());
     router.addScreen("categories", const Categories());
-    router.addScreen("join", const Join());
+    router.addScreen("join", Join());
     router.addScreen('test', const Test());
     router.addScreen('path_search', const PathSearch());
     router.addScreen("profile", const Profile());

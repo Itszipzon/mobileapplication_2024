@@ -158,3 +158,56 @@ class BigIconButton extends StatelessWidget {
     );
   }
 }
+
+class SizedTextButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+  final bool loading;
+  final double height;
+  final double width;
+  final TextStyle textStyle;
+
+  const SizedTextButton({
+    required this.text,
+    required this.onPressed,
+    this.loading = false,
+    required this.height,
+    required this.width,
+    required this.textStyle,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      
+      onTap: loading ? null : onPressed,
+      child: Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          color: theme.primaryColor,
+          borderRadius: const BorderRadius.all(Radius.circular(6)),
+        ),
+        child: Center(
+          child: loading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.0,
+                  ),
+                )
+              : Text(
+                  text,
+                  style: textStyle,
+                ),
+        ),
+      ),
+      
+      );
+  }
+}
