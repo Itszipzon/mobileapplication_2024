@@ -13,16 +13,16 @@ import 'package:google_fonts/google_fonts.dart';
 class AppSettings {
   
   /// Initiates all the screens in the application.
-  static void initiateScreens(RouterState router) {
+  static void initiateScreens(RouterNotifier router) {
     router.addScreen("register", const Register());
     router.addScreen("home", const Home());
     router.addScreen("categories", const Categories());
-    router.addScreen("join", Join());
+    router.addScreen("join", const Join());
     router.addScreen('test', const Test());
     router.addScreen('path_search', const PathSearch());
     router.addScreen("profile", const Profile());
 
-    router.addExcludedPaths(["", "register", "test"]);
+    router.excludePaths(["", "register", "test"]);
   }
 
   /// Returns the theme for the application.

@@ -1,24 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:client/elements/button.dart';
-import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
-import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-class Test extends StatefulWidget {
+class Test extends ConsumerStatefulWidget {
   const Test({super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    return TestScreenState();
-  }
+  ConsumerState<Test> createState() => TestScreenState();
 }
 
-class TestScreenState extends State<Test> {
+class TestScreenState extends ConsumerState<Test> {
   String httpId = "";
-  late User user;
+  late UserNotifier user;
 
   @override
   void initState() {
@@ -29,7 +27,7 @@ class TestScreenState extends State<Test> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = UserProvider.of(context);
+    user = ref.read(userProvider.notifier);
   }
 
 
@@ -65,15 +63,15 @@ class TestScreenState extends State<Test> {
 
   @override
   Widget build(BuildContext context) {
-    final router = RouterProvider.of(context);
+    final router = ref.read(routerProvider.notifier);
 
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(router.getValues()!["id"].toString()),
-            Text(router.getPathVariables()!["id"].toString()),
+            Text(router.getValues!["id"].toString()),
+            Text(router.getPathVariables!["id"].toString()),
             Text(httpId),
             BigIconButton(
               icon: Icons.person,

@@ -1,8 +1,9 @@
 import 'package:client/elements/profile_picture.dart';
-import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QuizPost extends StatelessWidget {
+class QuizPost extends ConsumerWidget {
   const QuizPost(
       {super.key,
       required this.path,
@@ -14,8 +15,8 @@ class QuizPost extends StatelessWidget {
   final String profilePicture;
 
   @override
-  Widget build(BuildContext context) {
-    final router = RouterProvider.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.read(routerProvider.notifier);
     return InkWell(
         onTap: () {
           router.setPath(context, path);

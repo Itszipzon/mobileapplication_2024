@@ -1,10 +1,11 @@
-import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Jan extends StatelessWidget {
+class Jan extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    final router = RouterProvider.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.read(routerProvider.notifier);
     return(InkWell(
       onTap: () => router.setPath(context, "test?id=1",values: {"id": 2}),
       child: const Text("Log in"),

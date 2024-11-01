@@ -2,25 +2,24 @@ import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
-import 'package:client/tools/router_provider.dart';
 import 'package:client/tools/user.dart';
-import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
   LoginScreenState createState() => LoginScreenState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   final passwordFocusNode = FocusNode();
-  late final RouterState router;
-  late final User user;
+  late final RouterNotifier router;
+  late final UserNotifier user;
 
   @override
   void dispose() {
@@ -33,8 +32,8 @@ class LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      router = RouterProvider.of(context);
-      user = UserProvider.of(context);
+      router = ref.read(routerProvider.notifier);
+      user = ref.read(userProvider.notifier);
       _checkUserSession();
     });
   }

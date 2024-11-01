@@ -1,82 +1,72 @@
 import 'package:client/app.dart';
 import 'package:client/app_settings.dart';
-import 'package:client/elements/loading.dart';
-import 'package:client/screens/login.dart';
-import 'package:client/tools/user.dart';
 import 'package:client/tools/router.dart';
-import 'package:client/tools/router_provider.dart';
-import 'package:client/tools/user_provider.dart';
+import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final user = await User.create();
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) =>
-              RouterState(path: "", screen: const LoginScreen()),
-        ),
-        ChangeNotifierProvider.value(
-          value: user,
-        ),
-      ],
-      child: const MainApp(),
-    ),
-  );
+void main() {
+  runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerStatefulWidget {
   const MainApp({super.key});
 
   @override
+  ConsumerState<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends ConsumerState<MainApp> {
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _initializeApp(context),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
-            color: Colors.white,
-            child: const Center(
-              child: SizedBox(
-                height: 100,
-                width: 100,
-                child: LogoLoading(),
-              ),
-            ),
-          );
-        }
-        return Builder(
-          builder: (context) {
-            final router = Provider.of<RouterState>(context, listen: false);
-            final user = Provider.of<User>(context, listen: false);
-            return RouterProvider(
-              router: router,
-              child: UserProvider(
-                user: user,
-                child: const App(),
-              ),
-            );
-          },
-        );
+    final userAsyncValue = ref.watch(userProvider);
+
+    return userAsyncValue.when(
+      loading: () {
+        print("Initializing app");
+        return const LoadingScreen();
+      },
+      error: (error, stackTrace) {
+        print("Initialization error: $error");
+        return const ErrorScreen();
+      },
+      data: (user) {
+        final routerNotifier = ref.read(routerProvider.notifier);
+        AppSettings.initiateScreens(routerNotifier);
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (await ref.read(userProvider.notifier).inSession()) {
+            routerNotifier.setPath(context, "home");
+          } else {
+            routerNotifier.setPath(context, "");
+          }
+        });
+
+        return const App();
       },
     );
   }
+}
 
-  Future<void> _initializeApp(BuildContext context) async {
-    final router = Provider.of<RouterState>(context, listen: false);
-    final user = Provider.of<User>(context, listen: false);
+class LoadingScreen extends StatelessWidget {
+  const LoadingScreen({super.key});
 
-    AppSettings.initiateScreens(router);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: const Center(child: CircularProgressIndicator(color: Colors.orange)),
+    );
+  }
+}
 
-    if (await user.inSession()) {
-      router.setPath(context, "home");
-    } else {
-      router.setPath(context, "");
-    }
+class ErrorScreen extends StatelessWidget {
+  const ErrorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: const Center(child: Text('An error occurred')),
+    );
   }
 }

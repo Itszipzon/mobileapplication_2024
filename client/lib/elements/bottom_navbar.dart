@@ -1,19 +1,19 @@
 import 'package:client/elements/button.dart';
 import 'package:client/tools/router.dart';
-import 'package:client/tools/router_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BottomNavbar extends StatelessWidget {
+class BottomNavbar extends ConsumerWidget {
   final String path;
   const BottomNavbar({super.key, required this.path});
 
-  void onPressed(BuildContext context, String path, RouterState router) {
+  void onPressed(BuildContext context, String path, RouterNotifier router) {
     router.setPath(context, path);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final router = RouterProvider.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.read(routerProvider.notifier);
     final theme = Theme.of(context);
     return Container(
       color: theme.canvasColor,

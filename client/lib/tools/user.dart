@@ -1,63 +1,68 @@
-import 'package:client/tools/api_handler.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:client/tools/api_handler.dart';
 
-class User extends ChangeNotifier {
-  String? _token;
+class User {
+  final String? token;
+  const User({this.token});
+}
 
-  static Future<User> create() async {
-    final user = User._();
-    await user._loadToken();
-    return user;
+class UserNotifier extends AutoDisposeAsyncNotifier<User> {
+  @override
+  Future<User> build() async {
+    return await _loadToken();
   }
 
-  User._();
-
-  void clear() {
-    _token = null;
-    _saveToken();
-    notifyListeners();
+  Future<User> _loadToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('user_token');
+    return User(token: token);
   }
 
-  void setToken(String token) {
-    _token = token;
-    _saveToken();
-    notifyListeners();
+  Future<void> setToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_token', token);
+    state = AsyncData(User(token: token));
   }
 
-  String getToken() {
-    return _token ?? '';
-  }
-
-  String getAuthorizationHeader() {
-    return _token != null ? 'Bearer $_token' : '';
+  Future<void> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_token');
+    state = const AsyncData(User());
   }
 
   Future<bool> inSession() async {
-    if (_token == null) return false;
-    final bool result = await ApiHandler.userInSession(_token!);
-    if (!result) clear();
+    final currentUser = state.valueOrNull;
+    if (currentUser?.token == null) return false;
+
+    final result = await ApiHandler.userInSession(currentUser!.token!);
+    if (!result) await clearToken();
     return result;
   }
 
   Future<bool> logout() async {
-    final bool result = await ApiHandler.logout(_token);
-    if (result) clear();
+    final currentUser = state.valueOrNull;
+    if (currentUser?.token == null) return false;
+
+    final result = await ApiHandler.logout(currentUser!.token!);
+    if (result) await clearToken();
     return result;
   }
 
-  Future<void> _saveToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_token', _token ?? '');
-  }
-
-  Future<void> _loadToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('user_token');
-    notifyListeners();
-  }
-
   Future<Map<String, dynamic>> getProfile() async {
-    return await ApiHandler.getProfile(_token!);
+    final currentUser = state.valueOrNull;
+    if (currentUser?.token == null) throw Exception("User not logged in");
+
+    return await ApiHandler.getProfile(currentUser!.token!);
   }
+
+  void clear() {
+    state = const AsyncData(User());
+  }
+
+  String? get token => state.valueOrNull?.token;
 }
+
+final userProvider = AsyncNotifierProvider.autoDispose<UserNotifier, User>(() {
+  return UserNotifier();
+});

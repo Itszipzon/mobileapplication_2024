@@ -1,16 +1,17 @@
 import 'package:client/elements/button.dart';
 import 'package:client/elements/input.dart';
-import 'package:client/tools/router_provider.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PathSearch extends StatelessWidget {
+class PathSearch extends ConsumerWidget {
   const PathSearch({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
 
     final pathController = TextEditingController();
-    final router = RouterProvider.of(context);
+    final router = ref.read(routerProvider.notifier);
 
     return Scaffold(
       body: Center(

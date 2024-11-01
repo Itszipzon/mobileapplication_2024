@@ -1,4 +1,4 @@
-import 'package:client/tools/router.dart';
+/* import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class RouterProvider extends InheritedWidget {
@@ -22,3 +22,4 @@ class RouterProvider extends InheritedWidget {
     return router != oldWidget.router;
   }
 }
+ */

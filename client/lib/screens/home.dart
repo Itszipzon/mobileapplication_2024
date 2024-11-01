@@ -1,28 +1,27 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/feed_category.dart';
 import 'package:client/tools/router.dart';
-import 'package:client/tools/router_provider.dart';
 import 'package:client/tools/user.dart';
-import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Home extends StatefulWidget {
+class Home extends ConsumerStatefulWidget {
   const Home({super.key});
 
   @override
   HomeState createState() => HomeState();
 }
 
-class HomeState extends State<Home> {
-  late final RouterState router;
-  late final User user;
+class HomeState extends ConsumerState<Home> {
+  late final RouterNotifier router;
+  late final UserNotifier user;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      router = RouterProvider.of(context);
-      user = UserProvider.of(context);
+      router = ref.read(routerProvider.notifier);
+      user = ref.read(userProvider.notifier);
     });
     _initPosts();
   }

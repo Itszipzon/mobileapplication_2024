@@ -1,29 +1,28 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/tools/router.dart';
-import 'package:client/tools/router_provider.dart';
 import 'package:client/tools/user.dart';
-import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Profile extends StatefulWidget {
+class Profile extends ConsumerStatefulWidget {
   const Profile({super.key});
 
   @override
   ProfileState createState() => ProfileState();
 }
 
-class ProfileState extends State<Profile> {
-  late final RouterState router;
-  late final User user;
+class ProfileState extends ConsumerState<Profile> {
+  late final RouterNotifier router;
+  late final UserNotifier user;
   Map<String, dynamic> profile = {};
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      router = RouterProvider.of(context);
-      user = UserProvider.of(context);
+      router = ref.read(routerProvider.notifier);
+      user = ref.read(userProvider.notifier);
       _getProfile();
     });
   }

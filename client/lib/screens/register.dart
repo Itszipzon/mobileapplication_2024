@@ -2,23 +2,20 @@ import 'package:client/elements/input.dart';
 import 'package:client/elements/button.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
-import 'package:client/tools/router_provider.dart';
 import 'package:client/tools/user.dart';
-import 'package:client/tools/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Register extends StatefulWidget {
+class Register extends ConsumerStatefulWidget {
   const Register({super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    return RegisterScreenState();
-  }
+  RegisterScreenState createState() => RegisterScreenState();
 }
 
-class RegisterScreenState extends State<Register> {
-  late final RouterState router;
-  late final User user;
+class RegisterScreenState extends ConsumerState<Register> {
+  late final RouterNotifier router;
+  late final UserNotifier user;
 
   final usernameController = TextEditingController();
   final emailController = TextEditingController();
@@ -45,8 +42,8 @@ class RegisterScreenState extends State<Register> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      router = RouterProvider.of(context);
-      user = UserProvider.of(context);
+      router = ref.read(routerProvider.notifier);
+      user = ref.read(userProvider.notifier);
       _checkUserSession();
     });
   }
