@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Create User instance asynchronously
   final user = await User.create();
 
   runApp(
