@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
               child: SizedBox(
                 height: 100,
                 width: 100,
-                child: LogoLoading(size: 100),
+                child: LogoLoading(),
               ),
             ),
           );

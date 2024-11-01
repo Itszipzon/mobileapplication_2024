@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class LogoLoading extends StatefulWidget {
   static const String path = 'assets/logo.png';
 
-  final double? size;
+  final double size;
 
-  const LogoLoading({super.key, this.size});
+  const LogoLoading({super.key, this.size = 100});
 
   @override
   LogoLoadingState createState() => LogoLoadingState();
@@ -22,7 +22,7 @@ class LogoLoadingState extends State<LogoLoading> with SingleTickerProviderState
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat(reverse: true); // Repeats the animation back and forth
+    )..repeat(reverse: true);
 
     _animation = Tween<double>(begin: 0, end: 20).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
