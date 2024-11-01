@@ -168,8 +168,7 @@ public class QuizApi {
   }
 
   private QuizDto mapToQuizDto(Quiz quiz) {
-    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream().map(this::mapToQuestionDto)
-        .collect(Collectors.toList());
+    User user = quiz.getUser();
 
     return new QuizDto(
         quiz.getQuizId(),
@@ -177,7 +176,9 @@ public class QuizApi {
         quiz.getDescription(),
         quiz.getThumbnail(),
         quiz.getTimer(),
-        questionsDto);
+        user.getUsername(),
+        user.getProfilePicture(),
+        quiz.getCreatedAt());
   }
 
   private QuizWithQuestionsDto mapToQuizWithQuestionsDto(Quiz quiz) {

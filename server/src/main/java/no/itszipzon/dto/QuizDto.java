@@ -1,6 +1,7 @@
 package no.itszipzon.dto;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
 
 /**
  * QuizDto.
@@ -13,39 +14,51 @@ public class QuizDto {
   private String thumbnail;
   private Integer timer;
 
-  /**
-   * QuizDto.
-   *
-   * @param id          id.
-   * @param title       title.
-   * @param description description.
-   * @param thumbnail   thumbnail.
-   * @param timer       timer.
-   */
-  public QuizDto(long id, String title, String description, String thumbnail, Integer timer) {
+  private String username;
+
+  @JsonProperty("profile_picture")
+  private String profilePicture;
+
+  private LocalDateTime createdAt; // New field for createdAt
+
+  // Updated constructor with createdAt
+  public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
+      String username, String profilePicture, LocalDateTime createdAt) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.thumbnail = thumbnail;
     this.timer = timer;
+    this.username = username;
+    this.profilePicture = profilePicture;
+    this.createdAt = createdAt; // Initialize createdAt
   }
 
-  /**
-   * QuizDto.
-   *
-   * @param id          id.
-   * @param title       title.
-   * @param description description.
-   * @param thumbnail   thumbnail.
-   * @param timer       timer.
-   */
-  public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
-      List<QuizQuestionDto> quizQuestions) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.thumbnail = thumbnail;
-    this.timer = timer;
+  // Getter and setter for createdAt
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  // Existing getters and setters
+
+  public String getProfilePicture() {
+    return profilePicture;
+  }
+
+  public void setProfilePicture(String profilePicture) {
+    this.profilePicture = profilePicture;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public long getId() {
@@ -87,5 +100,4 @@ public class QuizDto {
   public void setTimer(Integer timer) {
     this.timer = timer;
   }
-
 }
