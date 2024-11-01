@@ -79,4 +79,17 @@ class ApiHandler {
     });
     return jsonDecode(response.body);
   }
+
+    /// Fetches quizzes from the API.
+  static Future<List<Map<String, dynamic>>> getQuizzes() async {
+    final response = await http.get(Uri.parse('$_url/api/quiz'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
+  }
+  
 }

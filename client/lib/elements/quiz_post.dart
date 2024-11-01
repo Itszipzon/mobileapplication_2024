@@ -3,71 +3,93 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+
 class QuizPost extends ConsumerWidget {
-  const QuizPost(
-      {super.key,
-      required this.path,
-      required this.thumbnail,
-      required this.profilePicture});
+  const QuizPost({
+    super.key,
+    required this.path,
+    required this.thumbnail,
+    required this.profilePicture,
+    required this.title,
+    required this.username,
+    required this.createdAt,
+  });
 
   final String path;
   final String thumbnail;
   final String profilePicture;
+  final String title;
+  final String username;
+  final DateTime createdAt;
+
+  String _formatCreatedAt(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} days ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hours ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minutes ago';
+    } else {
+      return 'Just now';
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(routerProvider.notifier);
     return InkWell(
-        onTap: () {
-          router.setPath(context, path);
-        },
-        child: SizedBox(
-          child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+      onTap: () {
+        router.setPath(context, path);
+      },
+      child: SizedBox(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image(
+                image: NetworkImage(thumbnail),
+                height: 96,
+                width: 212,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 8),
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image(
-                    image: NetworkImage(thumbnail),
-                    height: 96,
-                    width: 212,
-                    fit: BoxFit.cover,
+                  ClipOval(
+                    child: ProfilePicture(
+                      url: profilePicture,
+                      size: 50,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
+                  const SizedBox(width: 8),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipOval(
-                        child: ProfilePicture(
-                          url: profilePicture,
-                          size: 50,
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Starwars Quiz"),
-                          SizedBox(height: 4),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Jan Nor"),
-                              SizedBox(width: 8),
-                              Row(children: [
-                                Text("169 Views"),
-                                SizedBox(width: 8),
-                                Text("6 days ago")
-                              ]),
-                            ],
-                          ),
-                        ],
-                      ),
+                      const SizedBox(height: 4),
+                      Text(username),
+                      const SizedBox(height: 4),
+                      Text(_formatCreatedAt(createdAt)),
                     ],
                   ),
                 ],
-              )),
-        ));
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

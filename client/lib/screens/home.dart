@@ -4,6 +4,7 @@ import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:client/tools/api_handler.dart'; // Import the API handler
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -15,6 +16,7 @@ class Home extends ConsumerStatefulWidget {
 class HomeState extends ConsumerState<Home> {
   late final RouterNotifier router;
   late final UserNotifier user;
+  late Future<List<Map<String, dynamic>>> _quizDataFuture;
 
   @override
   void initState() {
@@ -23,42 +25,32 @@ class HomeState extends ConsumerState<Home> {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
     });
-    _initPosts();
-  }
-
-  final List<Widget> posts = [];
-
-  void _initPosts() {
-    for (int i = 0; i < 5; i++) {
-      if (i == 5 - 1) {
-        posts.add(FeedCategory(category: "Category $i"));
-      } else {
-        Widget post = Column(
-          children: [
-            const SizedBox(
-              height: 6,
-            ),
-            FeedCategory(category: "Category $i"),
-            Container(
-              color: Colors.grey,
-              child: (const SizedBox(
-                height: 1,
-                width: double.infinity,
-              )),
-            )
-          ],
-        );
-        posts.add(post);
-      }
-    }
+    _quizDataFuture = ApiHandler.getQuizzes();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 241, 241, 241),
-      body: ListView(
-        children: posts,
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _quizDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+                child: Text('Error loading quizzes: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            final quizData = snapshot.data!;
+            return ListView(
+              children: [
+                FeedCategory(category: "Quizzes", quizzes: quizData),
+              ],
+            );
+          } else {
+            return const Center(child: Text('No quizzes available.'));
+          }
+        },
       ),
       bottomNavigationBar: const BottomNavbar(
         path: "home",
