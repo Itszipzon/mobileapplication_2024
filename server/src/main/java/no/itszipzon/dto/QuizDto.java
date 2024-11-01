@@ -12,16 +12,15 @@ public class QuizDto {
   private String description;
   private String thumbnail;
   private Integer timer;
-  private List<QuizQuestionDto> quizQuestions;
 
   /**
    * QuizDto.
    *
-   * @param id id.
-   * @param title title.
+   * @param id          id.
+   * @param title       title.
    * @param description description.
-   * @param thumbnail thumbnail.
-   * @param timer timer.
+   * @param thumbnail   thumbnail.
+   * @param timer       timer.
    */
   public QuizDto(long id, String title, String description, String thumbnail, Integer timer) {
     this.id = id;
@@ -34,12 +33,11 @@ public class QuizDto {
   /**
    * QuizDto.
    *
-   * @param id id.
-   * @param title title.
+   * @param id          id.
+   * @param title       title.
    * @param description description.
-   * @param thumbnail thumbnail.
-   * @param timer timer.
-   * @param quizQuestions quizQuestions.
+   * @param thumbnail   thumbnail.
+   * @param timer       timer.
    */
   public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
       List<QuizQuestionDto> quizQuestions) {
@@ -48,7 +46,6 @@ public class QuizDto {
     this.description = description;
     this.thumbnail = thumbnail;
     this.timer = timer;
-    this.quizQuestions = quizQuestions;
   }
 
   public long getId() {
@@ -91,11 +88,4 @@ public class QuizDto {
     this.timer = timer;
   }
 
-  public List<QuizQuestionDto> getQuizQuestions() {
-    return quizQuestions;
-  }
-
-  public void setQuizQuestions(List<QuizQuestionDto> quizQuestions) {
-    this.quizQuestions = quizQuestions;
-  }
 }
