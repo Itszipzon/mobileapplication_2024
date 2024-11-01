@@ -1,5 +1,6 @@
 import 'package:client/app.dart';
 import 'package:client/app_settings.dart';
+import 'package:client/elements/loading.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,9 @@ class _MainAppState extends ConsumerState<MainApp> {
     return userAsyncValue.when(
       loading: () {
         print("Initializing app");
-        return const LoadingScreen();
+        return const Center(
+          child: LogoLoading(),
+        );
       },
       error: (error, stackTrace) {
         print("Initialization error: $error");
@@ -34,7 +37,7 @@ class _MainAppState extends ConsumerState<MainApp> {
         final routerNotifier = ref.read(routerProvider.notifier);
         AppSettings.initiateScreens(routerNotifier);
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (await ref.read(userProvider.notifier).inSession()) {
+          if (await user.inSession()) {
             routerNotifier.setPath(context, "home");
           } else {
             routerNotifier.setPath(context, "");
@@ -43,18 +46,6 @@ class _MainAppState extends ConsumerState<MainApp> {
 
         return const App();
       },
-    );
-  }
-}
-
-class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: const Center(child: CircularProgressIndicator(color: Colors.orange)),
     );
   }
 }

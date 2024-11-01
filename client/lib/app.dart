@@ -1,4 +1,4 @@
-import 'package:client/screens/login.dart';
+import 'package:client/elements/loading.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +28,9 @@ class App extends ConsumerWidget {
           color: theme.canvasColor,
           child: routerState.paths.isNotEmpty
               ? ref.read(routerProvider.notifier).currentScreen
-              : const LoginScreen(),
+              : const Center(
+                  child: LogoLoading(),
+              ),
         ),
       ),
     );

@@ -5,6 +5,13 @@ import 'package:client/tools/api_handler.dart';
 class User {
   final String? token;
   const User({this.token});
+
+  Future<bool> inSession() async {
+    if (token == null) return false;
+
+    final result = await ApiHandler.userInSession(token!);
+    return result;
+  }
 }
 
 class UserNotifier extends AutoDisposeAsyncNotifier<User> {
@@ -54,10 +61,6 @@ class UserNotifier extends AutoDisposeAsyncNotifier<User> {
     if (currentUser?.token == null) throw Exception("User not logged in");
 
     return await ApiHandler.getProfile(currentUser!.token!);
-  }
-
-  void clear() {
-    state = const AsyncData(User());
   }
 
   String? get token => state.valueOrNull?.token;

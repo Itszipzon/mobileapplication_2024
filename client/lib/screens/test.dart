@@ -78,7 +78,7 @@ class TestScreenState extends ConsumerState<Test> {
               height: 56,
               width: 56,
               onPressed: () {
-              user.clear();
+              user.clearToken();
             }),
           ],
         ),
