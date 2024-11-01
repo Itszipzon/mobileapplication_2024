@@ -1,11 +1,15 @@
-import 'package:client/dummy_data.dart';
 import 'package:client/elements/quiz_post.dart';
 import 'package:flutter/material.dart';
 
 class FeedCategory extends StatelessWidget {
-  const FeedCategory({super.key, required this.category});
+  const FeedCategory({
+    super.key,
+    required this.category,
+    required this.quizzes,
+  });
 
   final String category;
+  final List<Map<String, dynamic>> quizzes;
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +18,34 @@ class FeedCategory extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.only(left: 16),
-          child: Text(category,
-              style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          child: Text(
+            category,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
         ),
         const SizedBox(height: 8),
         SizedBox(
           height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: 10,
+            itemCount: quizzes.length,
             itemBuilder: (context, index) {
-              return QuizPost(path: "", thumbnail: DummyData.thumbnail, profilePicture: DummyData.profilePicture);
+              final quiz = quizzes[index];
+              return QuizPost(
+                path: quiz['title'] ?? '',
+                thumbnail: quiz['thumbnail'] ?? '',
+                profilePicture: quiz['profile_picture'] ?? '',
+                title: quiz['title'] ?? '',
+                username: quiz['username'] ?? '',
+                createdAt: DateTime(
+                  quiz['createdAt'][0],
+                  quiz['createdAt'][1],
+                  quiz['createdAt'][2],
+                  quiz['createdAt'][3],
+                  quiz['createdAt'][4],
+                  quiz['createdAt'][5],
+                ),
+              );
             },
           ),
         ),

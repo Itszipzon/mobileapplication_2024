@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import no.itszipzon.config.SessionManager;
 import no.itszipzon.dto.QuizDto;
+import no.itszipzon.dto.QuizWithQuestionsDto;
 import no.itszipzon.dto.QuizOptionDto;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.repo.QuizOptionRepo;
@@ -60,11 +61,12 @@ public class QuizApi {
    * @return quiz.
    */
   @GetMapping("/{id}")
-  public ResponseEntity<QuizDto> getQuizById(@PathVariable Long id) {
+  public ResponseEntity<QuizWithQuestionsDto> getQuizById(@PathVariable Long id) {
     Optional<Quiz> quiz = quizRepo.findById(id);
 
-    return quiz.map(value -> ResponseEntity.ok(mapToQuizDto(value))).orElseGet(
-      () -> ResponseEntity.notFound().build());
+    return quiz.map(value -> ResponseEntity.ok(
+        mapToQuizWithQuestionsDto(value))).orElseGet(
+            () -> ResponseEntity.notFound().build());
   }
 
   /**
@@ -81,9 +83,9 @@ public class QuizApi {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-    
+
     String token = authorizationHeader.substring(7);
-    
+
     if (!sessionManager.hasSession(token)) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -166,16 +168,29 @@ public class QuizApi {
   }
 
   private QuizDto mapToQuizDto(Quiz quiz) {
-    List<QuizQuestionDto> questionsDto =
-        quiz.getQuizQuestions().stream().map(this::mapToQuestionDto)
-        .collect(Collectors.toList());
+    User user = quiz.getUser();
 
     return new QuizDto(
-      quiz.getQuizId(),
-      quiz.getTitle(),
-      quiz.getDescription(),
-      quiz.getThumbnail(),
-      quiz.getTimer(),
+        quiz.getQuizId(),
+        quiz.getTitle(),
+        quiz.getDescription(),
+        quiz.getThumbnail(),
+        quiz.getTimer(),
+        user.getUsername(),
+        user.getProfilePicture(),
+        quiz.getCreatedAt());
+  }
+
+  private QuizWithQuestionsDto mapToQuizWithQuestionsDto(Quiz quiz) {
+    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream().map(this::mapToQuestionDto)
+        .collect(Collectors.toList());
+
+    return new QuizWithQuestionsDto(
+        quiz.getQuizId(),
+        quiz.getTitle(),
+        quiz.getDescription(),
+        quiz.getThumbnail(),
+        quiz.getTimer(),
         questionsDto);
   }
 
@@ -183,11 +198,11 @@ public class QuizApi {
 
     List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
         .map(option -> new QuizOptionDto(
-          option.getQuizOptionId(),
-          option.getOption(),
-          option.isCorrect()))
+            option.getQuizOptionId(),
+            option.getOption(),
+            option.isCorrect()))
         .collect(Collectors.toList());
-    
+
     return new QuizQuestionDto(question.getQuizQuestionId(), question.getQuestion(), optionsDto);
   }
 }
