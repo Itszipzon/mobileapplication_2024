@@ -1,5 +1,6 @@
 import 'package:client/app.dart';
 import 'package:client/app_settings.dart';
+import 'package:client/elements/loading.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/tools/user.dart';
 import 'package:client/tools/router.dart';
@@ -44,9 +45,7 @@ class MyApp extends StatelessWidget {
               child: SizedBox(
                 height: 100,
                 width: 100,
-                child: CircularProgressIndicator(
-                  color: Colors.orange,
-                ),
+                child: LogoLoading(size: 100),
               ),
             ),
           );
