@@ -1,4 +1,5 @@
 import 'package:client/screens/categories.dart';
+import 'package:client/screens/create.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/join.dart';
 import 'package:client/screens/login.dart';
@@ -23,6 +24,7 @@ class AppSettings {
     router.addScreen('test', const Test());
     router.addScreen('path_search', const PathSearch());
     router.addScreen("profile", const Profile());
+    router.addScreen("create", const Create());
 
     router.excludePaths(["", "register", "test"]);
   }

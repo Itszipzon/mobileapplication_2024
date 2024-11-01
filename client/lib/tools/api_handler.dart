@@ -79,4 +79,16 @@ class ApiHandler {
     });
     return jsonDecode(response.body);
   }
+
+  static Future<http.Response> createQuiz(Map<String, dynamic> quizData) async {
+    final response = await http.post(
+      Uri.parse('$_url/api/quiz'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_AUTH_TOKEN', // Replace with actual token handling
+      },
+      body: jsonEncode(quizData),
+    );
+    return response;
+  }
 }
