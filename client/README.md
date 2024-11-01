@@ -5,18 +5,28 @@ A new Flutter project.
 ### Router
 If you only want to route to another page. Simply use 
 ``` dart
-final router = RouterProvider.of(context)
-``` 
-inside build widget.
-
-If you want to access information inside the router, like values or pathvariables. Create
-```dart
-@override
-void didChangeDependencies() {
-  super.didChangeDependencies();
-  router = RouterProvider.of(context);
+// with stateless widget
+Class {Your class} extends ConsumerWidget {
+   @override
+   Widget build(BuildContext context, WidgetRef ref) {
+      final router = ref.read(routerProvider.notifier);
+      final user = ref.read(userProvider.notifier)
+   }
 }
-```
+
+// With stateful widget
+class {Your class} extends ConsumerStatefulWidget {
+  const Home({super.key});
+
+  @override
+  {Your class} createState() => {Your class}();
+}
+
+class {Your state class} extends ConsumerState<Home> {
+  late final RouterNotifier router;
+  late final UserNotifier user;
+}
+``` 
 ### Installation
 1. Clone the repository:
    ```bash
