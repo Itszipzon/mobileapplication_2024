@@ -38,7 +38,18 @@ class MyApp extends StatelessWidget {
       future: _initializeApp(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return Container(
+            color: Colors.white,
+            child: const Center(
+              child: SizedBox(
+                height: 100,
+                width: 100,
+                child: CircularProgressIndicator(
+                  color: Colors.orange,
+                ),
+              ),
+            ),
+          );
         }
         return Builder(
           builder: (context) {

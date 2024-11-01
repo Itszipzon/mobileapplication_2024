@@ -20,7 +20,6 @@ class _AppState extends State<App> {
     super.didChangeDependencies();
     if (!_isInitialized) {
       _router = RouterProvider.of(context);
-      AppSettings.initiateScreens(_router);
       _isInitialized = true;
     }
   }
