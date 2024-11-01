@@ -2,22 +2,23 @@ import 'package:client/tools/api_handler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// A class that holds the user's token.
 class User extends ChangeNotifier {
   String? _token;
 
-  User() {
-    _loadToken();
+  static Future<User> create() async {
+    final user = User._();
+    await user._loadToken();
+    return user;
   }
 
-  /// Clears the token.
+  User._();
+
   void clear() {
     _token = null;
     _saveToken();
     notifyListeners();
   }
 
-  /// Sets the token.
   void setToken(String token) {
     _token = token;
     _saveToken();
@@ -25,36 +26,23 @@ class User extends ChangeNotifier {
   }
 
   String getToken() {
-    if (_token == null) {
-      return '';
-    }
-    return _token!;
+    return _token ?? '';
   }
 
-  /// Returns the authorization header.
   String getAuthorizationHeader() {
-    if (_token == null) {
-      return '';
-    }
-    return 'Bearer $_token';
+    return _token != null ? 'Bearer $_token' : '';
   }
 
   Future<bool> inSession() async {
-    if (_token == null) {
-      return false;
-    }
+    if (_token == null) return false;
     final bool result = await ApiHandler.userInSession(_token!);
-    if (!result) {
-      clear();
-    }
+    if (!result) clear();
     return result;
   }
 
   Future<bool> logout() async {
     final bool result = await ApiHandler.logout(_token);
-    if (result) {
-      clear();
-    }
+    if (result) clear();
     return result;
   }
 
