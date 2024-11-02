@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Jan extends ConsumerWidget {
+  const Jan({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(routerProvider.notifier);
