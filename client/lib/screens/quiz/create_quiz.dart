@@ -30,6 +30,12 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     print("pressed");
   }
 
+  void changeSelectedQuestion(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
