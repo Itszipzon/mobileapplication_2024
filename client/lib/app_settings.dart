@@ -1,5 +1,4 @@
 import 'package:client/screens/categories.dart';
-import 'package:client/screens/create.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/join.dart';
 import 'package:client/screens/login.dart';
