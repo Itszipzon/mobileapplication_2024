@@ -12,7 +12,10 @@ import no.itszipzon.config.JwtUtil;
 import no.itszipzon.repo.UserRepo;
 import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,6 +79,55 @@ public class UserApi {
       
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  /**
+   * Get users profile picture.
+   *
+   * @param username Username.
+   * @return User.
+   */
+  @GetMapping("/pfp/{username}")
+  public ResponseEntity<Resource> getProfilePicture(@PathVariable String username) {
+    Optional<User> userOpt = userRepo.findUserByUsername(username);
+
+    if (userOpt.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    if (userOpt.get().getProfilePicture() == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    User user = userOpt.get();
+
+    String imageFolder = "static/images/" + username + "/pfp/";
+    Resource resource;
+    String filetype;
+
+    resource = new ClassPathResource(imageFolder + user.getProfilePicture());
+    filetype = user.getProfilePicture().substring(user.getProfilePicture().lastIndexOf(".") + 1);
+
+    MediaType mediaType = null;
+
+    switch (filetype) {
+      case "png":
+        mediaType = MediaType.IMAGE_PNG;
+        break;
+      case "jpg":
+        mediaType = MediaType.IMAGE_JPEG;
+        break;
+      case "jpeg":
+        mediaType = MediaType.IMAGE_JPEG;
+        break;
+      case "gif":
+        mediaType = MediaType.IMAGE_GIF;
+        break;
+      default:
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    return ResponseEntity.ok().contentType(mediaType).body(resource);
   }
 
   @GetMapping("/usernameexists/{username}")
