@@ -1,14 +1,16 @@
 package no.itszipzon.api;
 
+import io.jsonwebtoken.Claims;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import no.itszipzon.config.SessionManager;
+import no.itszipzon.Tools;
+import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.QuizDto;
-import no.itszipzon.dto.QuizWithQuestionsDto;
 import no.itszipzon.dto.QuizOptionDto;
 import no.itszipzon.dto.QuizQuestionDto;
+import no.itszipzon.dto.QuizWithQuestionsDto;
 import no.itszipzon.repo.QuizOptionRepo;
 import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
@@ -24,10 +26,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * QuizApi.
@@ -46,7 +49,7 @@ public class QuizApi {
   private QuizOptionRepo quizOptionRepo;
 
   @Autowired
-  private SessionManager sessionManager;
+  private JwtUtil jwtUtil;
 
   @GetMapping
   @Transactional(readOnly = true)
@@ -77,7 +80,8 @@ public class QuizApi {
    */
   @PostMapping
   public ResponseEntity<Boolean> createQuiz(
-      @RequestBody Map<String, Object> quiz,
+      @RequestPart("quiz") Map<String, Object> quiz,
+      @RequestPart("thumbnail") MultipartFile thumbnail,
       @RequestHeader("Authorization") String authorizationHeader) {
 
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -85,21 +89,31 @@ public class QuizApi {
     }
 
     String token = authorizationHeader.substring(7);
+  
+    Claims claims = jwtUtil.extractClaims(token);
 
-    if (!sessionManager.hasSession(token)) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    User quizUser = new User();
+    quizUser.setId(claims.get("id", Long.class));
+    quizUser.setUsername(claims.getSubject());
 
     String title = quiz.get("title").toString();
     String description = quiz.get("description").toString();
-    String thumbnail = quiz.get("thumbnail").toString();
+    String thumbnailString = Tools.addImage(
+        quizUser.getUsername(),
+        thumbnail,
+        "quiz");
+
+    if (thumbnailString.isBlank()) {
+      System.out.println("Thumbnail is blank");
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+    
     int timer = (int) quiz.get("timer");
     Quiz newQuiz = new Quiz();
-    User quizUser = sessionManager.getUser(token);
 
     newQuiz.setTitle(title);
     newQuiz.setDescription(description);
-    newQuiz.setThumbnail(thumbnail);
+    newQuiz.setThumbnail(thumbnailString);
     newQuiz.setTimer(timer);
     newQuiz.setUser(quizUser);
     quizRepo.save(newQuiz);
@@ -182,7 +196,9 @@ public class QuizApi {
   }
 
   private QuizWithQuestionsDto mapToQuizWithQuestionsDto(Quiz quiz) {
-    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream().map(this::mapToQuestionDto)
+    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions()
+        .stream()
+        .map(this::mapToQuestionDto)
         .collect(Collectors.toList());
 
     return new QuizWithQuestionsDto(

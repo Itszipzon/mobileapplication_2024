@@ -1,9 +1,7 @@
-import 'dart:io';
 
 class Quiz {
   String question;
   List<Option> options;
-  File? imageFile;
 
   Quiz({required this.question, required this.options});
 

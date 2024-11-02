@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:client/elements/button.dart';
+import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:client/tools/quiz.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,7 +19,10 @@ class CreateQuiz extends ConsumerStatefulWidget {
 
 class CreateQuizState extends ConsumerState<CreateQuiz> {
   late final RouterNotifier router;
+  late final UserNotifier user;
   int _selectedIndex = 0;
+  bool loading = false;
+  File? imageFile;
 
   final List<Quiz> questions = [
     Quiz(question: "", options: [
@@ -45,11 +50,54 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
+      user = ref.read(userProvider.notifier);
     });
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    timeController.dispose();
+    questionController.dispose();
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   void onPressed() {
     print("pressed");
+  }
+
+  void showPopup(
+      ThemeData theme, String type, TextEditingController controller) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Add $type"),
+          content: Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: theme.primaryColor,
+                selectionColor: theme.primaryColor,
+              ),
+            ),
+            child: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: "Enter description",
+              ),
+            ),
+          ),
+          actions: [
+            SmallTextButton(
+                text: "Save", onPressed: () => Navigator.pop(context)),
+          ],
+        );
+      },
+    );
   }
 
   void changeSelectedQuestion(int prev, int newIndex) {
@@ -96,17 +144,167 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   }
 
   void addImage() async {
-    final ImagePicker _picker = ImagePicker();
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        setState(() {
-          questions[_selectedIndex].imageFile = File(image.path);
-        });
-      }
-    } catch (e) {
-      print("Error picking image: $e");
+  final ImagePicker picker = ImagePicker();
+  try {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        imageFile = File(image.path);
+      });
     }
+  } catch (e) {
+    ErrorHandler.showOverlayError(context, "Failed to pick image");
+    print("Error picking image: $e");
+  }
+  }
+
+  void createQuiz(int currentIndex) {
+    if (loading) {
+      ErrorHandler.showOverlayError(
+          context, "Please wait for the current quiz to be created");
+      return;
+    }
+    setState(() {
+      loading = true;
+    });
+
+    final prevQuiz = questions[currentIndex];
+
+    questions[currentIndex] = Quiz(
+      question: questionController.text,
+      options: [
+        for (int i = 0; i < prevQuiz.options.length; i++)
+          Option(
+            option: controllers[i].text,
+            isCorrect: prevQuiz.options[i].isCorrect,
+          ),
+      ],
+    );
+
+    if (titleController.text.isEmpty) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Title cannot be empty");
+      return;
+    }
+
+    if (descriptionController.text.isEmpty) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Description cannot be empty");
+      return;
+    }
+
+    if (timeController.text.isEmpty) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Time cannot be empty");
+      return;
+    }
+
+    try {
+      int.parse(timeController.text);
+    } catch (e) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(
+          context, "Please enter a valid integer for time");
+    }
+
+    for (var question in questions) {
+      if (question.question.isEmpty) {
+        setState(() {
+          loading = false;
+        });
+        ErrorHandler.showOverlayError(context, "Question cannot be empty");
+        return;
+      }
+
+      if (question.options.length < 2) {
+        setState(() {
+          loading = false;
+        });
+        ErrorHandler.showOverlayError(context, "Question must have 2 options");
+        return;
+      }
+
+      bool isCorrect = false;
+      for (var option in question.options) {
+        if (option.option.isEmpty) {
+          setState(() {
+            loading = false;
+          });
+          ErrorHandler.showOverlayError(context, "Option cannot be empty");
+          return;
+        }
+
+        if (option.isCorrect) {
+          isCorrect = true;
+        }
+      }
+
+      if (!isCorrect) {
+        setState(() {
+          loading = false;
+        });
+        ErrorHandler.showOverlayError(
+            context, "Please select a correct option");
+        return;
+      }
+    }
+
+    if (imageFile == null) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Please select an image");
+      return;
+    }
+
+    Map<String, dynamic> quiz = {
+      "title": titleController.text,
+      "description": descriptionController.text,
+      "timer": int.parse(timeController.text),
+      "quizQuestions": [
+        for (int i = 0; i < questions.length; i++)
+          {
+            "question": questions[i].question,
+            "quizOptions": [
+              for (int j = 0; j < questions[i].options.length; j++)
+                {
+                  "option": questions[i].options[j].option,
+                  "correct": questions[i].options[j].isCorrect,
+                }
+            ],
+          }
+      ],
+    };
+
+    ApiHandler.createQuiz(quiz, user.token!, imageFile!).then((response) {
+      if (response.statusCode == 201) {
+        if (response.body == "true") {
+          print("Quiz created");
+          setState(() {
+            loading = false;
+          });
+          router.setPath(context, "profile");
+        } else {
+          setState(() {
+            loading = false;
+          });
+          ErrorHandler.showOverlayError(context, "Failed to create quiz");
+        }
+      } else {
+        setState(() {
+          loading = false;
+        });
+        ErrorHandler.showOverlayError(context, "Error creating quiz");
+      }
+    });
   }
 
   @override
@@ -125,25 +323,26 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                 width: 70,
                 height: 30,
                 text: "Add desc",
-                onPressed: onPressed),
+                onPressed: () =>
+                    showPopup(theme, "description", descriptionController)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
                 width: 70,
                 height: 30,
                 text: "Add time",
-                onPressed: onPressed),
+                onPressed: () => showPopup(theme, "time", timeController)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
                 width: 70,
                 height: 30,
                 text: "Add title",
-                onPressed: onPressed),
+                onPressed: () => showPopup(theme, "title", titleController)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
                 width: 70,
                 height: 30,
                 text: "Save",
-                onPressed: onPressed),
+                onPressed: () => createQuiz(_selectedIndex)),
             IconButton(
                 onPressed: () => router.goBack(context),
                 icon: const Icon(Icons.close)),
@@ -155,14 +354,14 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            questions[_selectedIndex].imageFile != null
+            imageFile != null
                 ? ClipRRect(
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(6),
                       topRight: Radius.circular(6),
                     ),
                     child: Image.file(
-                      questions[_selectedIndex].imageFile!,
+                      imageFile!,
                       height: 162,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -199,6 +398,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                 ),
               ),
               child: TextField(
+                enabled: !loading,
                 controller: questionController,
                 cursorColor: theme.primaryColor,
                 decoration: const InputDecoration(
@@ -241,6 +441,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                           ),
                         ),
                         child: TextField(
+                          enabled: !loading,
                           controller: controllers[index],
                           cursorColor: theme.primaryColor,
                           decoration: InputDecoration(

@@ -74,7 +74,6 @@ public class Tools {
    * @return true if the image was added, false if not.
    */
   public static String addImage(String username, MultipartFile image, String type) {
-
     String staticLocation = new Main().getResource("/static").getPath();
     if (!Files.exists(Path.of(Tools.getCorrectUrl(staticLocation + "/images")))) {
       try {
@@ -129,13 +128,13 @@ public class Tools {
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
         return filename;
-      } else if (type.equalsIgnoreCase("post")) {
-        if (!Files.exists(Path.of(Tools.getCorrectUrl(path + username + "/post")))) {
-          Files.createDirectories((Path.of(Tools.getCorrectUrl(path + username + "/post"))));
+      } else if (type.equalsIgnoreCase("quiz")) {
+        if (!Files.exists(Path.of(Tools.getCorrectUrl(path + username + "/quiz")))) {
+          Files.createDirectories((Path.of(Tools.getCorrectUrl(path + username + "/quiz"))));
         }
   
-        if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + username + "/post")))) {
-          Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + username + "/post")));
+        if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + username + "/quiz")))) {
+          Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + username + "/quiz")));
         }
   
         UUID uid = UUID.randomUUID();
@@ -153,12 +152,12 @@ public class Tools {
 
         Path filePath = Path
             .of(Tools
-                .getCorrectUrl(path + username + "/post/" + filename));
+                .getCorrectUrl(path + username + "/quiz/" + filename));
   
         Path filePathBefore = Path
             .of(Tools
                 .getCorrectUrl(pathBefore
-                + username + "/post/" + filename));
+                + username + "/quiz/" + filename));
   
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
