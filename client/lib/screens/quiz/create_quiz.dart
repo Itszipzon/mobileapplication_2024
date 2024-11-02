@@ -31,13 +31,44 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     ])
   ];
 
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController timeController = TextEditingController();
+
+  TextEditingController questionController = TextEditingController();
+
+  List<TextEditingController> controllers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+
   void onPressed() {
     print("pressed");
   }
 
-  void changeSelectedQuestion(int index) {
+  void changeSelectedQuestion(int prev, int newIndex) {
+    final prevQuiz = questions[prev];
+
+    questions[prev] = Quiz(
+      question: questionController.text,
+      options: [
+        Option(option: controllers[0].text),
+        Option(option: controllers[1].text),
+        Option(option: controllers[2].text),
+        Option(option: controllers[3].text),
+        Option(option: controllers[4].text),
+      ],
+    );
+
+    questionController.text = questions[newIndex].question;
+    for (int i = 0; i < questions[newIndex].options.length; i++) {
+      controllers[i].text = questions[newIndex].options[i].option;
+    }
     setState(() {
-      _selectedIndex = index;
+      _selectedIndex = newIndex;
     });
   }
 
