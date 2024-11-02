@@ -1,6 +1,7 @@
 package no.itszipzon.api;
 
 import io.jsonwebtoken.Claims;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,8 +12,6 @@ import no.itszipzon.dto.QuizDto;
 import no.itszipzon.dto.QuizOptionDto;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
-import no.itszipzon.repo.QuizOptionRepo;
-import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.tables.Quiz;
 import no.itszipzon.tables.QuizOption;
@@ -46,12 +45,6 @@ public class QuizApi {
   private QuizRepo quizRepo;
 
   @Autowired
-  private QuizQuestionRepo quizQuestionRepo;
-
-  @Autowired
-  private QuizOptionRepo quizOptionRepo;
-
-  @Autowired
   private JwtUtil jwtUtil;
 
   @GetMapping
@@ -70,9 +63,8 @@ public class QuizApi {
   public ResponseEntity<QuizWithQuestionsDto> getQuizById(@PathVariable Long id) {
     Optional<Quiz> quiz = quizRepo.findById(id);
 
-    return quiz.map(value -> ResponseEntity.ok(
-        mapToQuizWithQuestionsDto(value))).orElseGet(
-            () -> ResponseEntity.notFound().build());
+    return quiz.map(value -> ResponseEntity.ok(mapToQuizWithQuestionsDto(value)))
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   /**
@@ -123,8 +115,8 @@ public class QuizApi {
    * @return If the quiz was created.
    */
   @PostMapping
-  public ResponseEntity<Boolean> createQuiz(
-      @RequestPart("quiz") Map<String, Object> quiz,
+  @Transactional
+  public ResponseEntity<Boolean> createQuiz(@RequestPart("quiz") Map<String, Object> quiz,
       @RequestPart("thumbnail") MultipartFile thumbnail,
       @RequestHeader("Authorization") String authorizationHeader) {
 
@@ -133,8 +125,11 @@ public class QuizApi {
     }
 
     String token = authorizationHeader.substring(7);
-  
     Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 
     User quizUser = new User();
     quizUser.setId(claims.get("id", Long.class));
@@ -142,25 +137,23 @@ public class QuizApi {
 
     String title = quiz.get("title").toString();
     String description = quiz.get("description").toString();
-    String thumbnailString = Tools.addImage(
-        quizUser.getUsername(),
-        thumbnail,
-        "quiz");
 
-    if (thumbnailString.isBlank()) {
-      System.out.println("Thumbnail is blank");
+    if (title.isBlank() || description.isBlank()) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
-    
-    int timer = (int) quiz.get("timer");
-    Quiz newQuiz = new Quiz();
 
+    int timer = (int) quiz.get("timer");
+
+    if (timer < 0) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    Quiz newQuiz = new Quiz();
     newQuiz.setTitle(title);
     newQuiz.setDescription(description);
-    newQuiz.setThumbnail(thumbnailString);
     newQuiz.setTimer(timer);
+    newQuiz.setQuizQuestions(new ArrayList<>());
     newQuiz.setUser(quizUser);
-    quizRepo.save(newQuiz);
 
     Object questionsObj = quiz.get("quizQuestions");
     if (!(questionsObj instanceof List)) {
@@ -168,45 +161,66 @@ public class QuizApi {
     }
 
     List<?> questionsList = (List<?>) questionsObj;
-
-    List<Map<String, Object>> questions = questionsList.stream()
-        .filter(Map.class::isInstance)
-        .map(Map.class::cast)
-        .collect(Collectors.toList());
+    List<Map<String, Object>> questions = questionsList.stream().filter(Map.class::isInstance)
+        .map(Map.class::cast).collect(Collectors.toList());
 
     for (Map<String, Object> question : questions) {
-
       String questionText = (String) question.get("question");
-      QuizQuestion quizQuestion = new QuizQuestion();
 
+      if (questionText.isBlank()) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+
+      QuizQuestion quizQuestion = new QuizQuestion();
       quizQuestion.setQuestion(questionText);
       quizQuestion.setQuiz(newQuiz);
-      quizQuestionRepo.save(quizQuestion);
-      Object optionsObj = question.get("quizOptions");
+      quizQuestion.setQuizOptions(new ArrayList<>());
 
+      Object optionsObj = question.get("quizOptions");
       if (!(optionsObj instanceof List)) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
 
       List<?> optionsList = (List<?>) optionsObj;
+      List<Map<String, Object>> options = optionsList.stream().filter(Map.class::isInstance)
+          .map(Map.class::cast).collect(Collectors.toList());
 
-      List<Map<String, Object>> options = optionsList.stream()
-          .filter(Map.class::isInstance)
-          .map(Map.class::cast)
-          .collect(Collectors.toList());
+      if (options.size() < 2) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
 
+      boolean hasCorrect = false;
       for (Map<String, Object> option : options) {
-
         String optionText = (String) option.get("option");
         boolean isCorrect = (boolean) option.get("correct");
         QuizOption quizOption = new QuizOption();
-
         quizOption.setQuizQuestion(quizQuestion);
         quizOption.setCorrect(isCorrect);
         quizOption.setOption(optionText);
-        quizOptionRepo.save(quizOption);
+
+        if (isCorrect) {
+          hasCorrect = true;
+        }
+
+        quizQuestion.getQuizOptions().add(quizOption);
       }
+
+      if (!hasCorrect) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+
+      newQuiz.getQuizQuestions().add(quizQuestion);
     }
+
+    String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");
+
+    if (thumbnailString.isBlank()) {
+      System.out.println("Thumbnail is blank");
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    newQuiz.setThumbnail(thumbnailString);
+    quizRepo.save(newQuiz);
     return new ResponseEntity<>(true, HttpStatus.CREATED);
   }
 
@@ -228,38 +242,23 @@ public class QuizApi {
   private QuizDto mapToQuizDto(Quiz quiz) {
     User user = quiz.getUser();
 
-    return new QuizDto(
-        quiz.getQuizId(),
-        quiz.getTitle(),
-        quiz.getDescription(),
-        quiz.getThumbnail(),
-        quiz.getTimer(),
-        user.getUsername(),
-        user.getProfilePicture(),
+    return new QuizDto(quiz.getQuizId(), quiz.getTitle(), quiz.getDescription(),
+        quiz.getThumbnail(), quiz.getTimer(), user.getUsername(), user.getProfilePicture(),
         quiz.getCreatedAt());
   }
 
   private QuizWithQuestionsDto mapToQuizWithQuestionsDto(Quiz quiz) {
-    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions()
-        .stream()
-        .map(this::mapToQuestionDto)
-        .collect(Collectors.toList());
+    List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream()
+        .map(this::mapToQuestionDto).collect(Collectors.toList());
 
-    return new QuizWithQuestionsDto(
-        quiz.getQuizId(),
-        quiz.getTitle(),
-        quiz.getDescription(),
-        quiz.getThumbnail(),
-        quiz.getTimer(),
-        questionsDto);
+    return new QuizWithQuestionsDto(quiz.getQuizId(), quiz.getTitle(), quiz.getDescription(),
+        quiz.getThumbnail(), quiz.getTimer(), questionsDto);
   }
 
   private QuizQuestionDto mapToQuestionDto(QuizQuestion question) {
 
     List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
-        .map(option -> new QuizOptionDto(
-            option.getQuizOptionId(),
-            option.getOption(),
+        .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOption(),
             option.isCorrect()))
         .collect(Collectors.toList());
 
