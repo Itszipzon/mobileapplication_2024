@@ -113,12 +113,7 @@ class ApiHandler {
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 201) {
-      print('Quiz created successfully');
-    } else {
-      print('Failed to create quiz: ${response.body}');
-    }
+    
     return response;
   }
 }
