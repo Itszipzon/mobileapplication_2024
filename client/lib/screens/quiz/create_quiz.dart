@@ -191,24 +191,33 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                       ),
                     ),
                   ),
-            TextField(
-              controller: questionController,
-              decoration: const InputDecoration(
-                hintText: "Enter question",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(6),
-                    bottomRight: Radius.circular(6),
-                  ),
+            Theme(
+              data: Theme.of(context).copyWith(
+                textSelectionTheme: TextSelectionThemeData(
+                  cursorColor: theme.primaryColor,
+                  selectionColor: theme.primaryColor,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(6),
-                    bottomRight: Radius.circular(6),
+              ),
+              child: TextField(
+                controller: questionController,
+                cursorColor: theme.primaryColor,
+                decoration: const InputDecoration(
+                  hintText: "Enter question",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(6),
+                      bottomRight: Radius.circular(6),
+                    ),
                   ),
-                  borderSide: BorderSide(
-                    color: Colors.orange,
-                    width: 2.0,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(6),
+                      bottomRight: Radius.circular(6),
+                    ),
+                    borderSide: BorderSide(
+                      color: Colors.orange,
+                      width: 2.0,
+                    ),
                   ),
                 ),
               ),
@@ -224,48 +233,57 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                   }
                   return Column(
                     children: [
-                      TextField(
-                        controller: controllers[index],
-                        decoration: InputDecoration(
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Text("${index + 1}."),
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          textSelectionTheme: TextSelectionThemeData(
+                            cursorColor: theme.primaryColor,
+                            selectionColor: theme.primaryColor,
                           ),
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: GestureDetector(
-                              onTap: () => setState(
-                                () {
-                                  questions[_selectedIndex]
-                                      .options[index]
-                                      .setIsCorrect(
-                                        !questions[_selectedIndex]
-                                            .options[index]
-                                            .isCorrect,
-                                      );
-                                },
-                              ),
-                              child: questions[_selectedIndex]
-                                      .options[index]
-                                      .isCorrect
-                                  ? const Icon(
-                                      Icons.check,
-                                      color: Colors.green,
-                                    )
-                                  : const Icon(
-                                      Icons.close,
-                                      color: Colors.red,
-                                    ),
+                        ),
+                        child: TextField(
+                          controller: controllers[index],
+                          cursorColor: theme.primaryColor,
+                          decoration: InputDecoration(
+                            prefixIcon: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text("${index + 1}."),
                             ),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            borderSide: const BorderSide(
-                              color: Colors.orange,
-                              width: 2.0,
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: GestureDetector(
+                                onTap: () => setState(
+                                  () {
+                                    questions[_selectedIndex]
+                                        .options[index]
+                                        .setIsCorrect(
+                                          !questions[_selectedIndex]
+                                              .options[index]
+                                              .isCorrect,
+                                        );
+                                  },
+                                ),
+                                child: questions[_selectedIndex]
+                                        .options[index]
+                                        .isCorrect
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.green,
+                                      )
+                                    : const Icon(
+                                        Icons.close,
+                                        color: Colors.red,
+                                      ),
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(
+                                color: Colors.orange,
+                                width: 2.0,
+                              ),
                             ),
                           ),
                         ),
