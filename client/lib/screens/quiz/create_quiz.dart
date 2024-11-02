@@ -1,10 +1,12 @@
-import 'package:client/elements/bottom_navbar.dart';
+import 'dart:io';
+
 import 'package:client/elements/button.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:client/tools/quiz.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateQuiz extends ConsumerStatefulWidget {
   const CreateQuiz({super.key});
@@ -37,8 +39,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     TextEditingController(),
     TextEditingController(),
   ];
-
-
 
   @override
   void initState() {
@@ -95,8 +95,18 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     });
   }
 
-  void addImage() {
-    
+  void addImage() async {
+    final ImagePicker _picker = ImagePicker();
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          questions[_selectedIndex].imageFile = File(image.path);
+        });
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    }
   }
 
   @override
@@ -145,31 +155,42 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () {
-                print("add image");
-              },
-              child: Container(
-                height: 162,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 217, 217, 217),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(6),
-                    topRight: Radius.circular(6),
+            questions[_selectedIndex].imageFile != null
+                ? ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(6),
+                      topRight: Radius.circular(6),
+                    ),
+                    child: Image.file(
+                      questions[_selectedIndex].imageFile!,
+                      height: 162,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: addImage,
+                    child: Container(
+                      height: 162,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(255, 217, 217, 217),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(6),
+                          topRight: Radius.circular(6),
+                        ),
+                      ),
+                      child: const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add),
+                            Text("Add Image"),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add),
-                      Text("Add Image"),
-                    ],
-                  ),
-                ),
-              ),
-            ),
             TextField(
               controller: questionController,
               decoration: const InputDecoration(
@@ -270,7 +291,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           ],
         ),
       ),
-
       bottomNavigationBar: Container(
         padding: const EdgeInsets.only(left: 16, right: 16),
         color: theme.canvasColor,
@@ -280,7 +300,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(right: 5), // Padding between list and add button
+                padding: const EdgeInsets.only(
+                    right: 5), // Padding between list and add button
                 child: ListView(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
