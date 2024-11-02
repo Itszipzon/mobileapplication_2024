@@ -40,7 +40,6 @@ public class JwtUtil {
   public String generateToken(User user, long hours) {
     return Jwts.builder()
         .setSubject(user.getUsername())
-        .claim("pfp", user.getProfilePicture())
         .claim("email", user.getEmail())
         .claim("role", user.getRole())
         .claim("id", user.getId())
