@@ -1,4 +1,3 @@
-import 'package:client/dummy_data.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePicture extends StatelessWidget {
@@ -12,7 +11,7 @@ class ProfilePicture extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipOval(
       child: Image(
-        image: url != "null" && url.isNotEmpty ? NetworkImage(url) : NetworkImage(DummyData.profilePicture),
+        image: NetworkImage(url),
         width: size,
         height: size,
         fit: fit ?? BoxFit.cover,

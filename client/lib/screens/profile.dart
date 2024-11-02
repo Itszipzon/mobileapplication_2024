@@ -1,4 +1,5 @@
 import 'package:client/elements/bottom_navbar.dart';
+import 'package:client/elements/loading.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
@@ -40,10 +41,7 @@ class ProfileState extends ConsumerState<Profile> {
     return profile.isEmpty
         ? const Scaffold(
             body: Center(
-              child: CircularProgressIndicator(
-                color: Colors.orange,
-                strokeWidth: 2.0,
-              ),
+              child: LogoLoading(),
             ),
             bottomNavigationBar: BottomNavbar(path: "profile"),
           )
@@ -60,7 +58,7 @@ class ProfileState extends ConsumerState<Profile> {
                           print("Not implemented yet");
                         },
                         child: ClipOval(
-                          child: ProfilePicture(url: profile["pfp"].toString()),
+                          child: ProfilePicture(url: profile["pfp"]),
                         ),
                       ),
                       const SizedBox(

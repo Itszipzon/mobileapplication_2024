@@ -1,3 +1,4 @@
+import 'package:client/dummy_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client/tools/api_handler.dart';
@@ -59,8 +60,11 @@ class UserNotifier extends AutoDisposeAsyncNotifier<User> {
   Future<Map<String, dynamic>> getProfile() async {
     final currentUser = state.valueOrNull;
     if (currentUser?.token == null) throw Exception("User not logged in");
-
-    return await ApiHandler.getProfile(currentUser!.token!);
+    var profile = await ApiHandler.getProfile(currentUser!.token!);
+    profile["pfp"] = await ApiHandler.hasPfp(profile["username"])
+        ? "${ApiHandler.url}/api/user/pfp/${profile["username"]}"
+        : DummyData.profilePicture;
+    return profile;
   }
 
   String? get token => state.valueOrNull?.token;

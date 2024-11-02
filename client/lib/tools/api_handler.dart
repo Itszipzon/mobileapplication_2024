@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:client/dummy_data.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -68,10 +69,25 @@ class ApiHandler {
     return jsonDecode(response.body);
   }
 
+  static Future<bool> hasPfp(String username) async {
+    final response =
+        await http.get(Uri.parse('$_url/api/user/haspfp/$username'));
+    return jsonDecode(response.body);
+  }
+
   static Future<Map<String, dynamic>> getProfile(String token) async {
     final response = await http.get(Uri.parse('$_url/api/user'),
         headers: {"Authorization": "Bearer $token"});
     return jsonDecode(response.body);
+  }
+
+  static Future<String> getProfilePicture(String username) async {
+    final response = await ApiHandler.hasPfp(username);
+    if (response) {
+      return '$_url/api/user/pfp/$username';
+    } else {
+      return DummyData.profilePicture;
+    }
   }
 
   /// Fetches quizzes from the API.

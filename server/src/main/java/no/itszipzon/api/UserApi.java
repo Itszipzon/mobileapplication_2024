@@ -82,6 +82,27 @@ public class UserApi {
   }
 
   /**
+   * Get user by username.
+   *
+   * @param username Username.
+   * @return User.
+   */
+  @GetMapping("/haspfp/{username}")
+  public ResponseEntity<Boolean> hasProfilePicture(@PathVariable String username) {
+    Optional<User> userOpt = userRepo.findUserByUsername(username);
+
+    if (userOpt.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    if (userOpt.get().getProfilePicture() == null) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
+
+    return new ResponseEntity<>(true, HttpStatus.OK);
+  }
+
+  /**
    * Get users profile picture.
    *
    * @param username Username.
