@@ -48,4 +48,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-server/src/main/resources/static/images/
+server/src/main/resources/static/images/*
+!server/src/main/resources/static/images/logo.png
