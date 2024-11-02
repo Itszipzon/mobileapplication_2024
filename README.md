@@ -1,40 +1,43 @@
 # Startup
 
 ## .env variables
+```ini
 SERVER_PORT =
 
-DATABASE_URL = {REQUIRED}</br>
-DATABASE_USERNAME = {REQUIRED}</br>
-DATABASE_PASSWORD = </br>
+DATABASE_URL = {REQUIRED}
+DATABASE_USERNAME = {REQUIRED}
+DATABASE_PASSWORD =
 DATABASE_DRIVER = {REQUIRED}
 
-KEY_NAME = </br>
-CERT_PASS = </br>
-USE_SSL = false </br>
+KEY_NAME = {Required if USE_SSL is true}
+CERT_PASS = {Required if USE_SSL is true}
+USE_SSL = false
 
-ADMIN_USER = {REQUIRED}</br>
-ADMIN_PASS = {REQUIRED}</br>
+ADMIN_USER = {REQUIRED}
+ADMIN_PASS = {REQUIRED}
 
+JWT_SECRET = {Required}
+```
 
-env example>
+### env example>
 
+```ini
+SERVER_PORT = 8080
 
-SERVER_PORT = 8080</br>
+DATABASE_URL = jdbc:mysql://localhost:3306/mobilapp
+DATABASE_USERNAME = root
+DATABASE_PASSWORD =
+DATABASE_DRIVER = com.mysql.cj.jdbc.Driver
 
-DATABASE_URL = jdbc:mysql://localhost:3306/mobilapp</br>
-DATABASE_USERNAME = root</br>
-DATABASE_PASSWORD =</br>
-DATABASE_DRIVER = com.mysql.cj.jdbc.Driver</br>
+KEY_NAME = {Required if USE_SSL is true}
+CERT_PASS = {Required if USE_SSL is true}
+USE_SSL = false
 
-KEY_NAME =</br>
-CERT_PASS =</br>
-USE_SSL = false</br>
-
-ADMIN_USER = {Required}</br>
-ADMIN_PASS = {Required}</br>
+ADMIN_USER = You create a username
+ADMIN_PASS = You create a password
 
 JWT_SECRET = {Required} 
-
+```
 ### To generate a JWT_SECRET securely
 ```bash
 openssl rand -base64 32
@@ -43,7 +46,7 @@ openssl rand -base64 32
 
 ## properties example: 
 
-
+```ini
 spring.servlet.multipart.max-file-size=4MB
 spring.servlet.multipart.max-request-size=4MB
 server.error.include-message=always
@@ -71,3 +74,4 @@ spring.jpa.open-in-view=false
 spring.output.ansi.enabled=always
 
 jwt.secret=${JWT_SECRET}
+```
