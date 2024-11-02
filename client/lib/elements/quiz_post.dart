@@ -4,7 +4,6 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 class QuizPost extends ConsumerWidget {
   const QuizPost({
     super.key,
@@ -25,7 +24,13 @@ class QuizPost extends ConsumerWidget {
     final now = DateTime.now();
     final difference = now.difference(date);
 
-    if (difference.inDays > 0) {
+    if (difference.inDays >= 365) {
+      return '${(difference.inDays / 365).floor()} years ago';
+    } else if (difference.inDays >= 30) {
+      return '${(difference.inDays / 30).floor()} months ago';
+    } else if (difference.inDays >= 7) {
+      return '${(difference.inDays / 7).floor()} weeks ago';
+    } else if (difference.inDays > 0) {
       return '${difference.inDays} days ago';
     } else if (difference.inHours > 0) {
       return '${difference.inHours} hours ago';
