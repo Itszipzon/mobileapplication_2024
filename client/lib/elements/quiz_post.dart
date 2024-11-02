@@ -44,7 +44,7 @@ class QuizPost extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(routerProvider.notifier);
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         router.setPath(context, "quiz", values: {"id": id});
       },
