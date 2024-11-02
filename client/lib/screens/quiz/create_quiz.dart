@@ -24,7 +24,12 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     });
   }
 
-  final List<Quiz> questions = [];
+  final List<Quiz> questions = [
+    Quiz(question: "", options: [
+      Option(option: ""),
+      Option(option: ""),
+    ])
+  ];
 
   void onPressed() {
     print("pressed");
@@ -33,6 +38,12 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   void changeSelectedQuestion(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void addOption(int index) {
+    setState(() {
+      questions[_selectedIndex].options.add(Option(option: ""));
     });
   }
 
@@ -133,86 +144,67 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text("1."),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: const BorderSide(
-                        color: Colors.orange,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text("2."),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: const BorderSide(
-                        color: Colors.orange,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text("3."),
-                    ),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        print("add answer");
-                      },
-                      icon: const Icon(Icons.add),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: const BorderSide(
-                        color: Colors.orange,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text("4."),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: const BorderSide(
-                        color: Colors.orange,
-                        width: 2.0,
-                      ),
-                    ),
-                  ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: questions[_selectedIndex].options.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        TextField(
+                          decoration: InputDecoration(
+                            prefixIcon: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text("${index + 1}."),
+                            ),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: GestureDetector(
+                                onTap: () => 
+                                  setState(
+                                    () {
+                                      questions[_selectedIndex]
+                                          .options[index]
+                                          .setIsCorrect(
+                                              !questions[_selectedIndex]
+                                                  .options[index]
+                                                  .isCorrect);
+                                    },
+                                  ),
+                                child: questions[_selectedIndex]
+                                        .options[index]
+                                        .isCorrect ?
+                                        const Icon(Icons.check, color: Colors.green,)
+                                        :
+                                        const Icon(Icons.close, color: Colors.red,),
+                              ),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(
+                                color: Colors.orange,
+                                width: 2.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                        index < questions[_selectedIndex].options.length
+                            ? const SizedBox(height: 5)
+                            : const SizedBox(height: 0),
+                        questions[_selectedIndex].options.length < 5 &&
+                                index ==
+                                    questions[_selectedIndex].options.length - 1
+                            ? Center(
+                                child: SmallTextButton(
+                                    text: "Add new option",
+                                    onPressed: () => addOption(_selectedIndex)),
+                              )
+                            : const SizedBox(height: 0),
+                      ],
+                    );
+                  },
                 ),
               ],
             )

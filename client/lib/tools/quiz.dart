@@ -1,15 +1,13 @@
 class Quiz {
   String question;
-  List<String> options;
-  bool isCorrect;
+  List<Option> options;
 
-  Quiz({required this.question, required this.options, this.isCorrect = false});
+  Quiz({required this.question, required this.options});
 
   factory Quiz.fromJson(Map<String, dynamic> json) {
     return Quiz(
       question: json['question'],
-      options: List<String>.from(json['options']),
-      isCorrect: json['isCorrect'],
+      options: List<Option>.from(json['options']),
     );
   }
 
@@ -17,11 +15,10 @@ class Quiz {
     return {
       'question': question,
       'options': options,
-      'isCorrect': isCorrect,
     };
   }
 
-  List<String> getOptions() {
+  List<Option> getOptions() {
     return options;
   }
 
@@ -33,8 +30,41 @@ class Quiz {
     this.question = question;
   }
 
-  void setOptions(List<String> options) {
+  void setOptions(List<Option> options) {
     this.options = options;
+  }
+
+  void addOption(Option option) {
+    options.add(option);
+  }
+}
+
+class Option {
+  String option;
+  bool isCorrect;
+
+  Option({required this.option, this.isCorrect = false});
+
+  factory Option.fromJson(Map<String, dynamic> json) {
+    return Option(
+      option: json['option'],
+      isCorrect: json['isCorrect'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'option': option,
+      'isCorrect': isCorrect,
+    };
+  }
+
+  String getOption() {
+    return option;
+  }
+
+  void setOption(String option) {
+    this.option = option;
   }
 
   void setIsCorrect(bool isCorrect) {
