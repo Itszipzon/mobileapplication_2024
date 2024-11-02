@@ -44,10 +44,13 @@ class HomeState extends ConsumerState<Home> {
                 child: Text('Error loading quizzes: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final quizData = snapshot.data!;
-            return ListView(
-              children: [
-                FeedCategory(category: "Quizzes", quizzes: quizData),
-              ],
+            return Container(
+              padding: const EdgeInsets.all(8),
+              child: ListView(
+                children: [
+                  FeedCategory(category: "Quizzes", quizzes: quizData),
+                ],
+              ),
             );
           } else {
             return const Center(child: Text('No quizzes available.'));

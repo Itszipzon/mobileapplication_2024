@@ -48,50 +48,48 @@ class QuizPost extends ConsumerWidget {
       onTap: () {
         router.setPath(context, "quiz", values: {"id": id});
       },
-      child: SizedBox(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image(
-                image: NetworkImage("${ApiHandler.url}/api/quiz/thumbnail/$id"),
-                height: 96,
-                width: 212,
-                fit: BoxFit.cover,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipOval(
-                    child: ProfilePicture(
-                      url: profilePicture,
-                      size: 50,
-                    ),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image(
+              image: NetworkImage("${ApiHandler.url}/api/quiz/thumbnail/$id"),
+              height: 96,
+              width: 212,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipOval(
+                  child: ProfilePicture(
+                    url: profilePicture,
+                    size: 50,
                   ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 4),
-                      Text(username),
-                      const SizedBox(height: 4),
-                      Text(_formatCreatedAt(createdAt)),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(username),
+                    const SizedBox(height: 4),
+                    Text(_formatCreatedAt(createdAt)),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
