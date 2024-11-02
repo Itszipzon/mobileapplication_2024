@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// A text input field.
 class Input extends StatelessWidget {
   final String labelText;
-  final TextEditingController? controller; // Make it optional
+  final TextEditingController controller;
   final bool obscureText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
@@ -15,7 +15,7 @@ class Input extends StatelessWidget {
   const Input({
     super.key,
     required this.labelText,
-    this.controller, // No longer required
+    required this.controller,
     this.obscureText = false,
     this.keyboardType,
     this.onChanged,
