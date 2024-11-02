@@ -19,9 +19,20 @@ public class QuizDto {
   @JsonProperty("profile_picture")
   private String profilePicture;
 
-  private LocalDateTime createdAt; // New field for createdAt
+  private LocalDateTime createdAt;
 
-  // Updated constructor with createdAt
+  /**
+   * Constructor.
+   *
+   * @param id id.
+   * @param title title.
+   * @param description description.
+   * @param thumbnail thumbnail.
+   * @param timer timer.
+   * @param username username.
+   * @param profilePicture profilePicture.
+   * @param createdAt createdAt.
+   */
   public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
       String username, String profilePicture, LocalDateTime createdAt) {
     this.id = id;

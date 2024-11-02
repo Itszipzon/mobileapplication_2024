@@ -27,6 +27,7 @@ class HomeState extends ConsumerState<Home> {
       user = ref.read(userProvider.notifier);
     });
     _quizDataFuture = ApiHandler.getQuizzes();
+    print("Quizzes: $_quizDataFuture");
   }
 
   @override

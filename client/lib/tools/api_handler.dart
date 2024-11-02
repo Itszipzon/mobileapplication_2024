@@ -8,6 +8,8 @@ class ApiHandler {
   static final String _url =
       Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
+  static String get url => _url;
+
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
     final response = await http.get(Uri.parse('$_url/api/user/insession'),
@@ -78,6 +80,9 @@ class ApiHandler {
 
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
+      for (var quiz in quizzes) {
+        print(quiz["id"]);
+      }
       return quizzes.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load quizzes');

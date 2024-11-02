@@ -19,7 +19,10 @@ import no.itszipzon.tables.QuizOption;
 import no.itszipzon.tables.QuizQuestion;
 import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,6 +73,47 @@ public class QuizApi {
     return quiz.map(value -> ResponseEntity.ok(
         mapToQuizWithQuestionsDto(value))).orElseGet(
             () -> ResponseEntity.notFound().build());
+  }
+
+  /**
+   * Get quiz image.
+   *
+   * @param id id.
+   * @return image.
+   */
+  @GetMapping("/thumbnail/{id}")
+  public ResponseEntity<Resource> getQuizImage(@PathVariable Long id) {
+    Optional<QuizDto> quiz = quizRepo.findQuizSummaryById(id);
+    String username = quiz.get().getUsername();
+    String thumbnail = quiz.get().getThumbnail();
+
+    String imageFolder = "static/images/" + username + "/quiz/";
+    Resource resource;
+    String filetype;
+
+    resource = new ClassPathResource(imageFolder + thumbnail);
+    filetype = thumbnail.substring(thumbnail.lastIndexOf(".") + 1);
+
+    MediaType mediaType = null;
+
+    switch (filetype) {
+      case "png":
+        mediaType = MediaType.IMAGE_PNG;
+        break;
+      case "jpg":
+        mediaType = MediaType.IMAGE_JPEG;
+        break;
+      case "jpeg":
+        mediaType = MediaType.IMAGE_JPEG;
+        break;
+      case "gif":
+        mediaType = MediaType.IMAGE_GIF;
+        break;
+      default:
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    return ResponseEntity.ok().contentType(mediaType).body(resource);
   }
 
   /**

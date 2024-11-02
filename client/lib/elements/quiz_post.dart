@@ -1,4 +1,5 @@
 import 'package:client/elements/profile_picture.dart';
+import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,16 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class QuizPost extends ConsumerWidget {
   const QuizPost({
     super.key,
-    required this.path,
-    required this.thumbnail,
+    required this.id,
     required this.profilePicture,
     required this.title,
     required this.username,
     required this.createdAt,
   });
 
-  final String path;
-  final String thumbnail;
+  final int id;
   final String profilePicture;
   final String title;
   final String username;
@@ -42,7 +41,7 @@ class QuizPost extends ConsumerWidget {
     final router = ref.read(routerProvider.notifier);
     return InkWell(
       onTap: () {
-        router.setPath(context, path);
+        router.setPath(context, "quiz", values: {"id": id});
       },
       child: SizedBox(
         child: Container(
@@ -52,7 +51,7 @@ class QuizPost extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Image(
-                image: NetworkImage(thumbnail),
+                image: NetworkImage("${ApiHandler.url}/api/quiz/thumbnail/$id"),
                 height: 96,
                 width: 212,
                 fit: BoxFit.cover,

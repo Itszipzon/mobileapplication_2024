@@ -22,6 +22,14 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       """)
   List<QuizDto> findAllQuizzesSummary();
 
+  @Query("""
+      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                           u.username, u.profilePicture, q.createdAt)
+      FROM Quiz q JOIN q.user u
+      WHERE q.quizId = :id
+      """)
+  Optional<QuizDto> findQuizSummaryById(Long id);
+
   @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions" })
   Optional<Quiz> findById(Long id);
 

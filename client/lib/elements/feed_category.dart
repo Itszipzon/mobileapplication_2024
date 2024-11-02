@@ -32,8 +32,7 @@ class FeedCategory extends StatelessWidget {
             itemBuilder: (context, index) {
               final quiz = quizzes[index];
               return QuizPost(
-                path: quiz['title'] ?? '',
-                thumbnail: quiz['thumbnail'] ?? '',
+                id: quiz['id'] ?? '',
                 profilePicture: quiz['profile_picture'] ?? '',
                 title: quiz['title'] ?? '',
                 username: quiz['username'] ?? '',
