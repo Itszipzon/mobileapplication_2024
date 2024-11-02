@@ -1,5 +1,6 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/feed_category.dart';
+import 'package:client/elements/loading.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class HomeState extends ConsumerState<Home> {
         future: _quizDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: LogoLoading());
           } else if (snapshot.hasError) {
             return Center(
                 child: Text('Error loading quizzes: ${snapshot.error}'));
