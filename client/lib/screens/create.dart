@@ -4,6 +4,8 @@ import 'package:client/elements/button.dart';
 import 'package:client/elements/input.dart';
 import 'package:client/tools/api_handler.dart';
 
+// TODO: Brukes ikke!!!
+
 class Create extends ConsumerStatefulWidget {
   const Create({super.key});
 
@@ -74,20 +76,6 @@ class CreateScreenState extends ConsumerState<Create> {
         };
       }).toList(),
     };
-
-    // Send the POST request
-    final response = await ApiHandler.createQuiz(quizData);
-
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Quiz created successfully!')),
-      );
-      Navigator.of(context).pop(); // Go back to the previous screen
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to create quiz.')),
-      );
-    }
 
     setState(() {
       isLoading = false;
