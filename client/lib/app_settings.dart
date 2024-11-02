@@ -4,6 +4,7 @@ import 'package:client/screens/join.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/screens/path_search.dart';
 import 'package:client/screens/profile.dart';
+import 'package:client/screens/quiz/create_quiz.dart';
 import 'package:client/screens/register.dart';
 import 'package:client/screens/test.dart';
 import 'package:client/tools/router.dart';
@@ -23,6 +24,7 @@ class AppSettings {
     router.addScreen('test', const Test());
     router.addScreen('path_search', const PathSearch());
     router.addScreen("profile", const Profile());
+    router.addScreen("create", const CreateQuiz());
 
     router.excludePaths(["", "register", "test"]);
   }
