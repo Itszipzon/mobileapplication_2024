@@ -39,4 +39,33 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       WHERE q.quizId = :id
       """)
   Optional<String> findUsernameFromQuizId(Long id);
+
+  @Query("""
+      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                           u.username, u.profilePicture, q.createdAt)
+      FROM Quiz q JOIN q.user u
+      WHERE u.username = :username
+      SORT BY q.createdAt DESC
+      LIMIT 10
+      """)
+  Optional<List<QuizDto>> findHistoryByUsername(String username);
+
+  @Query("""
+      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                           u.username, u.profilePicture, q.createdAt)
+      FROM Quiz q JOIN q.user u
+      WHERE u.username = :username
+      SORT BY q.createdAt DESC
+      LIMIT 10
+      """)
+  Optional<List<QuizDto>> findUserQuiz(String username);
+
+  @Query("""
+      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                           u.username, u.profilePicture, q.createdAt)
+      FROM Quiz q JOIN q.user u
+      WHERE u.username = :username
+      SORT BY q.createdAt DESC
+      """)
+  Optional<List<QuizDto>> findAllUserQuiz(String username);
 }
