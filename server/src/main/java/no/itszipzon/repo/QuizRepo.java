@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import no.itszipzon.dto.QuizDto;
 import no.itszipzon.tables.Quiz;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -45,27 +46,16 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
                                            u.username, u.profilePicture, q.createdAt)
       FROM Quiz q JOIN q.user u
       WHERE u.username = :username
-      SORT BY q.createdAt DESC
-      LIMIT 10
+      ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findHistoryByUsername(String username);
+  Optional<List<QuizDto>> findHistoryByUsername(String username, Pageable pageable);
 
   @Query("""
       SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
                                            u.username, u.profilePicture, q.createdAt)
       FROM Quiz q JOIN q.user u
       WHERE u.username = :username
-      SORT BY q.createdAt DESC
-      LIMIT 10
+      ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findUserQuiz(String username);
-
-  @Query("""
-      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
-                                           u.username, u.profilePicture, q.createdAt)
-      FROM Quiz q JOIN q.user u
-      WHERE u.username = :username
-      SORT BY q.createdAt DESC
-      """)
-  Optional<List<QuizDto>> findAllUserQuiz(String username);
+  Optional<List<QuizDto>> findUserQuiz(String username, Pageable pageable);
 }
