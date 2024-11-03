@@ -435,32 +435,32 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           children: [
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 60,
+                width: 63,
                 height: 30,
                 text: "Add title",
                 onPressed: () => showPopup(theme, "title", titleController)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 60,
+                width: 63,
                 height: 30,
                 text: "Add desc",
                 onPressed: () =>
                     showPopup(theme, "description", descriptionController)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 60,
+                width: 63,
                 height: 30,
                 text: "Add time",
                 onPressed: () => showTimePopup(theme)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 60,
+                width: 63,
                 height: 30,
                 text: "Categories",
                 onPressed: () => showCategoriesPopup(theme)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 60,
+                width: 63,
                 height: 30,
                 text: "Save",
                 onPressed: () => createQuiz(_selectedIndex)),
