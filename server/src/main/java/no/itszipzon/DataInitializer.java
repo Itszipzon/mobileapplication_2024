@@ -50,7 +50,18 @@ public class DataInitializer implements CommandLineRunner {
         "Fashion",
         "Gardening",
         "Health",
-        "Sci-Fi"
+        "Sci-Fi",
+        "Pop Culture",
+        "Mathematics",
+        "Language",
+        "Religion",
+        "Space",
+        "Psychology",
+        "Philosophy",
+        "Society",
+        "Business",
+        "Economics",
+        "Education"
         );
     
     for (String category : categories) {
