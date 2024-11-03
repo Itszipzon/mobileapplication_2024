@@ -403,7 +403,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     ApiHandler.createQuiz(quiz, user.token!, imageFile!).then((response) {
       if (response.statusCode == 201) {
         if (response.body == "true") {
-          print("Quiz created");
           setState(() {
             loading = false;
           });
