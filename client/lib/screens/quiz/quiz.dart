@@ -135,7 +135,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
             const SizedBox(height: 8),
             SizedTextButton(
               text: "Play with friends",
-              onPressed: () => print("Play with friends"),
+              onPressed: () => router.setPath(context, "socket"),
               width: double.infinity,
               inversed: true,
               height: 50,
