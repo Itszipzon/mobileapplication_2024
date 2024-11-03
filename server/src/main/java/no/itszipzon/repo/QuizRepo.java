@@ -33,4 +33,10 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
   @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions" })
   Optional<Quiz> findById(Long id);
 
+  @Query("""
+      SELECT u.username
+      FROM Quiz q JOIN q.user u
+      WHERE q.quizId = :id
+      """)
+  Optional<String> findUsernameFromQuizId(Long id);
 }

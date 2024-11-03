@@ -16,13 +16,8 @@ class App extends ConsumerWidget {
       theme: theme,
       home: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              ref.read(routerProvider.notifier).setPath(context, "path_search");
-            },
-          ),
-          title: const Image(image: AssetImage("assets/logo.png"), height: 30),
+          backgroundColor: theme.canvasColor,
+          toolbarHeight: 10,
         ),
         body: Container(
           color: theme.canvasColor,

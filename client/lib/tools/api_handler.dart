@@ -96,9 +96,6 @@ class ApiHandler {
 
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
-      for (var quiz in quizzes) {
-        print(quiz["id"]);
-      }
       return quizzes.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load quizzes');
@@ -141,6 +138,11 @@ class ApiHandler {
   static Future<List<String>> getQuizCategories() async {
     final response = await http.get(Uri.parse('$_url/api/quiz/categories'));
     return jsonDecode(response.body).cast<String>();
-  } 
+  }
+
+  static Future<Map<String, dynamic>> getQuiz(int id) async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/$id'));
+    return jsonDecode(response.body);
+  }
 
 }

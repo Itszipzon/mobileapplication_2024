@@ -166,6 +166,7 @@ class SizedTextButton extends StatelessWidget {
   final double height;
   final double width;
   final TextStyle textStyle;
+  final bool inversed;
 
   const SizedTextButton({
     required this.text,
@@ -174,6 +175,7 @@ class SizedTextButton extends StatelessWidget {
     required this.height,
     required this.width,
     required this.textStyle,
+    this.inversed = false,
     super.key,
   });
 
@@ -188,8 +190,11 @@ class SizedTextButton extends StatelessWidget {
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: theme.primaryColor,
+          color: inversed ? Colors.white : theme.primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(6)),
+          border: Border.all(
+            color: inversed ? theme.primaryColor : Colors.transparent,
+          ),
         ),
         child: Center(
           child: loading

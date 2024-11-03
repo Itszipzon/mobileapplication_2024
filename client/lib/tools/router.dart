@@ -6,19 +6,22 @@ import 'package:client/screens/login.dart';
 class RouterState {
   final String path;
   final Map<String, Object>? pathVariables;
+  final Map<String, Object>? values;
   final List<String> paths;
 
   RouterState({
     required this.path,
     this.pathVariables,
     this.paths = const [],
+    this.values,
   });
 
-  RouterState copyWith({String? path, Map<String, Object>? pathVariables, List<String>? paths}) {
+  RouterState copyWith({String? path, Map<String, Object>? pathVariables, List<String>? paths, Map<String, Object>? values}) {
     return RouterState(
       path: path ?? this.path,
       pathVariables: pathVariables ?? this.pathVariables,
       paths: paths ?? this.paths,
+      values: values,
     );
   }
 }
@@ -27,7 +30,7 @@ class RouterNotifier extends StateNotifier<RouterState> {
   final Map<String, Widget> _screens = {};
   final Set<String> excludedPaths = {};
 
-  RouterNotifier() : super(RouterState(path: '', pathVariables: {}));
+  RouterNotifier() : super(RouterState(path: ''));
 
   Widget get currentScreen => _screens[state.path] ?? const LoginScreen();
 
@@ -49,11 +52,13 @@ class RouterNotifier extends StateNotifier<RouterState> {
 
     final newPathVariables = _extractPathVariables(path);
     final newPaths = List<String>.from(state.paths)..add(screenName);
+    final newValues = values ?? {};
 
     state = state.copyWith(
       path: screenName,
       pathVariables: newPathVariables,
       paths: newPaths,
+      values: newValues,
     );
   }
 
@@ -96,7 +101,7 @@ class RouterNotifier extends StateNotifier<RouterState> {
 
   Map<String, Object>? get getPathVariables => state.pathVariables;
 
-  Map<String, Object>? get getValues => state.pathVariables;
+  Map<String, Object>? get getValues => state.values;
 }
 
 final routerProvider = StateNotifierProvider<RouterNotifier, RouterState>((ref) {
