@@ -124,7 +124,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 24),
               InkWell(
-                onTap: () => router.setPath(context, 'home'),
+                onTap: () => router.setPath(context, ''), //TODO: Add forgot password screen
                 child: Text(
                   'Forgot password?',
                   style: TextStyle(color: theme.primaryColor),
@@ -144,12 +144,6 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                   )
                 ],
               ),
-              InkWell(
-                onTap: () => router.setPath(
-                    context, 'test?id=This is id from path variable',
-                    values: {"id": "This is id from query parameter"}),
-                child: const Text('Test'),
-              )
             ],
           ),
         ),

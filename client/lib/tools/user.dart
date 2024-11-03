@@ -56,7 +56,9 @@ class UserNotifier extends AutoDisposeAsyncNotifier<User> {
 
   Future<Map<String, dynamic>> getProfile() async {
     final currentUser = state.valueOrNull;
-    if (currentUser?.token == null) throw Exception("User not logged in");
+    if (currentUser?.token == null) {
+      return {};
+    }
     var profile = await ApiHandler.getProfile(currentUser!.token!);
     profile["pfp"] = await ApiHandler.hasPfp(profile["username"])
         ? "${ApiHandler.url}/api/user/pfp/${profile["username"]}"
