@@ -23,6 +23,8 @@ import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -118,6 +120,24 @@ public class QuizApi {
   @Transactional(readOnly = true)
   public ResponseEntity<List<String>> getCategories() {
     return ResponseEntity.ok(categoryRepo.findAllNames());
+  }
+
+  /**
+   * Get quizzes by category.
+   *
+   * @param category category.
+   * @param page page.
+   * @return quizzes.
+   */
+  @GetMapping("/category/{category}/{page}")
+  public ResponseEntity<List<QuizDto>> getQuizzesByCategory(@PathVariable String category,
+      @PathVariable int page) {
+    Pageable pageable = PageRequest.of(page, 10); // 10 quizzes per page
+    Optional<List<QuizDto>> quizzes = quizRepo.findQuizzesByCategory(category, pageable);
+    if (quizzes.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>(quizzes.get(), HttpStatus.OK);
   }
 
   /**

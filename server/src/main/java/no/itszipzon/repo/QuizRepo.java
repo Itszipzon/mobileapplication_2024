@@ -48,7 +48,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       WHERE u.username = :username
       ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findHistoryByUsername(String username, Pageable pageable);
+  Optional<List<QuizDto>> findQuizHistoryByUsername(String username, Pageable pageable);
 
   @Query("""
       SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
@@ -57,5 +57,16 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       WHERE u.username = :username
       ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findUserQuiz(String username, Pageable pageable);
+  Optional<List<QuizDto>> findUsersQuizzes(String username, Pageable pageable);
+
+  @Query("""
+      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                           u.username, u.profilePicture, q.createdAt)
+      FROM Quiz q
+        JOIN q.user u
+        JOIN q.categories qc
+      WHERE qc.category.name = :category
+        ORDER BY q.createdAt DESC
+      """)
+  Optional<List<QuizDto>> findQuizzesByCategory(String category, Pageable pageable);
 }
