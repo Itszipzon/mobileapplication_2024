@@ -1,4 +1,5 @@
 import 'package:client/elements/bottom_navbar.dart';
+import 'package:client/elements/button.dart';
 import 'package:client/elements/loading.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/tools/router.dart';
@@ -54,7 +55,6 @@ class ProfileState extends ConsumerState<Profile> {
               child: Column(
                 children: [
                   Row(
-                    // Profile Picture and Name
                     children: [
                       GestureDetector(
                         onTap: () {
@@ -64,28 +64,26 @@ class ProfileState extends ConsumerState<Profile> {
                           child: ProfilePicture(url: profile["pfp"]),
                         ),
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "@${profile["username"]}",
-                          ),
-                          Text(
-                            profile["email"].toString(),
-                          ),
-                        ],
+                      const SizedBox(width: 10,),
+                      Text(
+                        "${profile["username"]}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       )
                     ],
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  const Row(
-                    //
-                    children: [],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedTextButton(text: "Settings", onPressed: () => {print("Settings")}, height: 40, width: 128, textStyle: const TextStyle(fontSize: 16, color: Colors.white),),
+                      SizedTextButton(text: "Other", onPressed: () => {print("Other")}, height: 40, width: 128, textStyle: const TextStyle(fontSize: 16, color: Colors.white),),
+                      SizedTextButton(text: "Sign out", onPressed: () => {user.logout(context, router)}, height: 40, width: 128, textStyle: const TextStyle(fontSize: 16, color: Colors.white),),
+                    ],
                   )
                 ],
               ),

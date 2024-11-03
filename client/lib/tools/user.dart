@@ -1,4 +1,6 @@
 import 'package:client/dummy_data.dart';
+import 'package:client/tools/router.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client/tools/api_handler.dart';
@@ -48,13 +50,8 @@ class UserNotifier extends AutoDisposeAsyncNotifier<User> {
     return result;
   }
 
-  Future<bool> logout() async {
-    final currentUser = state.valueOrNull;
-    if (currentUser?.token == null) return false;
-
-    final result = await ApiHandler.logout(currentUser!.token!);
-    if (result) await clearToken();
-    return result;
+  void logout(BuildContext context, RouterNotifier router) async {
+    await clearToken();
   }
 
   Future<Map<String, dynamic>> getProfile() async {

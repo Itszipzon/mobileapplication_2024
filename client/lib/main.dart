@@ -24,13 +24,11 @@ class _MainAppState extends ConsumerState<MainApp> {
 
     return userAsyncValue.when(
       loading: () {
-        print("Initializing app");
         return const Center(
           child: LogoLoading(),
         );
       },
       error: (error, stackTrace) {
-        print("Initialization error: $error");
         return const ErrorScreen();
       },
       data: (user) {
