@@ -40,7 +40,7 @@ public class QuizAttempt {
   @Column(name = "takenAt")
   private LocalDateTime takenAt;
 
-  @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<QuizAnswer> quizAnswers;
 
