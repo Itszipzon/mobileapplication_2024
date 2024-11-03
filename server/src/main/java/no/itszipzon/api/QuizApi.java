@@ -12,8 +12,11 @@ import no.itszipzon.dto.QuizDto;
 import no.itszipzon.dto.QuizOptionDto;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
+import no.itszipzon.repo.CategoryRepo;
 import no.itszipzon.repo.QuizRepo;
+import no.itszipzon.tables.Category;
 import no.itszipzon.tables.Quiz;
+import no.itszipzon.tables.QuizCategory;
 import no.itszipzon.tables.QuizOption;
 import no.itszipzon.tables.QuizQuestion;
 import no.itszipzon.tables.User;
@@ -43,6 +46,9 @@ public class QuizApi {
 
   @Autowired
   private QuizRepo quizRepo;
+
+  @Autowired
+  private CategoryRepo categoryRepo;
 
   @Autowired
   private JwtUtil jwtUtil;
@@ -106,6 +112,12 @@ public class QuizApi {
     }
 
     return ResponseEntity.ok().contentType(mediaType).body(resource);
+  }
+
+  @GetMapping("/categories")
+  @Transactional(readOnly = true)
+  public ResponseEntity<List<String>> getCategories() {
+    return ResponseEntity.ok(categoryRepo.findAllNames());
   }
 
   /**
@@ -210,6 +222,33 @@ public class QuizApi {
       }
 
       newQuiz.getQuizQuestions().add(quizQuestion);
+    }
+
+    Object categoryObj = quiz.get("categories");
+    if (categoryObj != null && !(categoryObj instanceof List<?>)) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    List<?> categoryList = (List<?>) categoryObj;
+    List<String> categories = categoryList.stream().filter(String.class::isInstance)
+        .map(String.class::cast).collect(Collectors.toList());
+
+    if (categories.size() > 0) {
+      List<Category> quizCategories = categoryRepo.findAll();
+      List<QuizCategory> quizCategoryList = new ArrayList<>();
+      for (String category : categories) {
+        if (!category.isBlank()) {
+          QuizCategory newCategory = new QuizCategory();
+
+          if (quizCategories.stream().anyMatch(c -> c.getName().equals(category))) {
+            newCategory.setCategory(quizCategories.stream()
+                .filter(c -> c.getName().equals(category)).findFirst().get());
+            newCategory.setQuiz(newQuiz);
+            quizCategoryList.add(newCategory);
+          } 
+        }
+      }
+      newQuiz.setCategories(quizCategoryList);
     }
 
     String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");

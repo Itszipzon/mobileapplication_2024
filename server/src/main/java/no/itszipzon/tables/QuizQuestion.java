@@ -33,7 +33,7 @@ public class QuizQuestion {
   @JsonBackReference
   private Quiz quiz;
 
-  @OneToMany(mappedBy = "quizQuestion")
+  @OneToMany(mappedBy = "quizQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<QuizOption> quizOptions;
 

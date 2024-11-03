@@ -49,7 +49,8 @@ public class DataInitializer implements CommandLineRunner {
         "Board Games",
         "Fashion",
         "Gardening",
-        "Health"
+        "Health",
+        "Sci-Fi"
         );
     
     for (String category : categories) {

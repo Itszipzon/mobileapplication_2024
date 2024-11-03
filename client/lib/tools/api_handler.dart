@@ -137,4 +137,10 @@ class ApiHandler {
     
     return response;
   }
+
+  static Future<List<String>> getQuizCategories() async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/categories'));
+    return jsonDecode(response.body).cast<String>();
+  } 
+
 }

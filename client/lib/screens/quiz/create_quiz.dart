@@ -23,6 +23,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   int _selectedIndex = 0;
   bool loading = false;
   File? imageFile;
+  late final List<String> categories;
+  List<String> quizCategories = [];
 
   final List<Quiz> questions = [
     Quiz(question: "", options: [
@@ -52,6 +54,11 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
     });
+    _initCategories();
+  }
+
+  Future<void> _initCategories() async {
+    categories = await ApiHandler.getQuizCategories();
   }
 
   @override
@@ -64,10 +71,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       controller.dispose();
     }
     super.dispose();
-  }
-
-  void onPressed() {
-    print("pressed");
   }
 
   void showPopup(
@@ -86,8 +89,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             ),
             child: TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                hintText: "Enter description",
+              decoration: InputDecoration(
+                hintText: "Enter $type",
               ),
             ),
           ),
@@ -95,6 +98,109 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             SmallTextButton(
                 text: "Save", onPressed: () => Navigator.pop(context)),
           ],
+        );
+      },
+    );
+  }
+
+  void showTimePopup(ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add time"),
+          content: Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: theme.primaryColor,
+                selectionColor: theme.primaryColor,
+              ),
+            ),
+            child: TextField(
+              controller: timeController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                hintText: "Enter time",
+              ),
+            ),
+          ),
+          actions: [
+            SmallTextButton(
+                text: "Save", onPressed: () => Navigator.pop(context)),
+          ],
+        );
+      },
+    );
+  }
+
+  void showCategoriesPopup(ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Add categories"),
+              content: Theme(
+                data: Theme.of(context).copyWith(
+                  textSelectionTheme: TextSelectionThemeData(
+                    cursorColor: theme.primaryColor,
+                    selectionColor: theme.primaryColor,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButton<String>(
+                      hint: const Text("Select category"),
+                      items: categories
+                          .where((value) => !quizCategories.contains(value))
+                          .map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                          onTap: () {
+                            setState(() {
+                              quizCategories.add(value);
+                            });
+                          },
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        //
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 200, // Set a fixed height for the list
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          children: [
+                            for (int i = 0; i < quizCategories.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Chip(
+                                  label: Text(quizCategories[i]),
+                                  onDeleted: () {
+                                    setState(() {
+                                      quizCategories.removeAt(i);
+                                    });
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                SmallTextButton(
+                    text: "Save", onPressed: () => Navigator.pop(context)),
+              ],
+            );
+          },
         );
       },
     );
@@ -141,21 +247,22 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         Option(option: ""),
       ]));
     });
+    changeSelectedQuestion(_selectedIndex, _selectedIndex + 1);
   }
 
   void addImage() async {
-  final ImagePicker picker = ImagePicker();
-  try {
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        imageFile = File(image.path);
-      });
+    final ImagePicker picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          imageFile = File(image.path);
+        });
+      }
+    } catch (e) {
+      ErrorHandler.showOverlayError(context, "Failed to pick image");
+      print("Error picking image: $e");
     }
-  } catch (e) {
-    ErrorHandler.showOverlayError(context, "Failed to pick image");
-    print("Error picking image: $e");
-  }
   }
 
   void createQuiz(int currentIndex) {
@@ -215,6 +322,14 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           context, "Please enter a valid integer for time");
     }
 
+    if (quizCategories.isEmpty) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Please select at least one category");
+      return;
+    }
+
     for (var question in questions) {
       if (question.question.isEmpty) {
         setState(() {
@@ -269,6 +384,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       "title": titleController.text,
       "description": descriptionController.text,
       "timer": int.parse(timeController.text),
+      "categories": quizCategories,
       "quizQuestions": [
         for (int i = 0; i < questions.length; i++)
           {
@@ -320,26 +436,32 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           children: [
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 70,
+                width: 60,
+                height: 30,
+                text: "Add title",
+                onPressed: () => showPopup(theme, "title", titleController)),
+            SizedTextButton(
+                textStyle: topButtonTextStyle,
+                width: 60,
                 height: 30,
                 text: "Add desc",
                 onPressed: () =>
                     showPopup(theme, "description", descriptionController)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 70,
+                width: 60,
                 height: 30,
                 text: "Add time",
-                onPressed: () => showPopup(theme, "time", timeController)),
+                onPressed: () => showTimePopup(theme)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 70,
+                width: 60,
                 height: 30,
-                text: "Add title",
-                onPressed: () => showPopup(theme, "title", titleController)),
+                text: "Categories",
+                onPressed: () => showCategoriesPopup(theme)),
             SizedTextButton(
                 textStyle: topButtonTextStyle,
-                width: 70,
+                width: 60,
                 height: 30,
                 text: "Save",
                 onPressed: () => createQuiz(_selectedIndex)),

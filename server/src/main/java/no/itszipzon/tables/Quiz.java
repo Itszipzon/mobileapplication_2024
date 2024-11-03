@@ -52,11 +52,11 @@ public class Quiz {
   @JsonBackReference
   private User user;
 
-  @OneToMany(mappedBy = "quiz")
+  @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<QuizQuestion> quizQuestions;
 
-  @OneToMany(mappedBy = "quiz")
+  @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<QuizCategory> categories;
 
@@ -142,6 +142,14 @@ public class Quiz {
 
   public User getUser() {
     return this.user;
+  }
+
+  public List<QuizCategory> getCategories() {
+    return categories;
+  }
+
+  public void setCategories(List<QuizCategory> categories) {
+    this.categories = categories;
   }
 
 }
