@@ -90,6 +90,40 @@ class ApiHandler {
     }
   }
 
+  static Future<List<Map<String, dynamic>>> getUserQuizzesByToken(String token, int page, int amount) async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/user/self/$page/$amount'),
+        headers: {"Authorization": "Bearer $token"});
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getUserQuizzesByUsername(String username, int page, int amount) async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/user/username/$username/$page/$amount'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getQuizzesByUserHistory(String token, int page, int amount) async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/user/history/$page/$amount'),
+        headers: {"Authorization" : "Bearer $token"});
+
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
+  }
+
   /// Fetches quizzes from the API.
   static Future<List<Map<String, dynamic>>> getQuizzes() async {
     final response = await http.get(Uri.parse('$_url/api/quiz'));

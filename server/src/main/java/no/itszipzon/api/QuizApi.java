@@ -141,6 +141,86 @@ public class QuizApi {
   }
 
   /**
+   * Get quizzes by search.
+   *
+   * @param authorizationHeader authorizationHeader.
+   * @return quizzes.
+   */
+  @GetMapping("/user/self/{page}/{amount}")
+  public ResponseEntity<List<QuizDto>> getQuizzesByUser(
+      @RequestHeader("Authorization") String authorizationHeader,
+      @PathVariable int page,
+      @PathVariable int amount
+  ) {
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    String username = claims.getSubject();
+    Pageable pageable = PageRequest.of(page, amount);
+    Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
+    List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
+
+    return new ResponseEntity<>(quizzes, HttpStatus.OK);
+  }
+
+  /**
+   * Get quizzes by search.
+   *
+   * @param username username.
+   * @return quizzes.
+   */
+  @GetMapping("/user/username/{username}/{page}/{amount}")
+  public ResponseEntity<List<QuizDto>> getQuizzesByUsername(
+      @PathVariable String username,
+      @PathVariable int page,
+      @PathVariable int amount) {
+    Pageable pageable = PageRequest.of(page, amount);
+    Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
+    List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
+
+    return new ResponseEntity<>(quizzes, HttpStatus.OK);
+  }
+
+  /**
+   * Get quizzes by search.
+   *
+   * @param authorizationHeader authorizationHeader.
+   * @return quizzes.
+   */
+  @GetMapping("/user/history/{page}/{amount}")
+  public ResponseEntity<List<QuizDto>> getQuizzesByUserHistory(
+      @RequestHeader("Authorization") String authorizationHeader,
+      @PathVariable int page,
+      @PathVariable int amount
+  ) {
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    String username = claims.getSubject();
+    Pageable pageable = PageRequest.of(page, amount);
+    Optional<List<QuizDto>> optQuizzes = quizRepo.findQuizzedFromUserHistory(username, pageable);
+    List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
+
+    return new ResponseEntity<>(quizzes, HttpStatus.OK);
+  }
+
+  /**
    * Create quiz.
    *
    * @param quiz quiz.

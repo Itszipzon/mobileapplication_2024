@@ -1,3 +1,4 @@
+import 'package:client/dummy_data.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
@@ -46,7 +47,7 @@ class QuizPost extends ConsumerWidget {
               children: [
                 ClipOval(
                   child: ProfilePicture(
-                    url: profilePicture,
+                    url: profilePicture == "" ? DummyData.profilePicture : "${ApiHandler.url}/api/user/pfp/$profilePicture",
                     size: 50,
                   ),
                 ),
