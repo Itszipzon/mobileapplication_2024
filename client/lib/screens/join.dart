@@ -28,6 +28,7 @@ class JoinState extends State<Join> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).canvasColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),

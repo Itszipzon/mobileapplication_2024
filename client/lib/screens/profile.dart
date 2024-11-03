@@ -38,14 +38,17 @@ class ProfileState extends ConsumerState<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return profile.isEmpty
-        ? const Scaffold(
-            body: Center(
+        ? Scaffold(
+            backgroundColor: theme.canvasColor,
+            body: const Center(
               child: LogoLoading(),
             ),
-            bottomNavigationBar: BottomNavbar(path: "profile"),
+            bottomNavigationBar: const BottomNavbar(path: "profile"),
           )
         : Scaffold(
+            backgroundColor: theme.canvasColor,
             body: Container(
               margin: const EdgeInsets.all(10),
               child: Column(
