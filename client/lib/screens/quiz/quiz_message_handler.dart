@@ -9,9 +9,15 @@ class QuizMessageHandler {
     if (message.startsWith("error:")) {
       ErrorHandler.showOverlayError(context, message.substring(7));
 
+      String error = message.substring(7);
+
+      if (error == "Quiz not found") {
+        router.setPath(context, "join");
+      }
+
     } else if (message.startsWith("start")) {
       router.setPath(context, "/quiz/start", values: values);
-      
+
     }
   }
 

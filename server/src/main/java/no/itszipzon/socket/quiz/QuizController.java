@@ -56,13 +56,19 @@ public class QuizController {
   @MessageMapping("/quiz/join")
   public void joinQuiz(QuizMessage message) throws Exception {
 
-    quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUsername());
+    if (!quizSessionManager.quizSessionExists(message.getToken())) {
+      QuizSession quizSession = new QuizSession();
+      quizSession.setMessage("error: Quiz not found");
+      messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
+          quizSession);
+    } else {
+      quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUsername());
+      QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+      quizSession.setMessage("join");
+      quizSession.setToken(message.getToken());
 
-    QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
-    quizSession.setMessage("join");
-    quizSession.setToken(message.getToken());
-
-    messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
+      messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
+    }
   }
 
   /**

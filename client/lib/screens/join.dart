@@ -29,7 +29,7 @@ class JoinState extends ConsumerState<Join> {
     setState(() {
       loading = true;
     });
-    router.setPath(context, 'quiz/lobby', values: {'id': codeController.text, 'create': false});
+    router.setPath(context, 'quiz/lobby', values: {'id': codeController.text.toUpperCase(), 'create': false});
     setState(() {
       loading = false;
     });

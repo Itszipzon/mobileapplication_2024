@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:client/dummy_data.dart';
+import 'package:client/elements/button.dart';
 import 'package:client/screens/quiz/quiz_message_handler.dart';
 import 'package:client/tools/api_handler.dart';
+import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +23,15 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   late RouterNotifier router;
   late UserNotifier user;
   StompClient? stompClient;
+
   String quizToken = '';
   String username = "";
+  String? leader;
   List<String> players = [];
   Completer<void> quizIdCompleter = Completer<void>();
 
   String quizName = "";
+  String quizId = "";
 
   @override
   void initState() {
@@ -36,6 +42,12 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       initUsername();
       connect();
     });
+  }
+
+  @override
+  void dispose() {
+    stompClient?.deactivate();
+    super.dispose();
   }
 
   Future<void> initUsername() async {
@@ -49,13 +61,14 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
         url: '${ApiHandler.url}/socket',
         onConnect: onConnect,
         beforeConnect: () async {
-          print('Waiting to connect...');
-          await Future.delayed(const Duration(milliseconds: 200));
           print('Connecting...');
         },
-        onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
-        onStompError: (dynamic error) => print('STOMP Error: $error'),
-        onDisconnect: (frame) => print('Disconnected'),
+        onWebSocketError: (dynamic error) =>
+            ErrorHandler.showOverlayError(context, 'WebSocket Error: $error'),
+        onStompError: (dynamic error) =>
+            ErrorHandler.showOverlayError(context, 'STOMP Error: $error'),
+        onDisconnect: (frame) =>
+            ErrorHandler.showOverlayError(context, 'Disconnected'),
         webSocketConnectHeaders: {'Origin': ApiHandler.url},
         useSockJS: true,
       ),
@@ -88,10 +101,11 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       callback: (StompFrame frame) {
         if (frame.body != null) {
           var result = json.decode(frame.body!);
-          print("result: ${frame.body}");
           setState(() {
             quizToken = result['token'].toString();
+            leader = result['leaderUsername'];
             quizName = result['quiz']['title'];
+            quizId = result['quizId'].toString();
           });
           quizIdCompleter.complete();
         } else {
@@ -107,22 +121,29 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       callback: (StompFrame frame) {
         if (frame.body != null) {
           var result = json.decode(frame.body!);
-          print("result: $result");
           if (result['message'] == "join") {
             var mapPlayers = List<Map<String, dynamic>>.from(result['players']);
-            setState(() {
-              players = mapPlayers.map((p) => p['username'] as String).toList();
-              quizName = result['quiz']['title'];
-            });
+            if (mounted) {
+              setState(() {
+                players =
+                    mapPlayers.map((p) => p['username'] as String).toList();
+                quizName = result['quiz']['title'];
+                leader = result['leaderUsername'];
+                this.quizId = result['quizId'].toString();
+              });
+            }
           } else if (result['message'] == "leave") {
-            setState(() {
-              players.remove(result['username']);
-            });
+            if (mounted) {
+              setState(() {
+                players.remove(result['username']);
+              });
+            }
           } else {
             QuizMessageHandler.handleSessionMessages(context, router, result);
           }
         } else {
-          print('Empty body');
+          ErrorHandler.showOverlayError(context, 'Empty body');
+          router.setPath(context, 'home');
         }
       },
     );
@@ -131,7 +152,8 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   Future<void> _createQuiz() async {
     stompClient!.send(
       destination: '/app/quiz/create',
-      body: json.encode({'quizId': router.getValues!['id'], "username": username}),
+      body: json
+          .encode({'quizId': router.getValues!['id'], "username": username}),
     );
   }
 
@@ -143,63 +165,88 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
         "username": username,
       }),
     );
-
-    stompClient!.subscribe(
-      destination: "/topic/quiz/join/${router.getValues!['id']}",
-      callback: (StompFrame frame) {
-        print("Received players: ${frame.body}");
-        if (frame.body != null) {
-          var result = json.decode(frame.body!);
-          print("result: $result");
-          setState(() {
-            players = List<String>.from(result);
-          });
-        } else {
-          print('Empty body');
-        }
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.canvasColor,
-      appBar: AppBar(
         backgroundColor: theme.canvasColor,
-        title: Row(
+        body: Column(
           children: [
-            Text(quizName),
-            const SizedBox(width: 8),
-            Text(quizToken),
-          ],
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 300,
-              child: SingleChildScrollView(
-                child: Wrap(
-                  children: [
-                    for (int i = 0; i < players.length; i++)
-                      Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Chip(
-                          label: Text(players[i]),
+            const SizedBox(height: 8),
+            quizId == "" ? const SizedBox(height: 200,) :
+            Image(
+              image: NetworkImage('${ApiHandler.url}/api/quiz/thumbnail/$quizId'),
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    quizName,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Session token: $quizToken',
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 550,
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          children: [
+                            for (int i = 0; i < players.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Chip(
+                                  label: Text(players[i]),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
             ),
+            username == leader
+                ? Container(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Center(
+                      child: SizedTextButton(
+                          text: "Start",
+                          onPressed: () => print("start"),
+                          height: 50,
+                          width: 200,
+                          textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold)),
+                    ))
+                : const SizedBox(
+                    height: 0,
+                  ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }
-
