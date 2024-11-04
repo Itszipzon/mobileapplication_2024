@@ -2,6 +2,7 @@ package no.itszipzon.socket;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import no.itszipzon.DtoParser;
 import no.itszipzon.Tools;
 import no.itszipzon.repo.QuizRepo;
@@ -21,6 +22,7 @@ public class QuizSessionManager {
   QuizRepo quizRepo;
 
   public QuizSessionManager() {
+    quizSessions = new ConcurrentHashMap<>();
   }
 
   /**

@@ -19,6 +19,7 @@ class SocketTestState extends ConsumerState<SocketTest> {
   late UserNotifier user;
   StompClient? stompClient;
   String quiz = '';
+  String username = "";
   TextEditingController nameController = TextEditingController();
 
   @override
@@ -27,35 +28,39 @@ class SocketTestState extends ConsumerState<SocketTest> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
+      initUsername();
       connect();
     });
   }
 
-void connect() {
-  stompClient = StompClient(
-    config: StompConfig(
-      url: '${ApiHandler.url}/socket',
-      onConnect: onConnect,
-      beforeConnect: () async {
-        print('Waiting to connect...');
-        await Future.delayed(const Duration(milliseconds: 200));
-        print('Connecting...');
-      },
-      onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
-      onStompError: (dynamic error) => print('STOMP Error: $error'),
-      onDisconnect: (frame) => print('Disconnected'),
-      // Optional headers
-      stompConnectHeaders: {'login': 'guest', 'passcode': 'guest'},
-      webSocketConnectHeaders: {'Origin': ApiHandler.url},
-      useSockJS: true,
-    ),
-  );
+  Future<void> initUsername() async {
+    username = await ApiHandler.getProfile(user.token!).then((value) => value['username']);
+  }
 
-  stompClient!.activate();
-}
+  void connect() {
+    stompClient = StompClient(
+      config: StompConfig(
+        url: '${ApiHandler.url}/socket',
+        onConnect: onConnect,
+        beforeConnect: () async {
+          print('Waiting to connect...');
+          await Future.delayed(const Duration(milliseconds: 200));
+          print('Connecting...');
+        },
+        onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
+        onStompError: (dynamic error) => print('STOMP Error: $error'),
+        onDisconnect: (frame) => print('Disconnected'),
+        // Optional headers
+        stompConnectHeaders: {'login': 'guest', 'passcode': 'guest'},
+        webSocketConnectHeaders: {'Origin': ApiHandler.url},
+        useSockJS: true,
+      ),
+    );
 
-  Future<void> onConnect(StompFrame frame) async {
-    final username = await ApiHandler.getProfile(user.token!).then((value) => value['username']);
+    stompClient!.activate();
+  }
+
+  void onConnect(StompFrame frame) {
 
     stompClient!.subscribe(
       destination: "/topic/quiz",
@@ -77,17 +82,20 @@ void connect() {
     stompClient!.subscribe(
       destination: "/topic/quiz/create/$username",
       callback: (StompFrame frame) {
+        print("Received quiz id: ${frame.body}");
         if (frame.body != null) {
-          var result = json.decode(frame.body!);
-          print(result);
+          var result = frame.body!;
+          print("result: $result");
           setState(() {
-            quiz = result['quizId'].toString();
+            quiz = result;
           });
         } else {
           print('Empty body');
         }
       },
       );
+
+    createQuiz();
   }
 
   void sendName() {
@@ -103,7 +111,7 @@ void connect() {
   void createQuiz() {
     stompClient!.send(
       destination: '/app/quiz/create',
-      body: json.encode({'id': router.getValues!['id']}),
+      body: json.encode({'quizId': router.getValues!['id'], "username" : username}),
     );
   }
 
@@ -122,11 +130,6 @@ void connect() {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: createQuiz,
-              child: const Text('Send'),
-            ),
             const SizedBox(height: 32),
             const Text(
               'Id:',

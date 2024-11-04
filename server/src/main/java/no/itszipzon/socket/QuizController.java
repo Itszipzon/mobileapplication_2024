@@ -41,6 +41,9 @@ public class QuizController {
    */
   @MessageMapping("/quiz/create")
   public void createQuiz(QuizMessage message) throws Exception {
+    System.out.println("Received message: "
+        + "\nID: " + message.getQuizId()
+        + "\nUsername: " + message.getUsername());
     String token = quizSessionManager.createQuizSession(message);
     if (token == null) {
       messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUsername(),
