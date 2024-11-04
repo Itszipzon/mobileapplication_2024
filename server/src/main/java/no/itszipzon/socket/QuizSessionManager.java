@@ -32,6 +32,7 @@ public class QuizSessionManager {
    * @return The token for the quiz session.
    */
   public String createQuizSession(QuizMessage message) {
+    int idLength = 8;
     QuizSession quizSession = new QuizSession(message);
 
     Optional<Quiz> quiz = quizRepo.findById((long) message.getQuizId());
@@ -42,7 +43,10 @@ public class QuizSessionManager {
       return null;
     }
 
-    String token = Tools.generateToken(5);
+    String token = Tools.generateToken(idLength);
+    while (quizSessions.containsKey(token)) {
+      token = Tools.generateToken(idLength);
+    }
     quizSessions.put(token, quizSession);
     return token;
   }
@@ -59,6 +63,14 @@ public class QuizSessionManager {
 
   public void deleteQuizSession(String token) {
     quizSessions.remove(token);
+  }
+
+  public QuizSession getQuizSession(String token) {
+    return quizSessions.get(token);
+  }
+
+  public boolean quizSessionExists(String token) {
+    return quizSessions.containsKey(token);
   }
   
 }

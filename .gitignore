@@ -50,3 +50,5 @@ app.*.map.json
 
 server/src/main/resources/static/images/*
 !server/src/main/resources/static/images/logo.png
+
+test.json

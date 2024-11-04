@@ -1,25 +1,35 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/button.dart';
 import 'package:client/elements/input.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Join extends StatefulWidget {
+class Join extends ConsumerStatefulWidget {
   const Join({super.key});
 
   @override
   JoinState createState() => JoinState();
 }
 
-class JoinState extends State<Join> {
+class JoinState extends ConsumerState<Join> {
   TextEditingController codeController = TextEditingController();
   bool loading = false;
+  late final RouterNotifier router;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router = ref.read(routerProvider.notifier);
+    });
+  }
 
   void onPressed() {
     setState(() {
       loading = true;
     });
-    print("Joining session with code: ${codeController.text}");
-    codeController.clear();
+    router.setPath(context, 'quiz/lobby', values: {'id': codeController.text, 'create': false});
     setState(() {
       loading = false;
     });

@@ -53,4 +53,21 @@ public class QuizController {
           token);
     }
   }
+
+  /**
+   * Sends a message to the client that a player has joined a quiz session.
+   *
+   * @param message The message containing the token and the username.
+   * @throws Exception If the message cannot be sent.
+   */
+  @MessageMapping("/quiz/join")
+  public void joinQuiz(QuizMessage message) throws Exception {
+    System.out.println("Received message: "
+        + "\nToken: " + message.getToken()
+        + "\nUsername: " + message.getUsername());
+    quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUsername());
+
+    messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
+        quizSessionManager.getQuizSession(message.getToken()));
+  }
 }

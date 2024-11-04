@@ -6,8 +6,8 @@ import 'package:client/screens/path_search.dart';
 import 'package:client/screens/profile.dart';
 import 'package:client/screens/quiz/create_quiz.dart';
 import 'package:client/screens/quiz/quiz.dart';
+import 'package:client/screens/quiz/quiz_lobby.dart';
 import 'package:client/screens/register.dart';
-import 'package:client/screens/socket_test.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,7 +26,7 @@ class AppSettings {
     router.addScreen("profile", const Profile());
     router.addScreen("create", const CreateQuiz());
     router.addScreen("quiz", const QuizScreen());
-    router.addScreen("socket", const SocketTest());
+    router.addScreen("quiz/lobby", const QuizLobby());
 
     router.excludePaths(["", "register", "test"]);
   }

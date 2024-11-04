@@ -135,7 +135,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
             const SizedBox(height: 8),
             SizedTextButton(
               text: "Play with friends",
-              onPressed: () => router.setPath(context, "socket", values: {'id': int.parse(quiz['id'].toString()),}),
+              onPressed: () => router.setPath(context, "quiz/lobby", values: {'id': int.parse(quiz['id'].toString()), 'create' : true}),
               width: double.infinity,
               inversed: true,
               height: 50,
