@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:client/screens/quiz/quiz_message_handler.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
@@ -19,10 +20,12 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   late RouterNotifier router;
   late UserNotifier user;
   StompClient? stompClient;
-  String quizId = '';
+  String quizToken = '';
   String username = "";
   List<String> players = [];
   Completer<void> quizIdCompleter = Completer<void>();
+
+  String quizName = "";
 
   @override
   void initState() {
@@ -66,15 +69,15 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       _subscribeToCreate();
       await _createQuiz();
       await quizIdCompleter.future;
-      _subscribeToJoin(quizId);
+      _subscribeToJoin(quizToken);
       setState(() {
         players.add(username);
       });
     } else {
       setState(() {
-        quizId = router.getValues!['id'].toString();
+        quizToken = router.getValues!['id'].toString();
       });
-      _subscribeToJoin(quizId);
+      _subscribeToJoin(quizToken);
       _joinQuiz();
     }
   }
@@ -84,8 +87,11 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       destination: "/topic/quiz/create/$username",
       callback: (StompFrame frame) {
         if (frame.body != null) {
+          var result = json.decode(frame.body!);
+          print("result: ${frame.body}");
           setState(() {
-            quizId = frame.body!;
+            quizToken = result['token'].toString();
+            quizName = result['quiz']['title'];
           });
           quizIdCompleter.complete();
         } else {
@@ -96,16 +102,25 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   }
 
   void _subscribeToJoin(String quizId) {
-    print("Subscribing to join: $quizId");
     stompClient!.subscribe(
       destination: "/topic/quiz/session/$quizId",
       callback: (StompFrame frame) {
         if (frame.body != null) {
           var result = json.decode(frame.body!);
           print("result: $result");
-          setState(() {
-            players = List<String>.from(result['playerUsernames']);
-          });
+          if (result['message'] == "join") {
+            var mapPlayers = List<Map<String, dynamic>>.from(result['players']);
+            setState(() {
+              players = mapPlayers.map((p) => p['username'] as String).toList();
+              quizName = result['quiz']['title'];
+            });
+          } else if (result['message'] == "leave") {
+            setState(() {
+              players.remove(result['username']);
+            });
+          } else {
+            QuizMessageHandler.handleSessionMessages(context, router, result);
+          }
         } else {
           print('Empty body');
         }
@@ -155,11 +170,9 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
         backgroundColor: theme.canvasColor,
         title: Row(
           children: [
-            const Icon(Icons.quiz),
+            Text(quizName),
             const SizedBox(width: 8),
-            const Text('Quiz Lobby'),
-            const SizedBox(width: 8),
-            Text(quizId),
+            Text(quizToken),
           ],
         ),
       ),

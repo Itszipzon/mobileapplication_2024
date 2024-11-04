@@ -1,4 +1,4 @@
-package no.itszipzon.socket;
+package no.itszipzon.socket.quiz;
 
 /**
  * A message object that carries data from the client to the server.

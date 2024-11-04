@@ -1,4 +1,4 @@
-package no.itszipzon.socket;
+package no.itszipzon.socket.quiz;
 
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +34,7 @@ public class QuizSessionManager {
   public String createQuizSession(QuizMessage message) {
     int idLength = 8;
     QuizSession quizSession = new QuizSession(message);
+    quizSession.setMessage("create");
 
     Optional<Quiz> quiz = quizRepo.findById((long) message.getQuizId());
 

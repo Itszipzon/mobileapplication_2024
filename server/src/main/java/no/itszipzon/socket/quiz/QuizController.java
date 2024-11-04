@@ -1,11 +1,10 @@
-package no.itszipzon.socket;
+package no.itszipzon.socket.quiz;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * A controller that handles WebSocket messages.
@@ -18,13 +17,6 @@ public class QuizController {
 
   @Autowired
   private QuizSessionManager quizSessionManager;
-
-  @MessageMapping("/hello")
-  @SendTo("/topic/greetings")
-  public Greeting greeting(HelloMessage message) throws Exception {
-    System.out.println("Received message: " + message.getName());
-    return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
-  }
 
   @MessageMapping("/quiz")
   @SendTo("/topic/quiz")
@@ -41,16 +33,17 @@ public class QuizController {
    */
   @MessageMapping("/quiz/create")
   public void createQuiz(QuizMessage message) throws Exception {
-    System.out.println("Received message: "
-        + "\nID: " + message.getQuizId()
-        + "\nUsername: " + message.getUsername());
     String token = quizSessionManager.createQuizSession(message);
+
     if (token == null) {
       messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUsername(),
           "error: Quiz not found");
     } else {
-      messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUsername(),
-          token);
+      QuizSession quizSession = quizSessionManager.getQuizSession(token);
+      quizSession.setMessage("create");
+      quizSession.setToken(token);
+
+      messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUsername(), quizSession);
     }
   }
 
@@ -62,12 +55,39 @@ public class QuizController {
    */
   @MessageMapping("/quiz/join")
   public void joinQuiz(QuizMessage message) throws Exception {
-    System.out.println("Received message: "
-        + "\nToken: " + message.getToken()
-        + "\nUsername: " + message.getUsername());
+
     quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUsername());
 
+    QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+    quizSession.setMessage("join");
+    quizSession.setToken(message.getToken());
+
+    messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
+  }
+
+  /**
+   * starts a quiz session.
+   *
+   * @param message The message containing the token and the username.
+   * @throws Exception If the message cannot be sent.
+   */
+  @MessageMapping("/quiz/start")
+  public void startQuiz(QuizMessage message) throws Exception {
+
+    QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+    quizSession.setToken(message.getToken());
+
+    if (quizSession.getPlayers().size() < 2) {
+      quizSession.setMessage("error: Not enough players");
+
+    } else if (!quizSession.getLeaderUsername().equals(message.getUsername())) {
+      quizSession.setMessage("error: Not the leader");
+
+    } else {
+      quizSession.setMessage("start");
+      
+    }
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
-        quizSessionManager.getQuizSession(message.getToken()));
+        quizSession);
   }
 }

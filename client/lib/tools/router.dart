@@ -5,8 +5,8 @@ import 'package:client/screens/login.dart';
 
 class RouterState {
   final String path;
-  final Map<String, Object>? pathVariables;
-  final Map<String, Object>? values;
+  final Map<String, dynamic>? pathVariables;
+  final Map<String, dynamic>? values;
   final List<String> paths;
 
   RouterState({
@@ -16,7 +16,7 @@ class RouterState {
     this.values,
   });
 
-  RouterState copyWith({String? path, Map<String, Object>? pathVariables, List<String>? paths, Map<String, Object>? values}) {
+  RouterState copyWith({String? path, Map<String, dynamic>? pathVariables, List<String>? paths, Map<String, dynamic>? values}) {
     return RouterState(
       path: path ?? this.path,
       pathVariables: pathVariables ?? this.pathVariables,
@@ -42,7 +42,7 @@ class RouterNotifier extends StateNotifier<RouterState> {
     _screens.remove(name);
   }
 
-  void setPath(BuildContext context, String path, {Map<String, Object>? values}) {
+  void setPath(BuildContext context, String path, {Map<String, dynamic>? values}) {
     final screenName = _getScreenName(path);
 
     if (!_screens.containsKey(screenName)) {
@@ -75,10 +75,10 @@ class RouterNotifier extends StateNotifier<RouterState> {
     return path.contains("?") ? path.split("?")[0] : path;
   }
 
-  Map<String, Object>? _extractPathVariables(String path) {
+  Map<String, dynamic>? _extractPathVariables(String path) {
     if (!path.contains("?")) return null;
 
-    final variables = <String, Object>{};
+    final variables = <String, dynamic>{};
     final params = path.split("?")[1].split("&");
 
     for (var param in params) {
@@ -99,9 +99,9 @@ class RouterNotifier extends StateNotifier<RouterState> {
     excludedPaths.addAll(paths);
   }
 
-  Map<String, Object>? get getPathVariables => state.pathVariables;
+  Map<String, dynamic>? get getPathVariables => state.pathVariables;
 
-  Map<String, Object>? get getValues => state.values;
+  Map<String, dynamic>? get getValues => state.values;
 }
 
 final routerProvider = StateNotifierProvider<RouterNotifier, RouterState>((ref) {
