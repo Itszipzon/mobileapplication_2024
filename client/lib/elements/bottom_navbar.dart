@@ -41,11 +41,14 @@ class BottomNavbar extends ConsumerWidget {
                   active: path == "categories",
                 ),
               ),
-              BigIconButton(
-                height: 56,
-                width: 56,
-                icon: Icons.add,
-                onPressed: () => onPressed(context, "create", router),
+              Container(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: BigIconButton(
+                  height: 56,
+                  width: 56,
+                  icon: Icons.add,
+                  onPressed: () => onPressed(context, "create", router),
+                ),
               ),
               Expanded(
                 child: IconTextButton(
