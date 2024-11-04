@@ -1,31 +1,40 @@
 import 'dart:convert';
 
 import 'package:client/tools/api_handler.dart';
+import 'package:client/tools/router.dart';
+import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
-class SocketTest extends StatefulWidget {
+class SocketTest extends ConsumerStatefulWidget {
   const SocketTest({super.key});
 
   @override
   SocketTestState createState() => SocketTestState();
 }
 
-class SocketTestState extends State<SocketTest> {
+class SocketTestState extends ConsumerState<SocketTest> {
+  late RouterNotifier router;
+  late UserNotifier user;
   StompClient? stompClient;
-  String greeting = '';
+  String quiz = '';
   TextEditingController nameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    connect();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router = ref.read(routerProvider.notifier);
+      user = ref.read(userProvider.notifier);
+      connect();
+    });
   }
 
 void connect() {
   stompClient = StompClient(
     config: StompConfig(
-      url: '${ApiHandler.url}/gs-guide-websocket',
+      url: '${ApiHandler.url}/socket',
       onConnect: onConnect,
       beforeConnect: () async {
         print('Waiting to connect...');
@@ -45,18 +54,40 @@ void connect() {
   stompClient!.activate();
 }
 
-  void onConnect(StompFrame frame) {
+  Future<void> onConnect(StompFrame frame) async {
+    final username = await ApiHandler.getProfile(user.token!).then((value) => value['username']);
+
     stompClient!.subscribe(
-      destination: '/topic/greetings',
+      destination: "/topic/quiz",
       callback: (StompFrame frame) {
         if (frame.body != null) {
           var result = json.decode(frame.body!);
+          print(result);
           setState(() {
-            greeting = result['content'];
+            quiz = result['quizId'].toString();
           });
+        } else {
+          print('Empty body');
         }
       },
     );
+
+
+
+    stompClient!.subscribe(
+      destination: "/topic/quiz/create/$username",
+      callback: (StompFrame frame) {
+        if (frame.body != null) {
+          var result = json.decode(frame.body!);
+          print(result);
+          setState(() {
+            quiz = result['quizId'].toString();
+          });
+        } else {
+          print('Empty body');
+        }
+      },
+      );
   }
 
   void sendName() {
@@ -67,6 +98,13 @@ void connect() {
       );
       nameController.clear();
     }
+  }
+
+  void createQuiz() {
+    stompClient!.send(
+      destination: '/app/quiz/create',
+      body: json.encode({'id': router.getValues!['id']}),
+    );
   }
 
   @override
@@ -84,26 +122,19 @@ void connect() {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Enter your name',
-              ),
-            ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: sendName,
+              onPressed: createQuiz,
               child: const Text('Send'),
             ),
             const SizedBox(height: 32),
             const Text(
-              'Greeting from server:',
+              'Id:',
               style: TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 16),
             Text(
-              greeting,
+              quiz,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],

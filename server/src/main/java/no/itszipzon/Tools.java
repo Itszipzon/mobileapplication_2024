@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Map;
 import java.util.UUID;
-import no.itszipzon.tables.User;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,9 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
  * Class for tools that are used in the backend.
  */
 public class Tools {
-
-  private static final int TOKEN_LENGTH = 32; // Length of the token in bytes
-  private static final SecureRandom secureRandom = new SecureRandom();
 
   private Tools() {
   }
@@ -31,26 +25,17 @@ public class Tools {
   /**
    * Generates a secure token.
    *
-   * @param sessions Map of sessions.
+   * @param length The length of the token
    * @return token
    */
-  public static String generateToken(Map<String, User> sessions) {
-    String token;
-    do {
-      token = generateSecureToken();
-    } while (sessions.containsKey(token));
-    return token;
-  }
-
-  /**
-   * Generates a secure random token.
-   *
-   * @return Secure random token
-   */
-  private static String generateSecureToken() {
-    byte[] randomBytes = new byte[TOKEN_LENGTH];
-    secureRandom.nextBytes(randomBytes);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  public static String generateToken(int length) {
+    String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    SecureRandom random = new SecureRandom();
+    StringBuilder token = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      token.append(characters.charAt(random.nextInt(characters.length())));
+    }
+    return token.toString();
   }
 
   /**
