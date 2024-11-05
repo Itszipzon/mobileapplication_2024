@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class QuizMessageHandler {
 
-  static String handleSessionMessages(BuildContext context, RouterNotifier router, Map<String, dynamic> values, String username) {
+  static String handleLobbyMessages(BuildContext context, RouterNotifier router, Map<String, dynamic> values, String username) {
     String value = "";
     String message = values["message"];
     if (message.startsWith("error:")) {
@@ -50,6 +50,10 @@ class QuizMessageHandler {
     }
 
     return value;
+  }
+
+  static Map<String, dynamic> handleGameMessages(BuildContext context, RouterNotifier router, Map<String, dynamic> values, String username) {
+    
   }
 
 }

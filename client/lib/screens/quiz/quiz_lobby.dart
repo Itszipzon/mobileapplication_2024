@@ -139,12 +139,12 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
           } else if (result['message'].toString().startsWith("leave")) {
             if (mounted) {
               setState(() {
-                players.remove(QuizMessageHandler.handleSessionMessages(
+                players.remove(QuizMessageHandler.handleLobbyMessages(
                     context, router, result, username));
               });
             }
           } else {
-            QuizMessageHandler.handleSessionMessages(
+            QuizMessageHandler.handleLobbyMessages(
                 context, router, result, username);
           }
         } else {
