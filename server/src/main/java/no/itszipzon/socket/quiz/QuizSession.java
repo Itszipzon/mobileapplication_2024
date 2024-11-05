@@ -20,21 +20,16 @@ public class QuizSession {
 
   }
 
-  public QuizSession(String leaderUsername, int quizId) {
-    this.leaderUsername = leaderUsername;
-    this.quizId = quizId;
-  }
-
   /**
    * Constructor for a quiz session.
    *
-   * @param message The message containing the username and quiz ID.
+   * @param leaderUsername The username of the leader.
+   * @param quizId         The ID of the quiz.
    */
-  public QuizSession(QuizMessage message) {
-    this.leaderUsername = message.getUsername();
-    this.quizId = message.getQuizId();
+  public QuizSession(String leaderUsername, int quizId) {
+    this.leaderUsername = leaderUsername;
+    this.quizId = quizId;
     this.players = new ArrayList<>();
-    players.add(new QuizPlayer(message.getUsername()));
   }
 
   public int getQuizId() {
@@ -65,10 +60,10 @@ public class QuizSession {
     this.players.add(players);
   }
 
-  public void addPlayer(String playerName) {
-    this.players.add(new QuizPlayer(playerName));
+  public void addPlayer(String playerName, Long id) {
+    this.players.add(new QuizPlayer(playerName, id));
   }
-  
+
   public void removePlayer(QuizPlayer player) {
     this.players.remove(player);
   }
@@ -79,11 +74,7 @@ public class QuizSession {
    * @param playerName The username of the player.
    */
   public void removePlayer(String playerName) {
-    for (QuizPlayer player : players) {
-      if (player.getUsername().equals(playerName)) {
-        players.remove(player);
-      }
-    }
+    players.removeIf(player -> player.getUsername().equals(playerName));
   }
 
   public QuizWithQuestionsDto getQuiz() {
@@ -109,5 +100,5 @@ public class QuizSession {
   public void setToken(String token) {
     this.token = token;
   }
-  
+
 }

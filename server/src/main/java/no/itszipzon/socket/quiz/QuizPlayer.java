@@ -9,6 +9,7 @@ import java.util.List;
 public class QuizPlayer {
   
   String username;
+  Long id;
   List<QuizAnswer> answers;
   int score;
 
@@ -20,9 +21,10 @@ public class QuizPlayer {
    *
    * @param username The username of the player.
    */
-  public QuizPlayer(String username) {
+  public QuizPlayer(String username, Long id) {
     this.username = username;
     this.score = 0;
+    this.id = id;
     this.answers = new ArrayList<>();
   }
 
@@ -48,6 +50,14 @@ public class QuizPlayer {
 
   public void setScore(int score) {
     this.score = score;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 
 }

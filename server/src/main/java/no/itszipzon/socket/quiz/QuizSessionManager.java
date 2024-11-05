@@ -1,10 +1,12 @@
 package no.itszipzon.socket.quiz;
 
+import io.jsonwebtoken.Claims;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import no.itszipzon.DtoParser;
 import no.itszipzon.Tools;
+import no.itszipzon.config.JwtUtil;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.tables.Quiz;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class QuizSessionManager {
   @Autowired
   QuizRepo quizRepo;
 
+  @Autowired
+  JwtUtil jwtUtil;
+
   public QuizSessionManager() {
     quizSessions = new ConcurrentHashMap<>();
   }
@@ -32,9 +37,12 @@ public class QuizSessionManager {
    * @return The token for the quiz session.
    */
   public String createQuizSession(QuizMessage message) {
-    int idLength = 8;
-    QuizSession quizSession = new QuizSession(message);
+
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+
+    QuizSession quizSession = new QuizSession(claims.getSubject(), message.getQuizId());
     quizSession.setMessage("create");
+    quizSession.addPlayer(new QuizPlayer(claims.getSubject(), claims.get("id", Long.class)));
 
     Optional<Quiz> quiz = quizRepo.findById((long) message.getQuizId());
 
@@ -44,6 +52,7 @@ public class QuizSessionManager {
       return null;
     }
 
+    int idLength = 8;
     String token = Tools.generateToken(idLength);
     while (quizSessions.containsKey(token)) {
       token = Tools.generateToken(idLength);
@@ -52,9 +61,18 @@ public class QuizSessionManager {
     return token;
   }
 
-  public void addPlayerToQuizSession(String token, String username) {
+  /**
+   * Adds a player to a quiz session.
+   *
+   * @param token The token for the quiz session.
+   * @param userToken The token for the user.
+   */
+  public void addPlayerToQuizSession(String token, String userToken) {
     QuizSession quizSession = quizSessions.get(token);
-    quizSession.addPlayer(username);
+    Claims claims = jwtUtil.extractClaims(userToken);
+    QuizPlayer player = new QuizPlayer(claims.getSubject(), claims.get("id", Long.class));
+    System.out.println("Adding player: " + player.getUsername() + " with id: " + player.getId());
+    quizSession.addPlayer(player);
   }
 
   public void removePlayerFromQuizSession(String token, String username) {

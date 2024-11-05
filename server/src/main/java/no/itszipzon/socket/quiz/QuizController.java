@@ -1,5 +1,7 @@
 package no.itszipzon.socket.quiz;
 
+import io.jsonwebtoken.Claims;
+import no.itszipzon.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -18,6 +20,9 @@ public class QuizController {
   @Autowired
   private QuizSessionManager quizSessionManager;
 
+  @Autowired
+  private JwtUtil jwtUtil;
+
   @MessageMapping("/quiz")
   @SendTo("/topic/quiz")
   public QuizMessage quiz(QuizMessage message) throws Exception {
@@ -35,15 +40,25 @@ public class QuizController {
   public void createQuiz(QuizMessage message) throws Exception {
     String token = quizSessionManager.createQuizSession(message);
 
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+
+    if (claims == null) {
+      messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUserToken(),
+          "error: User not found");
+      return;
+    }
+
+    String username = claims.getSubject();
+
     if (token == null) {
-      messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUsername(),
+      messagingTemplate.convertAndSend("/topic/quiz/create/" + username,
           "error: Quiz not found");
     } else {
       QuizSession quizSession = quizSessionManager.getQuizSession(token);
       quizSession.setMessage("create");
       quizSession.setToken(token);
 
-      messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUsername(), quizSession);
+      messagingTemplate.convertAndSend("/topic/quiz/create/" + username, quizSession);
     }
   }
 
@@ -62,7 +77,7 @@ public class QuizController {
       messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
           quizSession);
     } else {
-      quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUsername());
+      quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUserToken());
       QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
       quizSession.setMessage("join");
       quizSession.setToken(message.getToken());
@@ -83,10 +98,12 @@ public class QuizController {
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
     quizSession.setToken(message.getToken());
 
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+
     if (quizSession.getPlayers().size() < 2) {
       quizSession.setMessage("error: Not enough players");
 
-    } else if (!quizSession.getLeaderUsername().equals(message.getUsername())) {
+    } else if (!quizSession.getLeaderUsername().equals(claims.getSubject())) {
       quizSession.setMessage("error: Not the leader");
 
     } else {
@@ -95,5 +112,31 @@ public class QuizController {
     }
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
         quizSession);
+  }
+
+  /**
+   * Sends a message to the client that a player has left a quiz session.
+   *
+   * @param message The message containing the token and the username.
+   * @throws Exception If the message cannot be sent.
+   */
+  @MessageMapping("/quiz/leave")
+  public void leaveQuiz(QuizMessage message) throws Exception {
+    QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+    String leaveMessage = "";
+    if (claims.getSubject().equalsIgnoreCase(quizSession.getLeaderUsername())) {
+      leaveMessage = "leave: leader:true, user:" + claims.getSubject();
+      quizSessionManager.deleteQuizSession(message.getToken());
+    } else {
+      leaveMessage = "leave: leader:false, user:" + claims.getSubject();
+    }
+
+    quizSessionManager.removePlayerFromQuizSession(message.getToken(), claims.getSubject());
+    quizSession.setMessage(leaveMessage);
+    quizSession.setToken(message.getToken());
+
+    messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
   }
 }
