@@ -7,7 +7,7 @@ class RouterState {
   final String path;
   final Map<String, dynamic>? pathVariables;
   final Map<String, dynamic>? values;
-  final Map<String, dynamic>? prevValues;
+  final List<Map<String, dynamic>?> prevValues;
   final List<String> paths;
 
   RouterState({
@@ -15,16 +15,16 @@ class RouterState {
     this.pathVariables,
     this.paths = const [],
     this.values,
-    this.prevValues,
+    this.prevValues = const [],
   });
 
-  RouterState copyWith({String? path, Map<String, dynamic>? pathVariables, List<String>? paths, Map<String, dynamic>? values, Map<String, dynamic>? prevValues}) {
+  RouterState copyWith({String? path, Map<String, dynamic>? pathVariables, List<String>? paths, Map<String, dynamic>? values, List<Map<String, dynamic>?>? prevValues}) {
     return RouterState(
       path: path ?? this.path,
       pathVariables: pathVariables ?? this.pathVariables,
       paths: paths ?? this.paths,
       values: values,
-      prevValues: prevValues,
+      prevValues: prevValues ?? this.prevValues,
     );
   }
 }
@@ -55,13 +55,14 @@ class RouterNotifier extends StateNotifier<RouterState> {
 
     final newPathVariables = _extractPathVariables(path);
     final newPaths = List<String>.from(state.paths)..add(screenName);
+    final newPrevValues = List<Map<String, dynamic>?>.from(state.prevValues)..add(state.values);
     final newValues = values ?? {};
 
     state = state.copyWith(
       path: screenName,
       pathVariables: newPathVariables,
       paths: newPaths,
-      prevValues: state.values,
+      prevValues: newPrevValues,
       values: newValues,
     );
   }
@@ -69,7 +70,7 @@ class RouterNotifier extends StateNotifier<RouterState> {
   void goBack(BuildContext context) {
     if (state.paths.length > 1) {
       final newPaths = List<String>.from(state.paths)..removeLast();
-      state = state.copyWith(path: newPaths.last, paths: newPaths, values: state.prevValues);
+      state = state.copyWith(path: newPaths.last, paths: newPaths, values: state.prevValues[state.prevValues.length - 1]);
     } else {
       ErrorHandler.showOverlayError(context, 'No previous path found.');
     }
