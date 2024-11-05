@@ -52,7 +52,7 @@ public class QuizSessionManager {
       return null;
     }
 
-    int idLength = 8;
+    int idLength = 5;
     String token = Tools.generateToken(idLength);
     while (quizSessions.containsKey(token)) {
       token = Tools.generateToken(idLength);
