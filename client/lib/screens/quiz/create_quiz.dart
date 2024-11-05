@@ -172,7 +172,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
-                      height: 200, // Set a fixed height for the list
+                      height: 200,
                       child: SingleChildScrollView(
                         child: Wrap(
                           children: [
@@ -233,6 +233,70 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   void addOption(int index) {
     setState(() {
       questions[_selectedIndex].options.add(Option(option: ""));
+    });
+  }
+
+  void _deleteQuestion(int index) {
+    if (index == _selectedIndex) {
+      if (questions.length == 1) {
+        setState(() {
+          questionController.clear();
+          for (int i = 0; i < controllers.length; i++) {
+            controllers[i].clear();
+          }
+          questions[0].options = [
+            Option(option: ""),
+            Option(option: ""),
+          ];
+        });
+        return;
+      } else if (index == questions.length - 1) {
+        setState(() {
+          questions.removeAt(index);
+          _selectedIndex--;
+        });
+      } else {
+        setState(() {
+          questions.removeAt(index);
+        });
+        changeSelectedQuestion(_selectedIndex, _selectedIndex);
+      }
+    } else {
+      setState(() {
+        questions.removeAt(index);
+      });
+    }
+  }
+
+  void _deleteOption(int index) {
+    final prevQuiz = questions[_selectedIndex];
+    questions[_selectedIndex] = Quiz(
+      question: questionController.text,
+      options: [
+        for (int i = 0; i < prevQuiz.options.length; i++)
+          Option(
+            option: controllers[i].text,
+            isCorrect: prevQuiz.options[i].isCorrect,
+          ),
+      ],
+    );
+    setState(() {
+      if (questions[_selectedIndex].options.length > 2) {
+        questions[_selectedIndex].options.removeAt(index);
+
+        for (int i = 0; i < controllers.length; i++) {
+          if (i < questions[_selectedIndex].options.length) {
+            controllers[i].text = questions[_selectedIndex].options[i].option;
+            print("Option $i: ${questions[_selectedIndex].options[i].option}");
+          } else {
+            controllers[i].clear();
+          }
+          print("Controller $i: ${controllers[i].text}");
+        }
+      } else {
+        questions[_selectedIndex].options[index].option = "";
+        controllers[index].text = "";
+      }
     });
   }
 
@@ -326,7 +390,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       setState(() {
         loading = false;
       });
-      ErrorHandler.showOverlayError(context, "Please select at least one category");
+      ErrorHandler.showOverlayError(
+          context, "Please select at least one category");
       return;
     }
 
@@ -476,16 +541,19 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           children: [
             const SizedBox(height: 20),
             imageFile != null
-                ? ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(6),
-                      topRight: Radius.circular(6),
-                    ),
-                    child: Image.file(
-                      imageFile!,
-                      height: 162,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+                ? GestureDetector(
+                    onTap: addImage,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(6),
+                        topRight: Radius.circular(6),
+                      ),
+                      child: Image.file(
+                        imageFile!,
+                        height: 162,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   )
                 : GestureDetector(
@@ -572,29 +640,42 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                             ),
                             suffixIcon: Padding(
                               padding: const EdgeInsets.all(12.0),
-                              child: GestureDetector(
-                                onTap: () => setState(
-                                  () {
-                                    questions[_selectedIndex]
-                                        .options[index]
-                                        .setIsCorrect(
-                                          !questions[_selectedIndex]
-                                              .options[index]
-                                              .isCorrect,
-                                        );
-                                  },
-                                ),
-                                child: questions[_selectedIndex]
-                                        .options[index]
-                                        .isCorrect
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      )
-                                    : const Icon(
-                                        Icons.close,
-                                        color: Colors.red,
-                                      ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () => setState(
+                                      () {
+                                        questions[_selectedIndex]
+                                            .options[index]
+                                            .setIsCorrect(
+                                              !questions[_selectedIndex]
+                                                  .options[index]
+                                                  .isCorrect,
+                                            );
+                                      },
+                                    ),
+                                    child: questions[_selectedIndex]
+                                            .options[index]
+                                            .isCorrect
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.green,
+                                          )
+                                        : const Icon(
+                                            Icons.close,
+                                            color: Colors.red,
+                                          ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => _deleteOption(index),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             border: OutlineInputBorder(
@@ -640,8 +721,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(
-                    right: 5), // Padding between list and add button
+                padding: const EdgeInsets.only(right: 5),
                 child: ListView(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
@@ -678,19 +758,37 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                 ),
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              width: 50,
-              child: IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () {
-                  addNewQuestion();
-                },
-              ),
-            )
+            Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  width: 50,
+                  child: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      addNewQuestion();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  width: 50,
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      _deleteQuestion(_selectedIndex);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
