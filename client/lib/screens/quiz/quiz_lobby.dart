@@ -293,6 +293,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const SizedBox(width: 16,),
                           SizedTextButton(
                             text: "Start",
                             onPressed: _startQuiz,
@@ -315,6 +316,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold),
                           ),
+                          const SizedBox(width: 16,),
                         ],
                       ),
                     ),

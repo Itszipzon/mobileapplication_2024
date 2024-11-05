@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class QuizSessionManager {
- 
+
   Map<String, QuizSession> quizSessions;
 
   @Autowired
@@ -64,20 +64,19 @@ public class QuizSessionManager {
   /**
    * Adds a player to a quiz session.
    *
-   * @param token The token for the quiz session.
+   * @param token     The token for the quiz session.
    * @param userToken The token for the user.
    */
   public void addPlayerToQuizSession(String token, String userToken) {
     QuizSession quizSession = quizSessions.get(token);
     Claims claims = jwtUtil.extractClaims(userToken);
+    if (quizSession.getPlayers().stream()
+        .anyMatch(p -> p.getUsername().equals(claims.getSubject()))) {
+      return;
+    }
     QuizPlayer player = new QuizPlayer(claims.getSubject(), claims.get("id", Long.class));
     System.out.println("Adding player: " + player.getUsername() + " with id: " + player.getId());
     quizSession.addPlayer(player);
-  }
-
-  public void removePlayerFromQuizSession(String token, String username) {
-    QuizSession quizSession = quizSessions.get(token);
-    quizSession.removePlayer(username);
   }
 
   public void deleteQuizSession(String token) {
@@ -91,5 +90,5 @@ public class QuizSessionManager {
   public boolean quizSessionExists(String token) {
     return quizSessions.containsKey(token);
   }
-  
+
 }

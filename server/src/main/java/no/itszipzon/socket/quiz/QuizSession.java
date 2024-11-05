@@ -12,7 +12,7 @@ public class QuizSession {
   private int quizId;
   private String leaderUsername;
   private List<QuizPlayer> players;
-  private QuizWithQuestionsDto quiz;
+  private QuizInSession quiz;
   private String message;
   private String token;
 
@@ -77,12 +77,20 @@ public class QuizSession {
     players.removeIf(player -> player.getUsername().equals(playerName));
   }
 
-  public QuizWithQuestionsDto getQuiz() {
+  public QuizInSession getQuiz() {
     return quiz;
   }
 
+  /**
+   * Sets the quiz for the quiz session.
+   *
+   * @param quiz The quiz.
+   */
   public void setQuiz(QuizWithQuestionsDto quiz) {
-    this.quiz = quiz;
+    QuizInSession quizInSession = new QuizInSession(quiz.getId(), quiz.getTitle(),
+        quiz.getDescription(), quiz.getThumbnail(), quiz.getTimer(), quiz.getCreatedAt(),
+        leaderUsername);
+    this.quiz = quizInSession;
   }
 
   public String getMessage() {

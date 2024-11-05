@@ -207,8 +207,6 @@ public class UserApi {
       return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
-    System.out.println("Checking if " + claims.getSubject() + " is in session");
-
     return new ResponseEntity<>(true, HttpStatus.OK);
   }
 

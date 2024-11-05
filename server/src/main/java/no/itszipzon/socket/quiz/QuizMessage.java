@@ -8,6 +8,7 @@ public class QuizMessage {
   private int quizId;
   private String userToken;
   private String token;
+  private String message;
 
   public QuizMessage() {
   }
@@ -38,6 +39,14 @@ public class QuizMessage {
 
   public void setToken(String token) {
     this.token = token;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
   
 }

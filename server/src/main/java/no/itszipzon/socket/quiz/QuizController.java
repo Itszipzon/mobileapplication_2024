@@ -133,10 +133,27 @@ public class QuizController {
       leaveMessage = "leave: leader:false, user:" + claims.getSubject();
     }
 
-    quizSessionManager.removePlayerFromQuizSession(message.getToken(), claims.getSubject());
+    quizSession.removePlayer(claims.getSubject());
     quizSession.setMessage(leaveMessage);
     quizSession.setToken(message.getToken());
 
+    System.out.println("leaveMessage: " + claims.getSubject());
+
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
+  }
+
+  /**
+   * Sends a message to the client that a player has left a quiz session.
+   *
+   * @param message The message containing the token and the username.
+   * @throws Exception If the message cannot be sent.
+   */
+  @MessageMapping("/quiz/game")
+  public void game(QuizMessage message) throws Exception {
+    QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+    quizSession.setToken(message.getToken());
+    quizSession.setMessage("game");
+
+    messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(), quizSession);
   }
 }
