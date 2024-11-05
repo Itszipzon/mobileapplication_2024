@@ -70,7 +70,7 @@ class RouterNotifier extends StateNotifier<RouterState> {
   void goBack(BuildContext context) {
     if (state.paths.length > 1) {
       final newPaths = List<String>.from(state.paths)..removeLast();
-      state = state.copyWith(path: newPaths.last, paths: newPaths, values: state.prevValues[state.prevValues.length - 1]);
+      state = state.copyWith(path: newPaths.last, paths: newPaths, values: state.prevValues.last);
     } else {
       ErrorHandler.showOverlayError(context, 'No previous path found.');
     }
