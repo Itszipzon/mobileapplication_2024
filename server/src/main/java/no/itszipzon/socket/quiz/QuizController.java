@@ -51,8 +51,7 @@ public class QuizController {
     String username = claims.getSubject();
 
     if (token == null) {
-      messagingTemplate.convertAndSend("/topic/quiz/create/" + username,
-          "error: Quiz not found");
+      messagingTemplate.convertAndSend("/topic/quiz/create/" + username, "error: Quiz not found");
     } else {
       QuizSession quizSession = quizSessionManager.getQuizSession(token);
       quizSession.setMessage("create");
@@ -74,15 +73,23 @@ public class QuizController {
     if (!quizSessionManager.quizSessionExists(message.getToken())) {
       QuizSession quizSession = new QuizSession();
       quizSession.setMessage("error: Quiz not found");
-      messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
-          quizSession);
-    } else {
-      quizSessionManager.addPlayerToQuizSession(message.getToken(), message.getUserToken());
-      QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
-      quizSession.setMessage("join");
-      quizSession.setToken(message.getToken());
-
       messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
+    } else {
+      QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+      if (quizSession.isStarted()) {
+        QuizSession newQuizSession = new QuizSession();
+        newQuizSession.setMessage("error: Quiz has already started");
+        newQuizSession.setStarted(true);
+        messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
+            newQuizSession);
+        return;
+      } else {
+        quizSession.addPlayer(quizSessionManager.getPlayer(message.getUserToken()));
+        quizSession.setMessage("join");
+        quizSession.setToken(message.getToken());
+
+        messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
+      }
     }
   }
 
@@ -108,10 +115,9 @@ public class QuizController {
 
     } else {
       quizSession.setMessage("start");
-      
+
     }
-    messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
-        quizSession);
+    messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
   }
 
   /**

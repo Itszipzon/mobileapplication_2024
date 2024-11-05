@@ -16,6 +16,8 @@ class QuizMessageHandler {
         router.setPath(context, "join");
       } else if (error == "User not found") {
         router.setPath(context, "home");
+      } else if (error == "Quiz has already started") {
+        router.setPath(context, "join");
       }
 
     } else if (message.startsWith("start")) {

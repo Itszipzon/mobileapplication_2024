@@ -62,21 +62,13 @@ public class QuizSessionManager {
   }
 
   /**
-   * Adds a player to a quiz session.
+   * Gets a player.
    *
-   * @param token     The token for the quiz session.
-   * @param userToken The token for the user.
+   * @param token    The token for the quiz session.
    */
-  public void addPlayerToQuizSession(String token, String userToken) {
-    QuizSession quizSession = quizSessions.get(token);
-    Claims claims = jwtUtil.extractClaims(userToken);
-    if (quizSession.getPlayers().stream()
-        .anyMatch(p -> p.getUsername().equals(claims.getSubject()))) {
-      return;
-    }
-    QuizPlayer player = new QuizPlayer(claims.getSubject(), claims.get("id", Long.class));
-    System.out.println("Adding player: " + player.getUsername() + " with id: " + player.getId());
-    quizSession.addPlayer(player);
+  public QuizPlayer getPlayer(String token) {
+    Claims claims = jwtUtil.extractClaims(token);
+    return new QuizPlayer(claims.getSubject(), claims.get("id", Long.class));
   }
 
   public void deleteQuizSession(String token) {

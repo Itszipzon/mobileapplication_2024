@@ -15,6 +15,7 @@ public class QuizSession {
   private QuizInSession quiz;
   private String message;
   private String token;
+  private boolean isStarted;
 
   public QuizSession() {
 
@@ -30,6 +31,7 @@ public class QuizSession {
     this.leaderUsername = leaderUsername;
     this.quizId = quizId;
     this.players = new ArrayList<>();
+    this.isStarted = false;
   }
 
   public int getQuizId() {
@@ -56,8 +58,16 @@ public class QuizSession {
     this.players = players;
   }
 
-  public void addPlayer(QuizPlayer players) {
-    this.players.add(players);
+  /**
+   * Adds a player to the quiz session.
+   *
+   * @param player The player.
+   */
+  public void addPlayer(QuizPlayer player) {
+    if (this.players.stream().anyMatch(p -> p.getUsername().equals(player.getUsername()))) {
+      return;
+    }
+    this.players.add(player);
   }
 
   public void addPlayer(String playerName, Long id) {
@@ -107,6 +117,14 @@ public class QuizSession {
 
   public void setToken(String token) {
     this.token = token;
+  }
+
+  public boolean isStarted() {
+    return isStarted;
+  }
+
+  public void setStarted(boolean started) {
+    isStarted = started;
   }
 
 }
