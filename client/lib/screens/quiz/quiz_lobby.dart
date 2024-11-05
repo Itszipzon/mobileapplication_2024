@@ -275,7 +275,21 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Chip(
-                                  label: Text(players[i]),
+                                  label: Text(
+                                    players[i],
+                                    style: TextStyle(
+                                      color: players[i] == username
+                                          ? Colors.orange
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  shape: StadiumBorder(
+                                    side: BorderSide(
+                                      color: players[i] == username
+                                          ? Colors.orange
+                                          : Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
                           ],
@@ -293,12 +307,14 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(width: 16,),
+                          const SizedBox(
+                            width: 16,
+                          ),
                           SizedTextButton(
                             text: "Start",
                             onPressed: _startQuiz,
                             height: 50,
-                            width: 200,
+                            width: 160,
                             textStyle: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -310,13 +326,15 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                             onPressed: _leaveQuiz,
                             inversed: true,
                             height: 50,
-                            width: 200,
+                            width: 160,
                             textStyle: const TextStyle(
                                 color: Colors.orange,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(width: 16,),
+                          const SizedBox(
+                            width: 16,
+                          ),
                         ],
                       ),
                     ),
