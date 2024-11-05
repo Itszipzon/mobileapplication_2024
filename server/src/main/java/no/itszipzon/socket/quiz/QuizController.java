@@ -103,7 +103,6 @@ public class QuizController {
   public void startQuiz(QuizMessage message) throws Exception {
 
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
-    quizSession.setToken(message.getToken());
 
     Claims claims = jwtUtil.extractClaims(message.getUserToken());
 
@@ -114,6 +113,7 @@ public class QuizController {
       quizSession.setMessage("error: Not the leader");
 
     } else {
+      quizSession.setStarted(true);
       quizSession.setMessage("start");
 
     }
