@@ -18,7 +18,12 @@ class RouterState {
     this.prevValues = const [],
   });
 
-  RouterState copyWith({String? path, Map<String, dynamic>? pathVariables, List<String>? paths, Map<String, dynamic>? values, List<Map<String, dynamic>?>? prevValues}) {
+  RouterState copyWith(
+      {String? path,
+      Map<String, dynamic>? pathVariables,
+      List<String>? paths,
+      Map<String, dynamic>? values,
+      List<Map<String, dynamic>?>? prevValues}) {
     return RouterState(
       path: path ?? this.path,
       pathVariables: pathVariables ?? this.pathVariables,
@@ -45,7 +50,8 @@ class RouterNotifier extends StateNotifier<RouterState> {
     _screens.remove(name);
   }
 
-  void setPath(BuildContext context, String path, {Map<String, dynamic>? values}) {
+  void setPath(BuildContext context, String path,
+      {Map<String, dynamic>? values}) {
     final screenName = _getScreenName(path);
 
     if (!_screens.containsKey(screenName)) {
@@ -53,9 +59,20 @@ class RouterNotifier extends StateNotifier<RouterState> {
       return;
     }
 
+    List<String> newPaths = List<String>.from(state.paths);
+    List<Map<String, dynamic>?> newPrevValues =
+        List<Map<String, dynamic>?>.from(state.prevValues);
+
+    if (state.paths.contains(path)) {
+      final index = state.paths.indexOf(path);
+      newPaths = state.paths.sublist(0, index + 1);
+      newPrevValues = state.prevValues.sublist(0, index + 1);
+    } else if (!excludedPaths.contains(screenName)) {
+      newPaths.add(screenName);
+      newPrevValues.add(values);
+    }
+
     final newPathVariables = _extractPathVariables(path);
-    final newPaths = List<String>.from(state.paths)..add(screenName);
-    final newPrevValues = List<Map<String, dynamic>?>.from(state.prevValues)..add(state.values);
     final newValues = values ?? {};
 
     state = state.copyWith(
@@ -70,7 +87,16 @@ class RouterNotifier extends StateNotifier<RouterState> {
   void goBack(BuildContext context) {
     if (state.paths.length > 1) {
       final newPaths = List<String>.from(state.paths)..removeLast();
-      state = state.copyWith(path: newPaths.last, paths: newPaths, values: state.prevValues.last);
+      final newPrevValues = List<Map<String, dynamic>?>.from(state.prevValues)
+        ..removeLast();
+      state = state.copyWith(
+          path: newPaths.last,
+          paths: newPaths,
+          values: newPrevValues.last,
+          prevValues: newPrevValues);
+      print(newPaths);
+      print(newPrevValues);
+      print(newPrevValues.last);
     } else {
       ErrorHandler.showOverlayError(context, 'No previous path found.');
     }
@@ -109,6 +135,7 @@ class RouterNotifier extends StateNotifier<RouterState> {
   Map<String, dynamic>? get getValues => state.values;
 }
 
-final routerProvider = StateNotifierProvider<RouterNotifier, RouterState>((ref) {
+final routerProvider =
+    StateNotifierProvider<RouterNotifier, RouterState>((ref) {
   return RouterNotifier();
 });

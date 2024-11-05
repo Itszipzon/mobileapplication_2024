@@ -29,6 +29,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
+      print ("Quiz id: ${router.getValues!['id']}");
       if (router.getValues == null || router.getValues!['id'] == null) {
         ErrorHandler.showOverlayError(context, 'No quiz found.');
         router.setPath(context, 'home');
