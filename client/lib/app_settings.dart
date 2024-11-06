@@ -36,7 +36,10 @@ class AppSettings {
     return ThemeData(
       primaryColor: Colors.orange,
       canvasColor: const Color.fromARGB(255, 241, 241, 241),
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color.fromARGB(255, 241, 241, 241),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color.fromARGB(255, 241, 241, 241),
+      ),
       textTheme: GoogleFonts.robotoTextTheme(),
     );
   }

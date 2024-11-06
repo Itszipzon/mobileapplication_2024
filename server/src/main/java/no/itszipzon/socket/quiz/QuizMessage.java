@@ -1,5 +1,7 @@
 package no.itszipzon.socket.quiz;
 
+import java.util.Map;
+
 /**
  * A message object that carries data from the client to the server.
  */
@@ -8,7 +10,7 @@ public class QuizMessage {
   private int quizId;
   private String userToken;
   private String token;
-  private String message;
+  private Map<String, Object> message;
 
   public QuizMessage() {
   }
@@ -41,11 +43,11 @@ public class QuizMessage {
     this.token = token;
   }
 
-  public String getMessage() {
+  public Map<String, Object> getMessage() {
     return message;
   }
 
-  public void setMessage(String message) {
+  public void setMessage(Map<String, Object> message) {
     this.message = message;
   }
   

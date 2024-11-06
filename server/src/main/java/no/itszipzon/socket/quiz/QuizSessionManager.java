@@ -64,7 +64,7 @@ public class QuizSessionManager {
   /**
    * Gets a player.
    *
-   * @param token    The token for the quiz session.
+   * @param token The token for the quiz session.
    */
   public QuizPlayer getPlayer(String token) {
     Claims claims = jwtUtil.extractClaims(token);
@@ -81,6 +81,24 @@ public class QuizSessionManager {
 
   public boolean quizSessionExists(String token) {
     return quizSessions.containsKey(token);
+  }
+
+  /**
+   * Sets the quiz for a quiz session.
+   *
+   * @param message The message containing the token and the quiz ID.
+   */
+  public boolean setNewQuiz(QuizSession message) {
+
+    Optional<Quiz> quiz = quizRepo.findById((long) message.getQuizId());
+
+    if (!quiz.isPresent()) {
+      return false;
+    }
+
+    message.setQuiz(DtoParser
+        .mapToQuizWithQuestionsDto(quiz.get(), quizRepo));
+    return true;
   }
 
 }

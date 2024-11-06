@@ -16,11 +16,9 @@ class App extends ConsumerWidget {
       theme: theme,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: theme.canvasColor,
           toolbarHeight: 10,
         ),
         body: Container(
-          color: theme.canvasColor,
           child: routerState.paths.isNotEmpty
               ? ref.read(routerProvider.notifier).currentScreen
               : const Center(

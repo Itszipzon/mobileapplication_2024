@@ -127,7 +127,6 @@ class RegisterScreenState extends ConsumerState<Register> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.canvasColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

@@ -492,7 +492,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     final theme = Theme.of(context);
     const topButtonTextStyle = TextStyle(color: Colors.white, fontSize: 12);
     return Scaffold(
-      backgroundColor: theme.canvasColor,
       appBar: AppBar(
         centerTitle: true,
         title: Row(

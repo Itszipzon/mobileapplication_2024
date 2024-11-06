@@ -54,7 +54,7 @@ public class QuizSession {
     return players;
   }
 
-  public void setPlayerUsernames(List<QuizPlayer> players) {
+  public void setPlayers(List<QuizPlayer> players) {
     this.players = players;
   }
 

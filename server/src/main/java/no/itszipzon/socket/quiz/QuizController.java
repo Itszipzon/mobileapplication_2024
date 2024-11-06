@@ -1,6 +1,7 @@
 package no.itszipzon.socket.quiz;
 
 import io.jsonwebtoken.Claims;
+import java.util.Map;
 import no.itszipzon.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -90,6 +91,47 @@ public class QuizController {
 
         messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
       }
+    }
+  }
+
+  /**
+   * Sends a message to the client that the leader changed the quiz settings.
+   *
+   * @param message The message containing the token and the username.
+   * @throws Exception If the message cannot be sent.
+   */
+  @MessageMapping("/quiz/session/settings")
+  public void settings(QuizMessage message) throws Exception {
+    QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+    if (quizSession.getLeaderUsername().equals(claims.getSubject())) {
+      quizSession.setMessage("settings");
+      Map<String, Object> socketMessage = message.getMessage();
+
+      if (socketMessage.containsKey("setNewQuiz") && (boolean) socketMessage.get("setNewQuiz")) {
+        QuizSession newQuizSession = new QuizSession(
+            quizSession.getLeaderUsername(),
+            (int) socketMessage.get("quizId"));
+        newQuizSession.setPlayers(quizSession.getPlayers());
+        newQuizSession.setToken(quizSession.getToken());
+        newQuizSession.setMessage("update");
+
+        ;
+
+        if (quizSessionManager.setNewQuiz(newQuizSession)) {
+          quizSession = newQuizSession;
+        } else {
+          quizSession.setMessage("error:onlyleader: Quiz not found");
+        }
+      }
+
+      if (socketMessage.containsKey("changeTimer") && (boolean) socketMessage.get("changeTimer")) {
+        quizSession.getQuiz().setTimer((int) socketMessage.get("timer"));
+        quizSession.setMessage("update");
+      }
+
+      messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
+          quizSession);
     }
   }
 

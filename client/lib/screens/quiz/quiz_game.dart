@@ -20,13 +20,14 @@ class QuizGameState extends ConsumerState<QuizGame> {
   late UserNotifier user;
   StompClient? stompClient;
 
+  String title = "Loading...";
+  int timer = 0;
   String state = "quiz";
-  Map<String, dynamic> quizData = {"question": "Loading...", "options": []};
+  Map<String, dynamic> quizData = {"question": "Loading...", "options": [{}]};
   List<Map<String, dynamic>> scores = [{"name": "Loading...", "score": 0}];
 
   @override
   void initState() {
-    super.initState();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
@@ -66,7 +67,12 @@ class QuizGameState extends ConsumerState<QuizGame> {
         if (frame.body != null) {
           var result = json.decode(frame.body!);
           setState(() {
-
+            state = result['state'];
+            quizData = result['quizData'];
+            quizData['options'] = _randomizeOptions(quizData['options']);
+            scores = _filterScores(result['scores']);
+            title = result['title'];
+            timer = result['timer'];
           });
         } else {
           ErrorHandler.showOverlayError(context, 'Error: No body');
@@ -75,11 +81,22 @@ class QuizGameState extends ConsumerState<QuizGame> {
     );
   }
 
+  List<Map<String, dynamic>> _filterScores(List<Map<String, dynamic>> values) {
+    values.sort((a, b) => b['score'].compareTo(a['score']));
+    return values;
+  }
+
+  List<Map<String, dynamic>> _randomizeOptions(List<Map<String, dynamic>> values) {
+    values.shuffle();
+    return values;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quiz Game'),
+        title: Text(title),
+        centerTitle: true,
       ),
       body: state == "quiz" ? _quizTab() : _scoreTab(),
     );
@@ -93,8 +110,8 @@ class QuizGameState extends ConsumerState<QuizGame> {
           itemCount: scores.length,
           itemBuilder: (BuildContext context, int index) {
             return ListTile(
-              title: Text('Name'),
-              subtitle: Text('Score'),
+              title: Text(scores[index]['name']),
+              subtitle: Text(scores[index]['score'].toString()),
             );
           },
         ),

@@ -3,28 +3,34 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 
 class QuizMessageHandler {
-
-  static String handleLobbyMessages(BuildContext context, RouterNotifier router, Map<String, dynamic> values, String username) {
+  static String handleLobbyMessages(BuildContext context, RouterNotifier router,
+      Map<String, dynamic> values, String username) {
     String value = "";
     String message = values["message"];
     if (message.startsWith("error:")) {
+
+      String error = message.substring(6);
+
+      if (error.startsWith("onlyleader:")) {
+        if (error.substring(12) == "Quiz not found") {
+          if (username == values["leaderUsername"]) {
+            ErrorHandler.showOverlayError(context, "Quiz not found");
+          }
+        }
+      } else {
+      error = message.substring(7);
       ErrorHandler.showOverlayError(context, message.substring(7));
-
-      String error = message.substring(7);
-
-      if (error == "Quiz not found") {
-        router.setPath(context, "join");
-      } else if (error == "User not found") {
-        router.setPath(context, "home");
-      } else if (error == "Quiz has already started") {
-        router.setPath(context, "join");
+        if (error == "Quiz not found") {
+          router.setPath(context, "join");
+        } else if (error == "User not found") {
+          router.setPath(context, "home");
+        } else if (error == "Quiz has already started") {
+          router.setPath(context, "join");
+        }
       }
-
     } else if (message.startsWith("start")) {
       ErrorHandler.showOverlayError(context, "Quiz has started");
-
     } else if (message.startsWith("leave: ")) {
-
       List<String> error = message.substring(7).split(",");
 
       for (String s in error) {
@@ -39,21 +45,20 @@ class QuizMessageHandler {
           ErrorHandler.showOverlayError(context, "You have left the quiz");
           router.setPath(context, "join");
         } else {
-          ErrorHandler.showOverlayError(context, "${error[1].substring(6)} has left the quiz");
+          ErrorHandler.showOverlayError(
+              context, "${error[1].substring(6)} has left the quiz");
           value = error[1].substring(6);
         }
       }
-
     } else if (message.startsWith("end")) {
       ErrorHandler.showOverlayError(context, "Quiz has ended");
-
     }
 
     return value;
   }
 
-  static Map<String, dynamic> handleGameMessages(BuildContext context, RouterNotifier router, Map<String, dynamic> values, String username) {
-    
+  static Map<String, dynamic> handleGameMessages(BuildContext context,
+      RouterNotifier router, Map<String, dynamic> values, String username) {
+    throw UnimplementedError();
   }
-
 }
