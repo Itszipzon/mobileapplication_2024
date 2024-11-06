@@ -220,6 +220,7 @@ public class QuizController {
     quizDetails.put("message", quizSession.getMessage());
     quizDetails.put("token", quizSession.getToken());
     quizDetails.put("isStarted", quizSession.isStarted());
+    quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
@@ -243,6 +244,7 @@ public class QuizController {
     quizDetails.put("message", quizSession.getMessage());
     quizDetails.put("token", quizSession.getToken());
     quizDetails.put("isStarted", quizSession.isStarted());
+    quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());

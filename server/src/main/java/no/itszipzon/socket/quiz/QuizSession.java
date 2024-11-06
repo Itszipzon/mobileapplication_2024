@@ -18,6 +18,7 @@ public class QuizSession {
   private String token;
   private boolean isStarted;
   private int currentQuestionIndex;
+  private int amountOfQuestions;
 
   public QuizSession() {
 
@@ -34,6 +35,8 @@ public class QuizSession {
     this.quizId = quizId;
     this.players = new ArrayList<>();
     this.isStarted = false;
+    this.currentQuestionIndex = 0;
+    this.amountOfQuestions = 0;
   }
 
   public int getQuizId() {
@@ -100,6 +103,7 @@ public class QuizSession {
    */
   public void setQuiz(QuizWithQuestionsDto quiz) {
     this.quiz = quiz;
+    this.amountOfQuestions = quiz.getQuizQuestions().size();
   }
 
   public String getMessage() {
@@ -140,6 +144,14 @@ public class QuizSession {
 
   public QuizQuestionDto getCurrentQuestion() {
     return quiz.getQuizQuestions().get(currentQuestionIndex);
+  }
+
+  public int getAmountOfQuestions() {
+    return amountOfQuestions;
+  }
+
+  public void setAmountOfQuestions(int amountOfQuestions) {
+    this.amountOfQuestions = amountOfQuestions;
   }
 
 }
