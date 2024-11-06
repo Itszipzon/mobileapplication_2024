@@ -77,7 +77,7 @@ public class QuizController {
       QuizSession quizSession = new QuizSession();
       quizSession.setMessage("error: Quiz not found");
       messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
-          getQuizDetailsFromSessionNoQuestions(quizSession));
+          quizSession);
     } else {
       QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
       if (quizSession.isStarted()) {
@@ -85,7 +85,7 @@ public class QuizController {
         newQuizSession.setMessage("error: Quiz has already started");
         newQuizSession.setStarted(true);
         messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
-            getQuizDetailsFromSessionNoQuestions(newQuizSession));
+            newQuizSession);
         return;
       } else {
         quizSession.addPlayer(quizSessionManager.getPlayer(message.getUserToken()));

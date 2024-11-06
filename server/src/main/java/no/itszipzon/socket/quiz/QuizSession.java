@@ -142,7 +142,18 @@ public class QuizSession {
     this.currentQuestionIndex++;
   }
 
+  /**
+   * Gets the current question.
+   *
+   * @return The current question.
+   */
   public QuizQuestionDto getCurrentQuestion() {
+    if (quiz == null) {
+      return null;
+    }
+    if (currentQuestionIndex >= quiz.getQuizQuestions().size()) {
+      return null;
+    }
     return quiz.getQuizQuestions().get(currentQuestionIndex);
   }
 
