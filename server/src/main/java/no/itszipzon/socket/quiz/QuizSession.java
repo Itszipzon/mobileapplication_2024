@@ -2,6 +2,7 @@ package no.itszipzon.socket.quiz;
 
 import java.util.ArrayList;
 import java.util.List;
+import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
 
 /**
@@ -12,10 +13,11 @@ public class QuizSession {
   private int quizId;
   private String leaderUsername;
   private List<QuizPlayer> players;
-  private QuizInSession quiz;
+  private QuizWithQuestionsDto quiz;
   private String message;
   private String token;
   private boolean isStarted;
+  private int currentQuestionIndex;
 
   public QuizSession() {
 
@@ -87,7 +89,7 @@ public class QuizSession {
     players.removeIf(player -> player.getUsername().equals(playerName));
   }
 
-  public QuizInSession getQuiz() {
+  public QuizWithQuestionsDto getQuiz() {
     return quiz;
   }
 
@@ -97,10 +99,7 @@ public class QuizSession {
    * @param quiz The quiz.
    */
   public void setQuiz(QuizWithQuestionsDto quiz) {
-    QuizInSession quizInSession = new QuizInSession(quiz.getId(), quiz.getTitle(),
-        quiz.getDescription(), quiz.getThumbnail(), quiz.getTimer(), quiz.getCreatedAt(),
-        leaderUsername);
-    this.quiz = quizInSession;
+    this.quiz = quiz;
   }
 
   public String getMessage() {
@@ -125,6 +124,22 @@ public class QuizSession {
 
   public void setStarted(boolean started) {
     isStarted = started;
+  }
+
+  public int getCurrentQuestionIndex() {
+    return currentQuestionIndex;
+  }
+
+  public void setCurrentQuestionIndex(int currentQuestionIndex) {
+    this.currentQuestionIndex = currentQuestionIndex;
+  }
+
+  public void incrementCurrentQuestionIndex() {
+    this.currentQuestionIndex++;
+  }
+
+  public QuizQuestionDto getCurrentQuestion() {
+    return quiz.getQuizQuestions().get(currentQuestionIndex);
   }
 
 }

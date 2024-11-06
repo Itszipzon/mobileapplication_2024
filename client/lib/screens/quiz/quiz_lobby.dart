@@ -144,6 +144,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
               });
             }
           } else {
+            result['thumbnail'] = '${ApiHandler.url}/api/quiz/thumbnail/$quizId';
             QuizMessageHandler.handleLobbyMessages(
                 context, router, result, username);
           }
@@ -374,15 +375,13 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                             child: Chip(
                               label: Text(
                                 players[i],
-                                style: TextStyle(
-                                  color: players[i] == username
-                                      ? Colors.orange
-                                      : Colors.black,
+                                style: const TextStyle(
+                                  color: Colors.black,
                                 ),
                               ),
                               shape: StadiumBorder(
                                 side: BorderSide(
-                                  color: players[i] == username
+                                  color: players[i] == leader
                                       ? Colors.orange
                                       : Colors.black,
                                 ),

@@ -11,7 +11,7 @@ public class QuizInSession {
   private String title;
   private String description;
   private String thumbnail;
-  private Integer timer;
+  private int timer;
   private String username;
   private LocalDateTime createdAt;
 

@@ -29,7 +29,7 @@ class QuizMessageHandler {
         }
       }
     } else if (message.startsWith("start")) {
-      ErrorHandler.showOverlayError(context, "Quiz has started");
+      router.setPath(context, "quiz/game/socket", values: values);
     } else if (message.startsWith("leave: ")) {
       List<String> error = message.substring(7).split(",");
 

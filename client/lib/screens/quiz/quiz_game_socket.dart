@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:client/screens/quiz/quiz_start_timer.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
@@ -8,27 +9,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
-class QuizGame extends ConsumerStatefulWidget {
-  const QuizGame({super.key});
+class QuizGameSocket extends ConsumerStatefulWidget {
+  const QuizGameSocket({super.key});
 
   @override
-  QuizGameState createState() => QuizGameState();
+  QuizGameSocketState createState() => QuizGameSocketState();
 }
 
-class QuizGameState extends ConsumerState<QuizGame> {
+class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
   late RouterNotifier router;
   late UserNotifier user;
   StompClient? stompClient;
+  late Widget scene;
 
+  String thumbnail = "";
   String title = "Loading...";
   int timer = 0;
-  String state = "quiz";
+  String state = "countdown";
   Map<String, dynamic> quizData = {"question": "Loading...", "options": [{}]};
   List<Map<String, dynamic>> scores = [{"name": "Loading...", "score": 0}];
 
   @override
   void initState() {
     super.initState();
+    scene = QuizStartTimer(onCountdownComplete: _timerComplete);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
@@ -36,7 +40,25 @@ class QuizGameState extends ConsumerState<QuizGame> {
         router.setPath(context, '');
         return;
       }
+      _initStates();
       _connectToSocket();
+    });
+  }
+
+  void _initStates() {
+    if (router.getValues == null) {
+      router.setPath(context, 'join');
+      return;
+    }
+    if (router.getValues!['token'] == null) {
+      router.setPath(context, 'join');
+      return;
+    }
+
+    setState(() {
+      title = router.getValues!['quiz']['title'];
+      timer = router.getValues!['quiz']['timer'];
+      thumbnail = router.getValues!['thumbnail'];
     });
   }
 
@@ -98,7 +120,7 @@ class QuizGameState extends ConsumerState<QuizGame> {
         title: Text(title),
         centerTitle: true,
       ),
-      body: state == "quiz" ? _quizTab() : _scoreTab(),
+      body: scene,
     );
   }
 
@@ -129,5 +151,28 @@ class QuizGameState extends ConsumerState<QuizGame> {
         Text('Answer 4'),
       ],
     );
+  }
+
+  _displaySelectedScene() {
+    if (state == "quiz") {
+      setState(() {
+        scene = _quizTab();
+      });
+    } else if (state == "score") {
+      setState(() {
+        scene = _scoreTab();
+      });
+    } else {
+      setState(() {
+        scene = QuizStartTimer(onCountdownComplete: _timerComplete,);
+      });
+    }
+  }
+
+  void _timerComplete() {
+    setState(() {
+      state = "quiz";
+    });
+    _displaySelectedScene();
   }
 }
