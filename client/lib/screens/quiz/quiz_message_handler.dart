@@ -38,8 +38,13 @@ class QuizMessageHandler {
       }
 
       if (error[0] == "leader:true") {
-        ErrorHandler.showOverlayError(context, "Leader has left the quiz");
-        router.setPath(context, "join");
+        if (username == values["leaderUsername"]) {
+          ErrorHandler.showOverlayError(context, "You have left the quiz");
+          router.setPath(context, "join");
+        } else {
+          ErrorHandler.showOverlayError(context, "Leader has left the quiz");
+          router.setPath(context, "join");
+        }
       } else if (error[0] == "leader:false") {
         if (error[1] == " user:$username") {
           ErrorHandler.showOverlayError(context, "You have left the quiz");
