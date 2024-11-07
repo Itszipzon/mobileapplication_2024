@@ -1,4 +1,3 @@
-import 'package:client/dummy_data.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,9 +59,7 @@ class UserNotifier extends AutoDisposeAsyncNotifier<User> {
       return {};
     }
     var profile = await ApiHandler.getProfile(currentUser!.token!);
-    profile["pfp"] = await ApiHandler.hasPfp(profile["username"])
-        ? "${ApiHandler.url}/api/user/pfp/${profile["username"]}"
-        : DummyData.profilePicture;
+    profile["pfp"] = "${ApiHandler.url}/api/user/pfp/${profile["username"]}";
     return profile;
   }
 

@@ -117,7 +117,9 @@ public class UserApi {
     }
 
     if (userOpt.get().getProfilePicture() == null) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      Resource resource = new ClassPathResource("static/images/default_pfp.png");
+      MediaType mediaType = MediaType.IMAGE_PNG;
+      return ResponseEntity.ok().contentType(mediaType).body(resource);
     }
 
     User user = userOpt.get();

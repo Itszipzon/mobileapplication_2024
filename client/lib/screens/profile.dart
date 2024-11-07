@@ -1,6 +1,6 @@
+import 'package:client/dummy_data.dart';
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/button.dart';
-import 'package:client/elements/loading.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/elements/quiz_post.dart';
 import 'package:client/tools/api_handler.dart';
@@ -19,7 +19,10 @@ class Profile extends ConsumerStatefulWidget {
 class ProfileState extends ConsumerState<Profile> {
   late final RouterNotifier router;
   late final UserNotifier user;
-  Map<String, dynamic> profile = {};
+  Map<String, dynamic> profile = {
+    "username": "",
+    "pfp": DummyData.profilePicture,
+  };
   late List<Map<String, dynamic>> quizzes = [];
   late List<Map<String, dynamic>> history = [];
 
@@ -61,14 +64,7 @@ class ProfileState extends ConsumerState<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return profile.isEmpty
-        ? const Scaffold(
-            body: Center(
-              child: LogoLoading(),
-            ),
-            bottomNavigationBar: BottomNavbar(path: "profile"),
-          )
-        : Scaffold(
+    return Scaffold(
             body: Container(
               margin: const EdgeInsets.all(10),
               child: Column(
