@@ -222,8 +222,12 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     );
 
     questionController.text = questions[newIndex].question;
-    for (int i = 0; i < questions[newIndex].options.length; i++) {
-      controllers[i].text = questions[newIndex].options[i].option;
+    for (int i = 0; i < controllers.length; i++) {
+      if (i < questions[newIndex].options.length ) {
+        controllers[i].text = questions[newIndex].options[i].option;
+      } else {
+        controllers[i].clear();
+      }
     }
 
     setState(() {
@@ -288,11 +292,9 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         for (int i = 0; i < controllers.length; i++) {
           if (i < questions[_selectedIndex].options.length) {
             controllers[i].text = questions[_selectedIndex].options[i].option;
-            print("Option $i: ${questions[_selectedIndex].options[i].option}");
           } else {
             controllers[i].clear();
           }
-          print("Controller $i: ${controllers[i].text}");
         }
       } else {
         questions[_selectedIndex].options[index].option = "";
