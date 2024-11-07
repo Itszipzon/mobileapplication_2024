@@ -18,13 +18,7 @@ class App extends ConsumerWidget {
         appBar: AppBar(
           toolbarHeight: 10,
         ),
-        body: Container(
-          child: routerState.paths.isNotEmpty
-              ? ref.read(routerProvider.notifier).currentScreen
-              : const Center(
-                  child: LogoLoading(),
-              ),
-        ),
+        body: Container(child: ref.read(routerProvider.notifier).currentScreen),
       ),
     );
   }

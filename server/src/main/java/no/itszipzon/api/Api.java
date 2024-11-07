@@ -4,6 +4,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +20,7 @@ public class Api {
    *
    * @return The default profile picture.
    */
-  @RequestMapping("/default/pfp")
+  @GetMapping("/default/pfp")
   public ResponseEntity<Resource> getProfilePicture() {
     Resource resource = new ClassPathResource("static/images/default_pfp.png");
     MediaType mediaType = MediaType.IMAGE_PNG;

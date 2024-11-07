@@ -9,6 +9,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CreateQuiz extends ConsumerStatefulWidget {
   const CreateQuiz({super.key});
@@ -314,18 +315,23 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     changeSelectedQuestion(_selectedIndex, _selectedIndex + 1);
   }
 
-  void addImage() async {
-    final ImagePicker picker = ImagePicker();
-    try {
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        setState(() {
-          imageFile = File(image.path);
-        });
+  Future<void> addImage() async {
+    if (await Permission.photos.request().isGranted) {
+      final ImagePicker picker = ImagePicker();
+      try {
+        final XFile? image =
+            await picker.pickImage(source: ImageSource.gallery);
+        if (image != null) {
+          setState(() {
+            imageFile = File(image.path);
+          });
+        }
+      } catch (e) {
+        ErrorHandler.showOverlayError(context, "Failed to pick image");
+        print("Error picking image: $e");
       }
-    } catch (e) {
-      ErrorHandler.showOverlayError(context, "Failed to pick image");
-      print("Error picking image: $e");
+    } else {
+      ErrorHandler.showOverlayError(context, "Permission denied");
     }
   }
 
