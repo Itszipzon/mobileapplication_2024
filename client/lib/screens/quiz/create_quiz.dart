@@ -318,7 +318,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   }
 
   Future<void> addImage() async {
-    if (await Permission.photos.request().isGranted) {
+    if (await Permission.photos.request().isGranted || Platform.isAndroid) {
       final ImagePicker picker = ImagePicker();
       try {
         final XFile? image =
