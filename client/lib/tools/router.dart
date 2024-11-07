@@ -94,9 +94,6 @@ class RouterNotifier extends StateNotifier<RouterState> {
           paths: newPaths,
           values: newPrevValues.last,
           prevValues: newPrevValues);
-      print(newPaths);
-      print(newPrevValues);
-      print(newPrevValues.last);
     } else {
       ErrorHandler.showOverlayError(context, 'No previous path found.');
     }
