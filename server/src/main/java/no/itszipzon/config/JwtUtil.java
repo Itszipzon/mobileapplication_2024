@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.time.LocalDateTime;
@@ -66,6 +67,10 @@ public class JwtUtil {
             .getBody();
     } catch (ExpiredJwtException e) {
       return null;
+
+    } catch (SignatureException e) {
+      return null;
+      
     } catch (JwtException e) {
       e.printStackTrace();
       return null;
