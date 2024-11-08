@@ -136,6 +136,17 @@ class ApiHandler {
     }
   }
 
+  static Future<List<Map<String, dynamic>>> getQuizzesByFilter(int page, int size, String by, String orientation) async {
+    final response = await http.get(Uri.parse("$_url/api/quiz/all/filter/$page/$size/$by/$orientation"));
+
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
+  }
+
   static Future<http.Response> createQuiz(
       Map<String, dynamic> quizData, String token, File thumbnail) async {
     final uri = Uri.parse('$_url/api/quiz');

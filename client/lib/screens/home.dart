@@ -26,7 +26,7 @@ class HomeState extends ConsumerState<Home> {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
     });
-    _quizDataFuture = ApiHandler.getQuizzes();
+    _quizDataFuture = ApiHandler.getQuizzesByFilter(0, 5, "createdAt", "DESC");
   }
 
   @override
