@@ -16,6 +16,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool rememberMe = false;
 
   final passwordFocusNode = FocusNode();
   late final RouterNotifier router;
@@ -53,13 +54,13 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
- Future<void> handleLogin() async {
+  Future<void> handleLogin() async {
     toggleLoading();
 
     await Future.delayed(const Duration(seconds: 2));
 
     final response =
-        await ApiHandler.login(emailController.text, passwordController.text);
+        await ApiHandler.login(emailController.text, passwordController.text, rememberMe);
     
 
     if (response.statusCode == 200) {
@@ -122,8 +123,22 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                 loading: loading,
               ),
               const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Checkbox(value: rememberMe, activeColor: theme.primaryColor, onChanged: (bool? value) {
+                    setState(() {
+                      rememberMe = value!;
+                    }
+                    );
+                  }
+                  ),
+                  const Text("Remember me")
+                ],
+              ),
+              const SizedBox(height: 24),
               InkWell(
-                onTap: () => router.setPath(context, ''), //TODO: Add forgot password screen
+                onTap: () => router.setPath(context, 'login'), //TODO: Add forgot password screen
                 child: Text(
                   'Forgot password?',
                   style: TextStyle(color: theme.primaryColor),

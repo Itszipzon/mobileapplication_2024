@@ -65,178 +65,198 @@ class ProfileState extends ConsumerState<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            body: Container(
-              margin: const EdgeInsets.all(10),
-              child: Column(
+      body: Container(
+        margin: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            // Profile header section
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    print("Not implemented yet");
+                  },
+                  child: ClipOval(
+                    child: ProfilePicture(url: profile["pfp"]),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "${profile["username"]}",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Button row
+            Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          print("Not implemented yet");
-                        },
-                        child: ClipOval(
-                          child: ProfilePicture(url: profile["pfp"]),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "${profile["username"]}",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
+                  Expanded(
+                    child: SizedTextButton(
+                      text: "Settings",
+                      onPressed: () => {print("Settings")},
+                      height: 40,
+                      textStyle:
+                          const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
-                  const SizedBox(
-                    height: 10,
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: SizedTextButton(
+                      text: "Other",
+                      onPressed: () => {print("Other")},
+                      height: 40,
+                      textStyle:
+                          const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedTextButton(
-                        text: "Settings",
-                        onPressed: () => {print("Settings")},
-                        height: 40,
-                        width: 128,
-                        textStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                      SizedTextButton(
-                        text: "Other",
-                        onPressed: () => {print("Other")},
-                        height: 40,
-                        width: 128,
-                        textStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                      SizedTextButton(
-                        text: "Sign out",
-                        onPressed: () => {user.logout(context, router)},
-                        height: 40,
-                        width: 128,
-                        textStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    ],
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: SizedTextButton(
+                      text: "Sign out",
+                      onPressed: () => {user.logout(context, router)},
+                      height: 40,
+                      textStyle:
+                          const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Your quizzes",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      SizedTextButton(
-                        text: "View all",
-                        onPressed: () => print("View"),
-                        height: 32,
-                        width: 73,
-                        textStyle:
-                            const TextStyle(fontSize: 12, color: Colors.white),
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  quizzes.isNotEmpty
-                      ? SizedBox(
-                          height: 200,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: quizzes.length,
-                            itemBuilder: (context, index) {
-                              final quiz = quizzes[index];
-                              return QuizPost(
-                                id: quiz['id'] ?? '',
-                                profilePicture: quiz['profile_picture'] ?? '',
-                                title: quiz['title'] ?? '',
-                                username: quiz['username'] ?? '',
-                                createdAt: DateTime(
-                                  quiz['createdAt'][0],
-                                  quiz['createdAt'][1],
-                                  quiz['createdAt'][2],
-                                  quiz['createdAt'][3],
-                                  quiz['createdAt'][4],
-                                  quiz['createdAt'][5],
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : const SizedBox(
-                          height: 200,
-                          child: Center(
-                            child: Text("No quizzes found"),
-                          ),
-                        ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "History",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      SizedTextButton(
-                        text: "View all",
-                        onPressed: () => print("View"),
-                        height: 32,
-                        width: 73,
-                        textStyle:
-                            const TextStyle(fontSize: 12, color: Colors.white),
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  history.isNotEmpty
-                      ? SizedBox(
-                          height: 200,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: history.length,
-                            itemBuilder: (context, index) {
-                              final quiz = history[index];
-                              return QuizPost(
-                                id: quiz['id'] ?? '',
-                                profilePicture: quiz['profile_picture'] ?? '',
-                                title: quiz['title'] ?? '',
-                                username: quiz['username'] ?? '',
-                                createdAt: DateTime(
-                                  quiz['createdAt'][0],
-                                  quiz['createdAt'][1],
-                                  quiz['createdAt'][2],
-                                  quiz['createdAt'][3],
-                                  quiz['createdAt'][4],
-                                  quiz['createdAt'][5],
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : const SizedBox(
-                          height: 200,
-                          child: Center(
-                            child: Text("No quizzes found"),
-                          ),
-                        ),
                 ],
               ),
             ),
-            bottomNavigationBar: const BottomNavbar(path: "profile"),
-          );
+            const SizedBox(height: 16),
+
+            // Expanded scrollable area
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // "Your quizzes" section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Your quizzes",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedTextButton(
+                          text: "View all",
+                          onPressed: () => print("View"),
+                          height: 32,
+                          width: 73,
+                          textStyle: const TextStyle(
+                              fontSize: 12, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    quizzes.isNotEmpty
+                        ? SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: quizzes.length,
+                              itemBuilder: (context, index) {
+                                final quiz = quizzes[index];
+                                return QuizPost(
+                                  id: quiz['id'] ?? '',
+                                  profilePicture: quiz['profile_picture'] ?? '',
+                                  title: quiz['title'] ?? '',
+                                  username: quiz['username'] ?? '',
+                                  createdAt: DateTime(
+                                    quiz['createdAt'][0],
+                                    quiz['createdAt'][1],
+                                    quiz['createdAt'][2],
+                                    quiz['createdAt'][3],
+                                    quiz['createdAt'][4],
+                                    quiz['createdAt'][5],
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : const SizedBox(
+                            height: 200,
+                            child: Center(
+                              child: Text("No quizzes found"),
+                            ),
+                          ),
+                    const SizedBox(height: 16),
+
+                    // "History" section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "History",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedTextButton(
+                          text: "View all",
+                          onPressed: () => print("View"),
+                          height: 32,
+                          width: 73,
+                          textStyle: const TextStyle(
+                              fontSize: 12, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    history.isNotEmpty
+                        ? SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: history.length,
+                              itemBuilder: (context, index) {
+                                final quiz = history[index];
+                                return QuizPost(
+                                  id: quiz['id'] ?? '',
+                                  profilePicture: quiz['profile_picture'] ?? '',
+                                  title: quiz['title'] ?? '',
+                                  username: quiz['username'] ?? '',
+                                  createdAt: DateTime(
+                                    quiz['createdAt'][0],
+                                    quiz['createdAt'][1],
+                                    quiz['createdAt'][2],
+                                    quiz['createdAt'][3],
+                                    quiz['createdAt'][4],
+                                    quiz['createdAt'][5],
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : const SizedBox(
+                            height: 200,
+                            child: Center(
+                              child: Text("No history found"),
+                            ),
+                          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: const BottomNavbar(path: "profile"),
+    );
   }
 }

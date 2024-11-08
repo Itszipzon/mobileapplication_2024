@@ -19,6 +19,14 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
   @Query("""
       SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
                                            u.username, u.profilePicture, q.createdAt)
+      FROM Quiz q
+        JOIN q.user u
+      """)
+  Optional<List<QuizDto>> findAllByFilter(Pageable pageable);
+
+  @Query("""
+      SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                           u.username, u.profilePicture, q.createdAt)
       FROM Quiz q JOIN q.user u
       """)
   List<QuizDto> findAllQuizzesSummary();

@@ -48,10 +48,10 @@ class ApiHandler {
   }
 
   /// Logs in the user.
-  static Future<Response> login(String email, String password) async {
+  static Future<Response> login(String email, String password, bool rememberMe) async {
     final response = await http.post(Uri.parse('$_url/api/user/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user': email, 'password': password}));
+        body: jsonEncode({'user': email, 'password': password, 'rememberMe': rememberMe}));
     return response;
   }
 
@@ -146,6 +146,17 @@ class ApiHandler {
   /// Fetches quizzes from the API.
   static Future<List<Map<String, dynamic>>> getQuizzes() async {
     final response = await http.get(Uri.parse('$_url/api/quiz'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getQuizzesByFilter(int page, int size, String by, String orientation) async {
+    final response = await http.get(Uri.parse("$_url/api/quiz/all/filter/$page/$size/$by/$orientation"));
 
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);

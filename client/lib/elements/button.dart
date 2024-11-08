@@ -164,7 +164,7 @@ class SizedTextButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool loading;
   final double height;
-  final double width;
+  final double? width;
   final TextStyle textStyle;
   final bool inversed;
 
@@ -173,7 +173,7 @@ class SizedTextButton extends StatelessWidget {
     required this.onPressed,
     this.loading = false,
     required this.height,
-    required this.width,
+    this.width,
     required this.textStyle,
     this.inversed = false,
     super.key,
@@ -184,11 +184,10 @@ class SizedTextButton extends StatelessWidget {
     final theme = Theme.of(context);
 
     return GestureDetector(
-      
       onTap: loading ? null : onPressed,
       child: Container(
         height: height,
-        width: width,
+        width: width ?? MediaQuery.of(context).size.width, // Use full screen width if width is not specified
         decoration: BoxDecoration(
           color: inversed ? Colors.white : theme.primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(6)),
@@ -212,7 +211,6 @@ class SizedTextButton extends StatelessWidget {
                 ),
         ),
       ),
-      
-      );
+    );
   }
 }

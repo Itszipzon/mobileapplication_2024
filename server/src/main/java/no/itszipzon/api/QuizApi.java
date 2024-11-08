@@ -25,6 +25,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 
 /**
  * QuizApi.
@@ -57,9 +59,28 @@ public class QuizApi {
 
   @GetMapping
   @Transactional(readOnly = true)
-  public List<QuizDto> getAllQuizzes() {
-    return quizRepo.findAll().stream().map(this::mapToQuizDto).collect(Collectors.toList());
+  public ResponseEntity<List<QuizDto>> getAllQuizzes() {
+    return new ResponseEntity<>(quizRepo.findAll().stream().map(this::mapToQuizDto).collect(Collectors.toList()), HttpStatus.OK);
   }
+
+  @GetMapping("/all/filter/{page}/{size}/{by}/{orientation}")
+  public ResponseEntity<List<QuizDto>> getFilteredQuizzes(
+        @PathVariable int page,
+        @PathVariable int size,
+        @PathVariable String by,
+        @PathVariable String orientation) {
+  
+      Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(orientation), by));
+      
+      List<QuizDto> quizzes = quizRepo.findAllByFilter(pageable).orElse(new ArrayList<>());
+      
+      if (quizzes.isEmpty()) {
+          return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+      
+      return new ResponseEntity<>(quizzes, HttpStatus.OK);
+  }
+  
 
   /**
    * Get quiz by id.

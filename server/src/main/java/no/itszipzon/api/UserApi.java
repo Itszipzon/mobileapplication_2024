@@ -295,8 +295,11 @@ public class UserApi {
       userRepo.save(loggedInUser.get());
 
       Logger.log("User " + loggedInUser.get().getUsername() + " logged in");
+      
+      boolean rememberMe = values.get("rememberMe") == null
+          ? false : Boolean.parseBoolean(values.get("rememberMe"));
 
-      String token = jwtUtil.generateToken(loggedInUser.get(), (24 * 30));
+      String token = jwtUtil.generateToken(loggedInUser.get(), (rememberMe ? (24 * 30) : 24));
       
       return new ResponseEntity<>(token, HttpStatus.OK);
     } else {

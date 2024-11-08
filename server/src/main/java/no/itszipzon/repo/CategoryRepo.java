@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface CategoryRepo extends JpaRepository<Category, Long> {
   
-  @Query("SELECT c.name FROM Category c")
+  @Query("SELECT c.name FROM Category c ORDER BY c.name ASC")
   List<String> findAllNames();
   
 }
