@@ -16,6 +16,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 class LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool rememberMe = false;
 
   final passwordFocusNode = FocusNode();
   late final RouterNotifier router;
@@ -120,6 +121,20 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                 },
                 text: 'Sign In',
                 loading: loading,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Checkbox(value: rememberMe, activeColor: theme.primaryColor, onChanged: (bool? value) {
+                    setState(() {
+                      rememberMe = value!;
+                    }
+                    );
+                  }
+                  ),
+                  const Text("Remember me")
+                ],
               ),
               const SizedBox(height: 24),
               InkWell(

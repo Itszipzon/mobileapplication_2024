@@ -188,7 +188,7 @@ class RegisterScreenState extends ConsumerState<Register> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Checkbox(value: terms, onChanged: (bool? value) {
+                  Checkbox(value: terms, activeColor: theme.primaryColor, onChanged: (bool? value) {
                     setState(() {
                       terms = value!;
                     }
