@@ -6,10 +6,29 @@ import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ApiHandler {
+
+  //////////////////////////Remote rune//////////////////////////////////
+
+  /*
+  static final String _url = "http://10.24.37.237:8080";
+
+  static String get url => _url;
+  */
+
+  //////////////////////////local//////////////////////////////////
+  
   static final String _url =
       Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
+  static final String _wsUrl =
+      Platform.isAndroid ? 'ws://10.0.2.2:8080' : 'ws://localhost:8080';
+
   static String get url => _url;
+
+  static String get wsUrl => _wsUrl;
+
+  ///////////////////////////////////////////////////////////////////////
+  
 
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
