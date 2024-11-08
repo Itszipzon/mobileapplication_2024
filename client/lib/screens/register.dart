@@ -101,7 +101,7 @@ class RegisterScreenState extends ConsumerState<Register> {
     try {
       final result = await ApiHandler.register(email, password, confirmPassword, username, terms);
       if (result.statusCode == 200) {
-        router.setPath(context, '');
+        router.setPath(context, 'login');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result.body)),
@@ -209,7 +209,7 @@ class RegisterScreenState extends ConsumerState<Register> {
                   const Text("Already have an account? ",
                       style: TextStyle(color: Colors.grey)),
                   InkWell(
-                    onTap: () => router.setPath(context, ''),
+                    onTap: () => router.setPath(context, 'login'),
                     child: Text(
                       'Sign in here.',
                       style: TextStyle(color: theme.primaryColor),

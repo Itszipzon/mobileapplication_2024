@@ -53,7 +53,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
- Future<void> handleLogin() async {
+  Future<void> handleLogin() async {
     toggleLoading();
 
     await Future.delayed(const Duration(seconds: 2));
@@ -123,7 +123,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 24),
               InkWell(
-                onTap: () => router.setPath(context, ''), //TODO: Add forgot password screen
+                onTap: () => router.setPath(context, 'login'), //TODO: Add forgot password screen
                 child: Text(
                   'Forgot password?',
                   style: TextStyle(color: theme.primaryColor),

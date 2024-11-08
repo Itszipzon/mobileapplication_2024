@@ -39,9 +39,11 @@ class _MainAppState extends ConsumerState<MainApp> {
         AppSettings.initiateScreens(routerNotifier);
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (await user.inSession()) {
+            print("User is in session");
             routerNotifier.setPath(context, "home");
           } else {
-            routerNotifier.setPath(context, "");
+            print("User is not in session");
+            routerNotifier.setPath(context, "login");
           }
         });
 

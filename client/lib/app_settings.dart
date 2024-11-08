@@ -1,3 +1,4 @@
+import 'package:client/elements/loading.dart';
 import 'package:client/screens/categories.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/join.dart';
@@ -18,7 +19,8 @@ class AppSettings {
   
   /// Initiates all the screens in the application.
   static void initiateScreens(RouterNotifier router) {
-    router.addScreen("", const LoginScreen());
+    router.addScreen("", const LogoLoading());
+    router.addScreen("login", const LoginScreen());
     router.addScreen("register", const Register());
     router.addScreen("home", const Home());
     router.addScreen("categories", const Categories());
@@ -30,7 +32,7 @@ class AppSettings {
     router.addScreen("quiz/lobby", const QuizLobby());
     router.addScreen("quiz/game/socket", const QuizGameSocket());
 
-    router.excludePaths(["", "register", "test"]);
+    router.excludePaths(["", "login", "register", "test"]);
   }
 
   /// Returns the theme for the application.

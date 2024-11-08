@@ -39,7 +39,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
       if (user.token == null) {
-        router.setPath(context, '');
+        router.setPath(context, 'login');
         return;
       }
       _initUsername();

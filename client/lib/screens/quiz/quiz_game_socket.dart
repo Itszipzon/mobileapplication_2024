@@ -37,7 +37,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
       if (user.token == null) {
-        router.setPath(context, '');
+        router.setPath(context, 'login');
         return;
       }
       _initStates();
