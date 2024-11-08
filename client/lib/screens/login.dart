@@ -60,7 +60,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     final response =
-        await ApiHandler.login(emailController.text, passwordController.text);
+        await ApiHandler.login(emailController.text, passwordController.text, rememberMe);
     
 
     if (response.statusCode == 200) {
