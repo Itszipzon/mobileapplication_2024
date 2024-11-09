@@ -50,6 +50,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   Future<void> _initUsername() async {
     username = await ApiHandler.getProfile(user.token!)
         .then((value) => value['username']);
+    
   }
 
   @override
@@ -107,7 +108,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
             quizToken = result['token'].toString();
             leader = result['leaderUsername'];
             quizName = result['quiz']['title'];
-            quizId = result['quizId'].toString();
+            quizId = result["quiz"]['id'].toString();
             quizTimer = result['quiz']['timer'];
           });
           quizIdCompleter.complete();
@@ -132,7 +133,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                     mapPlayers.map((p) => p['username'] as String).toList();
                 quizName = result['quiz']['title'];
                 leader = result['leaderUsername'];
-                this.quizId = result['quizId'].toString();
+                this.quizId = result["quiz"]['id'].toString();
                 quizTimer = result['quiz']['timer'];
               });
             }
@@ -145,6 +146,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
             }
           } else {
             result['thumbnail'] = '${ApiHandler.url}/api/quiz/thumbnail/$quizId';
+            result["username"] = username;
             QuizMessageHandler.handleLobbyMessages(
                 context, router, result, username);
           }

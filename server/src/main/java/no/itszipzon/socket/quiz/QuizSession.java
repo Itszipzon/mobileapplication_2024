@@ -19,6 +19,7 @@ public class QuizSession {
   private boolean isStarted;
   private int currentQuestionIndex;
   private int amountOfQuestions;
+  private String state;
 
   public QuizSession() {
 
@@ -37,6 +38,7 @@ public class QuizSession {
     this.isStarted = false;
     this.currentQuestionIndex = 0;
     this.amountOfQuestions = 0;
+    this.state = "WAITING";
   }
 
   public int getQuizId() {
@@ -163,6 +165,14 @@ public class QuizSession {
 
   public void setAmountOfQuestions(int amountOfQuestions) {
     this.amountOfQuestions = amountOfQuestions;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void setState(String state) {
+    this.state = state;
   }
 
 }

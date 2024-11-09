@@ -14,7 +14,7 @@ import no.itszipzon.dto.QuizOptionDto;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
 import no.itszipzon.repo.CategoryRepo;
-import no.itszipzon.repo.QuestionRepo;
+import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.tables.Category;
 import no.itszipzon.tables.Quiz;
@@ -60,7 +60,7 @@ public class QuizApi {
   private JwtUtil jwtUtil;
 
   @Autowired
-  private QuestionRepo questionRepo;
+  private QuizQuestionRepo questionRepo;
 
   /**
    * Get all quizzes.

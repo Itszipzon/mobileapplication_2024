@@ -1,9 +1,12 @@
 package no.itszipzon.socket.quiz;
 
 import io.jsonwebtoken.Claims;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import no.itszipzon.config.JwtUtil;
+import no.itszipzon.dto.QuizQuestionDto;
+import no.itszipzon.repo.QuizQuestionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -24,6 +27,9 @@ public class QuizController {
 
   @Autowired
   private JwtUtil jwtUtil;
+
+  @Autowired
+  private QuizQuestionRepo quizQuestionRepo;
 
   @MessageMapping("/quiz")
   @SendTo("/topic/quiz")
@@ -76,8 +82,7 @@ public class QuizController {
     if (!quizSessionManager.quizSessionExists(message.getToken())) {
       QuizSession quizSession = new QuizSession();
       quizSession.setMessage("error: Quiz not found");
-      messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
-          quizSession);
+      messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), quizSession);
     } else {
       QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
       if (quizSession.isStarted()) {
@@ -92,7 +97,7 @@ public class QuizController {
         quizSession.setMessage("join");
         quizSession.setToken(message.getToken());
 
-        messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(), 
+        messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
             getQuizDetailsFromSessionNoQuestions(quizSession));
       }
     }
@@ -113,8 +118,7 @@ public class QuizController {
       Map<String, Object> socketMessage = message.getMessage();
 
       if (socketMessage.containsKey("setNewQuiz") && (boolean) socketMessage.get("setNewQuiz")) {
-        QuizSession newQuizSession = new QuizSession(
-            quizSession.getLeaderUsername(),
+        QuizSession newQuizSession = new QuizSession(quizSession.getLeaderUsername(),
             (int) socketMessage.get("quizId"));
         newQuizSession.setPlayers(quizSession.getPlayers());
         newQuizSession.setToken(quizSession.getToken());
@@ -161,6 +165,7 @@ public class QuizController {
     } else {
       quizSession.setStarted(true);
       quizSession.setMessage("start");
+      quizSession.setState("start");
 
     }
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
@@ -206,21 +211,91 @@ public class QuizController {
   public void game(QuizMessage message) throws Exception {
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
     quizSession.setToken(message.getToken());
-    quizSession.setMessage("game");
 
-    messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
-        getQuizDetailsFromSessionNoQuestions(quizSession));
+
+    if (message.getMessage().get("message").equals("firstCountDown")) {
+
+      quizSession.setState("quiz");
+      messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
+          getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
+
+    } else if (message.getMessage().get("message").equals("next")) {
+
+      Claims claims = jwtUtil.extractClaims(message.getUserToken());
+
+      if (claims.getSubject().equals(quizSession.getLeaderUsername())) {
+        int current = quizSession.getCurrentQuestionIndex();
+        int amount = quizSession.getAmountOfQuestions() - 1;
+        if (quizSession.getState().equals("quiz")) {
+          if (current == amount) {
+            quizSession.setState("end");
+            handleEnd(quizSession);
+          } else {
+            calculateScore(quizSession);
+            quizSession.setState("score");
+          }
+          messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
+              getQuizDetailsFromSessionQuestion(quizSession,
+                  quizSession.getCurrentQuestionIndex()));
+
+        } else if (quizSession.getState().equals("score")) {
+          quizSession.setState("quiz");
+          quizSession.setCurrentQuestionIndex(quizSession.getCurrentQuestionIndex() + 1);
+
+        } else {
+          quizSession.setState("quiz");
+        }
+        messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
+            getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
+      }
+
+    } else if (message.getMessage().get("message").equals("answer")) {
+
+      Claims claims = jwtUtil.extractClaims(message.getUserToken());
+      String username = claims.getSubject();
+      String answer = message.getMessage().get("answer").toString();
+      Long answerId = Long.parseLong(message.getMessage().get("answerId").toString());
+
+      quizSession.getPlayers().forEach(player -> {
+        if (player.getUsername().equals(username)) {
+          if (player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
+            player.getAnswers().add(quizSession.getCurrentQuestionIndex(),
+                new QuizAnswer(answer, answerId));
+          }
+        }
+      });
+
+      long answers = quizSession.getPlayers().stream()
+          .filter(
+              player -> player.getAnswers().size() == (quizSession.getCurrentQuestionIndex() + 1))
+          .count();
+
+      int players = quizSession.getPlayers().size();
+
+      if (players == answers) {
+        calculateScore(quizSession);
+        if (quizSession.getCurrentQuestionIndex() == quizSession.getAmountOfQuestions() - 1) {
+          quizSession.setState("end");
+          handleEnd(quizSession);
+        } else {
+          quizSession.setState("score");
+        }
+        messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
+            getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
+      }
+
+    }
   }
 
   private Map<String, Object> getQuizDetailsFromSessionNoQuestions(QuizSession quizSession) {
     Map<String, Object> quizDetails = new HashMap<>();
-    quizDetails.put("quizId", quizSession.getQuizId());
     quizDetails.put("leaderUsername", quizSession.getLeaderUsername());
     quizDetails.put("players", quizSession.getPlayers());
     quizDetails.put("message", quizSession.getMessage());
     quizDetails.put("token", quizSession.getToken());
     quizDetails.put("isStarted", quizSession.isStarted());
     quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
+    quizDetails.put("state", quizSession.getState());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
@@ -234,17 +309,16 @@ public class QuizController {
     return quizDetails;
   }
 
-  private Map<String, Object> getQuizDetailsFromSessionQuestion(
-        QuizSession quizSession,
-        int questionIndex) {
+  private Map<String, Object> getQuizDetailsFromSessionQuestion(QuizSession quizSession,
+      int questionIndex) {
     Map<String, Object> quizDetails = new HashMap<>();
-    quizDetails.put("quizId", quizSession.getQuizId());
     quizDetails.put("leaderUsername", quizSession.getLeaderUsername());
     quizDetails.put("players", quizSession.getPlayers());
     quizDetails.put("message", quizSession.getMessage());
     quizDetails.put("token", quizSession.getToken());
     quizDetails.put("isStarted", quizSession.isStarted());
     quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
+    quizDetails.put("state", quizSession.getState());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
@@ -256,10 +330,35 @@ public class QuizController {
 
     quizDetails.put("quiz", quiz);
 
+    QuizQuestionDto quizQuestion = quizSession.getQuiz().getQuizQuestions().get(questionIndex);
+
+    Collections.shuffle(quizQuestion.getQuizOptions());
+
     Map<String, Object> quizQuestions = new HashMap<>();
-    quizQuestions.put("questions", quizSession.getQuiz().getQuizQuestions().get(questionIndex));
+    quizQuestions.put("questions", quizQuestion);
 
     quizDetails.put("quizQuestions", quizQuestions);
     return quizDetails;
+  }
+
+  private void calculateScore(QuizSession session) {
+
+    for (QuizPlayer qp : session.getPlayers()) {
+      int score = 0;
+      for (int i = 0; i < qp.getAnswers().size(); i++) {
+        Long questionId = session.getQuiz().getQuizQuestions().get(i).getId();
+        Long optionId = qp.getAnswers().get(i).getId();
+        if (quizQuestionRepo.checkIfCorrectAnswer(questionId, optionId).get()) {
+          score++;
+        }
+      }
+      qp.setScore(score);
+    }
+
+  }
+
+  //TODO: Implement this method
+  private void handleEnd(QuizSession session) {
+    System.out.println("Quiz ended");
   }
 }

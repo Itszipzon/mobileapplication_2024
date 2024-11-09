@@ -5,8 +5,7 @@ package no.itszipzon.socket.quiz;
  */
 public class QuizAnswer {
   
-  private String token;
-  private String username;
+  private Long id;
   private String answer;
 
   public QuizAnswer() {
@@ -15,22 +14,12 @@ public class QuizAnswer {
   /**
    * Constructor for a quiz answer.
    *
-   * @param token The token of the quiz session.
-   * @param username The username of the player.
+   * @param id The id of the question.
    * @param answer The answer to the question.
    */
-  public QuizAnswer(String token, String username, String answer) {
-    this.token = token;
+  public QuizAnswer(String answer, Long id) {
     this.answer = answer;
-    this.username = username;
-  }
-
-  public String getToken() {
-    return token;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
+    this.id = id;
   }
 
   public String getAnswer() {
@@ -41,12 +30,12 @@ public class QuizAnswer {
     this.answer = answer;
   }
 
-  public String getUsername() {
-    return username;
+  public Long getId() {
+    return id;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setId(Long id) {
+    this.id = id;
   }
 
 }

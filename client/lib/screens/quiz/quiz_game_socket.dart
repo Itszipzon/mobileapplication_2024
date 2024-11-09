@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-import 'package:client/screens/quiz/quiz_start_timer.dart';
+import 'package:client/screens/quiz/socket/quiz_socket_question.dart';
+import 'package:client/screens/quiz/socket/quiz_socket_score.dart';
+import 'package:client/screens/quiz/socket/quiz_start_timer_socket.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
@@ -20,19 +22,19 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
   late RouterNotifier router;
   late UserNotifier user;
   StompClient? stompClient;
-  late Widget scene;
 
+  String username = "";
   String thumbnail = "";
   String title = "Loading...";
   int timer = 0;
   String state = "countdown";
-  Map<String, dynamic> quizData = {"question": "Loading...", "options": [{}]};
-  List<Map<String, dynamic>> scores = [{"name": "Loading...", "score": 0}];
+  int questionNumber = 0;
+
+  Map<String, dynamic> values = {};
 
   @override
   void initState() {
     super.initState();
-    scene = QuizStartTimer(onCountdownComplete: _timerComplete);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
@@ -40,9 +42,15 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         router.setPath(context, 'login');
         return;
       }
+      _initUsername();
       _initStates();
       _connectToSocket();
     });
+  }
+
+  Future<void> _initUsername() async {
+    username = await ApiHandler.getProfile(user.token!)
+        .then((value) => value['username']);
   }
 
   void _initStates() {
@@ -59,7 +67,10 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       title = router.getValues!['quiz']['title'];
       timer = router.getValues!['quiz']['timer'];
       thumbnail = router.getValues!['thumbnail'];
+      values = router.getValues!;
+      values['message'] = {"message": "firstCountDown"};
     });
+    print("Values: $values");
   }
 
   void _connectToSocket() {
@@ -80,22 +91,23 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         useSockJS: true,
       ),
     );
+
+    stompClient!.activate();
   }
 
   void _onConnect(StompFrame frame) {
     stompClient!.subscribe(
-      destination: "/topic/quiz/game/${router.getValues!['token']}",
+      destination: "/topic/quiz/game/session/${router.getValues!['token']}",
       callback: (StompFrame frame) {
         if (frame.body != null) {
           var result = json.decode(frame.body!);
           setState(() {
             state = result['state'];
-            quizData = result['quizData'];
-            quizData['options'] = _randomizeOptions(quizData['options']);
-            scores = _filterScores(result['scores']);
-            title = result['title'];
-            timer = result['timer'];
+            title = result["quiz"]['title'];
+            timer = result["quiz"]['timer'];
+            values = result;
           });
+          _displaySelectedScene();
         } else {
           ErrorHandler.showOverlayError(context, 'Error: No body');
         }
@@ -103,14 +115,53 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
     );
   }
 
-  List<Map<String, dynamic>> _filterScores(List<Map<String, dynamic>> values) {
-    values.sort((a, b) => b['score'].compareTo(a['score']));
-    return values;
+  Future<void> _handleQuizTimer() async {
+    stompClient!.send(
+      destination: "/app/quiz/game",
+      body: json.encode({
+        "token": router.getValues!['token'],
+        "message": {"message": "next"},
+        "userToken": user.token,
+        "quizId": router.getValues!['quiz']['id'],
+      }),
+    );
+    _displaySelectedScene();
   }
 
-  List<Map<String, dynamic>> _randomizeOptions(List<Map<String, dynamic>> values) {
-    values.shuffle();
-    return values;
+  Future<void> _handleNext() async {
+    stompClient!.send(
+      destination: "/app/quiz/game",
+      body: json.encode({
+        "token": router.getValues!['token'],
+        "message": {"message": "next"},
+        "userToken": user.token,
+        "quizId": router.getValues!['quiz']['id'],
+      }),
+    );
+    _displaySelectedScene();
+  }
+
+  _handleAnswer(Map<String, dynamic> data) async {
+    final String answer = data['answer'];
+    final int answerId = data['answerId'];
+
+    final Map<String, dynamic> message = {
+      "message": "answer",
+      "answer": answer,
+      "answerId": answerId,
+    };
+
+    final Map<String, dynamic> answerMap = {
+      "token": router.getValues!['token'],
+      "userToken": user.token,
+      "quizId": router.getValues!['quiz']['id'],
+      "answerId": answerId,
+      "message": message,
+    };
+    stompClient!.send(
+      destination: "/app/quiz/game",
+      body: json.encode(answerMap),
+    );
   }
 
   @override
@@ -120,59 +171,37 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         title: Text(title),
         centerTitle: true,
       ),
-      body: scene,
+      body: _displaySelectedScene(),
     );
   }
 
-  Widget _scoreTab() {
-    return Column(
-      children: <Widget>[
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: scores.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(scores[index]['name']),
-              subtitle: Text(scores[index]['score'].toString()),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _quizTab() {
-    return const Column(
-      children: <Widget>[
-        Text('Question 1'),
-        Text('Answer 1'),
-        Text('Answer 2'),
-        Text('Answer 3'),
-        Text('Answer 4'),
-      ],
-    );
-  }
-
-  _displaySelectedScene() {
+  Widget _displaySelectedScene() {
     if (state == "quiz") {
-      setState(() {
-        scene = _quizTab();
-      });
-    } else if (state == "score") {
-      setState(() {
-        scene = _scoreTab();
-      });
-    } else {
-      setState(() {
-        scene = QuizStartTimer(onCountdownComplete: _timerComplete,);
-      });
-    }
-  }
 
-  void _timerComplete() {
-    setState(() {
-      state = "quiz";
-    });
-    _displaySelectedScene();
+      return QuizSocketQuestion(router: router, user: user, values: values, onTimer: _handleQuizTimer, onClick: (data) => _handleAnswer(data),);
+
+    } else if (state == "score") {
+      return ScoreScreen(
+        router: router,
+        user: user,
+        values: values,
+        end: false,
+        nextClick: _handleNext,
+        username: username,
+      );
+    } else if (state == "end") {
+      return ScoreScreen(
+        router: router,
+        user: user,
+        values: values,
+        end: true,
+        nextClick: _handleNext,
+        username: username,
+      );
+    } else {
+      return QuizStartTimer(
+        onCountdownComplete: _handleNext,
+      );
+    }
   }
 }

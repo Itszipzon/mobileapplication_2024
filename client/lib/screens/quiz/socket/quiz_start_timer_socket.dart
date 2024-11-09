@@ -29,8 +29,7 @@ class QuizStartTimerState extends ConsumerState<QuizStartTimer> {
           _counter--;
         } else {
           _timer?.cancel();
-          /* widget.onCountdownComplete(); */
-          print('Countdown complete');
+          widget.onCountdownComplete();
         }
       });
     });
