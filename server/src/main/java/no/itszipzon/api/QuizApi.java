@@ -189,7 +189,7 @@ public class QuizApi {
     }
 
     String username = claims.getSubject();
-    Pageable pageable = PageRequest.of(page, amount);
+    Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
     Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
 
@@ -207,7 +207,7 @@ public class QuizApi {
       @PathVariable String username,
       @PathVariable int page,
       @PathVariable int amount) {
-    Pageable pageable = PageRequest.of(page, amount);
+    Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
     Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
 
@@ -237,7 +237,7 @@ public class QuizApi {
     }
 
     String username = claims.getSubject();
-    Pageable pageable = PageRequest.of(page, amount);
+    Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
     Optional<List<QuizDto>> optQuizzes = quizRepo.findQuizzedFromUserHistory(username, pageable);
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
 
