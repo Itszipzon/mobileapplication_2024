@@ -62,21 +62,32 @@ public class QuizApi {
   @Autowired
   private QuestionRepo questionRepo;
 
+  /**
+   * Get all quizzes.
+   *
+   * @return quizzes.
+   */
   @GetMapping
   @Transactional(readOnly = true)
   public ResponseEntity<List<QuizDto>> getAllQuizzes() {
-    return new ResponseEntity<>(quizRepo.findAll().stream().map(this::mapToQuizDto).collect(Collectors.toList()),
+    return new ResponseEntity<>(
+        quizRepo.findAll().stream().map(this::mapToQuizDto).collect(Collectors.toList()),
         HttpStatus.OK);
   }
 
+  /**
+   * Get all quizzes with pagination.
+   *
+   * @param page page.
+   * @param size size.
+   * @return quizzes.
+   */
   @GetMapping("/all/filter/{page}/{size}/{by}/{orientation}")
-  public ResponseEntity<List<QuizDto>> getFilteredQuizzes(
-      @PathVariable int page,
-      @PathVariable int size,
-      @PathVariable String by,
-      @PathVariable String orientation) {
+  public ResponseEntity<List<QuizDto>> getFilteredQuizzes(@PathVariable int page,
+      @PathVariable int size, @PathVariable String by, @PathVariable String orientation) {
 
-    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(orientation), by));
+    Pageable pageable = PageRequest.of(page, size,
+        Sort.by(Sort.Direction.fromString(orientation), by));
 
     List<QuizDto> quizzes = quizRepo.findAllByFilter(pageable).orElse(new ArrayList<>());
 
@@ -174,8 +185,7 @@ public class QuizApi {
    */
   @GetMapping("/user/self/{page}/{amount}")
   public ResponseEntity<List<QuizDto>> getQuizzesByUser(
-      @RequestHeader("Authorization") String authorizationHeader,
-      @PathVariable int page,
+      @RequestHeader("Authorization") String authorizationHeader, @PathVariable int page,
       @PathVariable int amount) {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -203,10 +213,8 @@ public class QuizApi {
    * @return quizzes.
    */
   @GetMapping("/user/username/{username}/{page}/{amount}")
-  public ResponseEntity<List<QuizDto>> getQuizzesByUsername(
-      @PathVariable String username,
-      @PathVariable int page,
-      @PathVariable int amount) {
+  public ResponseEntity<List<QuizDto>> getQuizzesByUsername(@PathVariable String username,
+      @PathVariable int page, @PathVariable int amount) {
     Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
     Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
@@ -222,8 +230,7 @@ public class QuizApi {
    */
   @GetMapping("/user/history/{page}/{amount}")
   public ResponseEntity<List<QuizDto>> getQuizzesByUserHistory(
-      @RequestHeader("Authorization") String authorizationHeader,
-      @PathVariable int page,
+      @RequestHeader("Authorization") String authorizationHeader, @PathVariable int page,
       @PathVariable int amount) {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -260,8 +267,7 @@ public class QuizApi {
 
     // Map quiz questions to DTOs
     List<QuizQuestionDto> questionsDto = quizOptional.get().getQuizQuestions().stream()
-        .map(this::mapToQuestionDto)
-        .collect(Collectors.toList());
+        .map(this::mapToQuestionDto).collect(Collectors.toList());
 
     return new ResponseEntity<>(questionsDto, HttpStatus.OK);
   }
@@ -269,8 +275,6 @@ public class QuizApi {
   /**
    * Check if the user's selected options are correct.
    *
-   * @param quizId              The ID of the quiz.
-   * @param userAnswerOptionIds A list of option IDs selected by the user.
    * @return A list of correct option IDs.
    */
   @PostMapping("/check-answers")
@@ -494,14 +498,8 @@ public class QuizApi {
     List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream()
         .map(this::mapToQuestionDto).collect(Collectors.toList());
 
-    return new QuizWithQuestionsDto(
-        quiz.getQuizId(),
-        quiz.getTitle(),
-        quiz.getDescription(),
-        quiz.getThumbnail(),
-        quiz.getTimer(),
-        quiz.getCreatedAt(),
-        questionsDto,
+    return new QuizWithQuestionsDto(quiz.getQuizId(), quiz.getTitle(), quiz.getDescription(),
+        quiz.getThumbnail(), quiz.getTimer(), quiz.getCreatedAt(), questionsDto,
         quizRepo.findUsernameFromQuizId(quiz.getQuizId()).get());
   }
 
