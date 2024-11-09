@@ -212,79 +212,99 @@ public class QuizController {
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
     quizSession.setToken(message.getToken());
 
+    String messageType = message.getMessage().get("message").toString();
 
-    if (message.getMessage().get("message").equals("firstCountDown")) {
+    switch (messageType) {
+      case "firstCountDown":
+        handleFirstCountDown(quizSession, message.getToken());
+        break;
 
-      quizSession.setState("quiz");
-      messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
-          getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
+      case "next":
+        handleNext(quizSession, message);
+        break;
 
-    } else if (message.getMessage().get("message").equals("next")) {
+      case "answer":
+        handleAnswer(quizSession, message);
+        break;
+      default:
+        break;
+    }
+  }
 
-      Claims claims = jwtUtil.extractClaims(message.getUserToken());
+  private void handleFirstCountDown(QuizSession quizSession, String token) {
+    quizSession.setState("quiz");
+    sendQuizUpdate(quizSession, token);
+  }
 
-      if (claims.getSubject().equals(quizSession.getLeaderUsername())) {
-        int current = quizSession.getCurrentQuestionIndex();
-        int amount = quizSession.getAmountOfQuestions() - 1;
-        if (quizSession.getState().equals("quiz")) {
-          if (current == amount) {
-            quizSession.setState("end");
-            handleEnd(quizSession);
-          } else {
-            calculateScore(quizSession);
-            quizSession.setState("score");
-          }
-          messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
-              getQuizDetailsFromSessionQuestion(quizSession,
-                  quizSession.getCurrentQuestionIndex()));
+  private void handleNext(QuizSession quizSession, QuizMessage message) throws Exception {
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+    if (claims.getSubject().equals(quizSession.getLeaderUsername())) {
+      switch (quizSession.getState()) {
+        case "quiz":
+          handleQuizState(quizSession);
+          break;
 
-        } else if (quizSession.getState().equals("score")) {
+        case "score":
           quizSession.setState("quiz");
           quizSession.setCurrentQuestionIndex(quizSession.getCurrentQuestionIndex() + 1);
+          break;
 
-        } else {
+        default:
           quizSession.setState("quiz");
-        }
-        messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
-            getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
+          break;
       }
-
-    } else if (message.getMessage().get("message").equals("answer")) {
-
-      Claims claims = jwtUtil.extractClaims(message.getUserToken());
-      String username = claims.getSubject();
-      String answer = message.getMessage().get("answer").toString();
-      Long answerId = Long.parseLong(message.getMessage().get("answerId").toString());
-
-      quizSession.getPlayers().forEach(player -> {
-        if (player.getUsername().equals(username)) {
-          if (player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
-            player.getAnswers().add(quizSession.getCurrentQuestionIndex(),
-                new QuizAnswer(answer, answerId));
-          }
-        }
-      });
-
-      long answers = quizSession.getPlayers().stream()
-          .filter(
-              player -> player.getAnswers().size() == (quizSession.getCurrentQuestionIndex() + 1))
-          .count();
-
-      int players = quizSession.getPlayers().size();
-
-      if (players == answers) {
-        calculateScore(quizSession);
-        if (quizSession.getCurrentQuestionIndex() == quizSession.getAmountOfQuestions() - 1) {
-          quizSession.setState("end");
-          handleEnd(quizSession);
-        } else {
-          quizSession.setState("score");
-        }
-        messagingTemplate.convertAndSend("/topic/quiz/game/session/" + message.getToken(),
-            getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
-      }
-
+      sendQuizUpdate(quizSession, message.getToken());
     }
+  }
+
+  private void handleAnswer(QuizSession quizSession, QuizMessage message) throws Exception {
+    Claims claims = jwtUtil.extractClaims(message.getUserToken());
+    String username = claims.getSubject();
+    String answer = message.getMessage().get("answer").toString();
+    Long answerId = Long.parseLong(message.getMessage().get("answerId").toString());
+
+    quizSession.getPlayers().forEach(player -> {
+      if (player.getUsername().equals(username)
+          && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
+        player.getAnswers()
+            .add(quizSession.getCurrentQuestionIndex(), new QuizAnswer(answer, answerId));
+      }
+    });
+
+    if (isAllPlayersAnswered(quizSession)) {
+      calculateScore(quizSession);
+      if (quizSession.getCurrentQuestionIndex() == quizSession.getAmountOfQuestions() - 1) {
+        quizSession.setState("end");
+        handleEnd(quizSession);
+      } else {
+        quizSession.setState("score");
+      }
+      sendQuizUpdate(quizSession, message.getToken());
+    }
+  }
+
+  private void handleQuizState(QuizSession quizSession) throws Exception {
+    int current = quizSession.getCurrentQuestionIndex();
+    int amount = quizSession.getAmountOfQuestions() - 1;
+    if (current == amount) {
+      quizSession.setState("end");
+      handleEnd(quizSession);
+    } else {
+      calculateScore(quizSession);
+      quizSession.setState("score");
+    }
+  }
+
+  private boolean isAllPlayersAnswered(QuizSession quizSession) {
+    long answers = quizSession.getPlayers().stream()
+        .filter(player -> player.getAnswers().size() == (quizSession.getCurrentQuestionIndex() + 1))
+        .count();
+    return answers == quizSession.getPlayers().size();
+  }
+
+  private void sendQuizUpdate(QuizSession quizSession, String token) {
+    messagingTemplate.convertAndSend("/topic/quiz/game/session/" + token,
+        getQuizDetailsFromSessionQuestion(quizSession, quizSession.getCurrentQuestionIndex()));
   }
 
   private Map<String, Object> getQuizDetailsFromSessionNoQuestions(QuizSession quizSession) {
@@ -357,8 +377,7 @@ public class QuizController {
 
   }
 
-  //TODO: Implement this method
   private void handleEnd(QuizSession session) {
-    System.out.println("Quiz ended");
+    quizSessionManager.deleteQuizSession(session.getToken());
   }
 }

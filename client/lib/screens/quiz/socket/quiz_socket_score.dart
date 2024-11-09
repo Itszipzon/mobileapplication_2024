@@ -57,14 +57,6 @@ class ScoreState extends ConsumerState<ScoreScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
         actions: [
           widget.end ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
