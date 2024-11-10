@@ -29,7 +29,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   Timer? _timer;
   bool isLoading = true;
   bool isAnswered = false;
-  Map<String, dynamic> answer = {"option": "", "id": ""};
+  Map<String, dynamic> answer = {"option": "", "id": -1};
 
   String thumbnail = "";
   String title = "Loading...";
@@ -106,7 +106,14 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                       child: Container(
                         width: 50,
                         decoration: BoxDecoration(
-                          border: Border.all(color: theme.primaryColor),
+                          border: answer["id"] ==
+                                      questionData['quizOptions'][index]
+                                          ['id'] ||
+                                  widget.values["lastCorrectAnswers"].contains(questionData['quizOptions'][index]['id'])
+                              ? widget.values["lastCorrectAnswers"].contains(questionData['quizOptions'][index]['id'])
+                                  ? Border.all(color: Colors.green)
+                                  : Border.all(color: Colors.red)
+                              : Border.all(color: theme.primaryColor),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         padding:

@@ -168,7 +168,6 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
 
   Widget _displaySelectedScene() {
     if (state == "quiz") {
-      print("Values: $values");
       return QuizSocketQuestion(
         router: router,
         user: user,
@@ -204,7 +203,6 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         title: Text(title),
         centerTitle: true,
         actions: [
-
           state == "score" && username == values['leaderUsername']
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -222,12 +220,11 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
               : const SizedBox(
                   width: 0,
                 ),
-
-          state == "end" 
+          state == "end"
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: SizedTextButton(
-                    text: "End",
+                    text: "Leave",
                     onPressed: () {
                       router.setPath(context, 'join');
                     },
@@ -238,7 +235,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                       fontSize: 16,
                     ),
                   ),
-              )
+                )
               : const SizedBox(
                   width: 0,
                 ),

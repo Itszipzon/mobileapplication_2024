@@ -212,6 +212,9 @@ public class QuizController {
   @MessageMapping("/quiz/game")
   public void game(QuizMessage message) throws Exception {
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
+    if (quizSession == null) {
+      return;
+    }
     quizSession.setToken(message.getToken());
 
     String messageType = message.getMessage().get("message").toString();
@@ -243,16 +246,18 @@ public class QuizController {
     if (claims.getSubject().equals(quizSession.getLeaderUsername())) {
       switch (quizSession.getState()) {
         case "quiz":
-          handleQuizState(quizSession);
+          handleQuizState(quizSession, message);
           break;
 
         case "score":
           quizSession.setState("quiz");
+          quizSession.setMessage("next");
           quizSession.setCurrentQuestionIndex(quizSession.getCurrentQuestionIndex() + 1);
           break;
 
         default:
           quizSession.setState("quiz");
+          quizSession.setMessage("next");
           break;
       }
       sendQuizUpdate(quizSession, message.getToken());
@@ -275,26 +280,25 @@ public class QuizController {
 
     if (isAllPlayersAnswered(quizSession)) {
       calculateScore(quizSession);
-      if (quizSession.getCurrentQuestionIndex() == quizSession.getAmountOfQuestions() - 1) {
-        quizSession.setState("end");
-        handleEnd(quizSession);
-      } else {
-        quizSession.setState("score");
-      }
+      quizSession.setMessage("showAnswer");
       sendQuizUpdate(quizSession, message.getToken());
     }
   }
 
-  private void handleQuizState(QuizSession quizSession) throws Exception {
+  private void handleQuizState(QuizSession quizSession, QuizMessage message) throws Exception {
     int current = quizSession.getCurrentQuestionIndex();
     int amount = quizSession.getAmountOfQuestions() - 1;
-
-    if (current == amount) {
-      quizSession.setState("end");
-      handleEnd(quizSession);
+    if (message.getMessage().containsKey("quizState")
+        && !message.getMessage().get("quizState").equals("showAnswer")) {
+      quizSession.setMessage("showAnswer");
     } else {
-      calculateScore(quizSession);
-      quizSession.setState("score");
+      if (current == amount) {
+        quizSession.setState("end");
+        handleEnd(quizSession);
+      } else {
+        calculateScore(quizSession);
+        quizSession.setState("score");
+      }
     }
   }
 
@@ -311,6 +315,7 @@ public class QuizController {
   }
 
   private Map<String, Object> getQuizDetailsFromSessionNoQuestions(QuizSession quizSession) {
+    getCorrectAnswers(quizSession);
     Map<String, Object> quizDetails = new HashMap<>();
     quizDetails.put("leaderUsername", quizSession.getLeaderUsername());
     quizDetails.put("players", quizSession.getPlayers());
@@ -319,6 +324,7 @@ public class QuizController {
     quizDetails.put("isStarted", quizSession.isStarted());
     quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
     quizDetails.put("state", quizSession.getState());
+    quizDetails.put("lastCorrectAnswers", quizSession.getLastCorrectAnswers());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
@@ -334,6 +340,7 @@ public class QuizController {
 
   private Map<String, Object> getQuizDetailsFromSessionQuestion(QuizSession quizSession,
       int questionIndex) {
+    getCorrectAnswers(quizSession);
     Map<String, Object> quizDetails = new HashMap<>();
     quizDetails.put("leaderUsername", quizSession.getLeaderUsername());
     quizDetails.put("players", quizSession.getPlayers());
@@ -342,6 +349,7 @@ public class QuizController {
     quizDetails.put("isStarted", quizSession.isStarted());
     quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
     quizDetails.put("state", quizSession.getState());
+    quizDetails.put("lastCorrectAnswers", quizSession.getLastCorrectAnswers());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
@@ -381,6 +389,7 @@ public class QuizController {
   }
 
   private void handleEnd(QuizSession session) {
+    //TODO: Add session to the database
     quizSessionManager.deleteQuizSession(session.getToken());
   }
 
@@ -390,8 +399,6 @@ public class QuizController {
 
     if (correctAnswers.isPresent()) {
       session.setLastCorrectAnswers(correctAnswers.get());
-    } else {
-      session.setLastCorrectAnswers(List.of());
     }
   }
 }
