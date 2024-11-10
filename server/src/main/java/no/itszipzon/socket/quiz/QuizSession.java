@@ -20,6 +20,7 @@ public class QuizSession {
   private int currentQuestionIndex;
   private int amountOfQuestions;
   private String state;
+  private List<Long> lastCorrectAnswers;
 
   public QuizSession() {
 
@@ -39,6 +40,7 @@ public class QuizSession {
     this.currentQuestionIndex = 0;
     this.amountOfQuestions = 0;
     this.state = "WAITING";
+    this.lastCorrectAnswers = new ArrayList<>();
   }
 
   public int getQuizId() {
@@ -173,6 +175,14 @@ public class QuizSession {
 
   public void setState(String state) {
     this.state = state;
+  }
+
+  public List<Long> getLastCorrectAnswers() {
+    return lastCorrectAnswers;
+  }
+
+  public void setLastCorrectAnswers(List<Long> lastCorrectAnswers) {
+    this.lastCorrectAnswers = lastCorrectAnswers;
   }
 
 }

@@ -18,7 +18,7 @@ class QuizStartTimerState extends ConsumerState<QuizStartTimer> {
   @override
   void initState() {
     super.initState();
-    
+
     _startCountdown();
   }
 
@@ -43,16 +43,12 @@ class QuizStartTimerState extends ConsumerState<QuizStartTimer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Game starting in:'),
-            Text(_counter.toString()),
-          ],
-        ),
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const Text('Game starting in:'),
+        Text(_counter.toString()),
+      ],
     );
   }
 }

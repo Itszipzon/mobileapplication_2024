@@ -1,12 +1,17 @@
 import 'dart:async';
-import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QuizSocketQuestion extends ConsumerStatefulWidget {
-  const QuizSocketQuestion({super.key, required this.router, required this.user, required this.values, required this.onClick, required this.onTimer});
+  const QuizSocketQuestion(
+      {super.key,
+      required this.router,
+      required this.user,
+      required this.values,
+      required this.onClick,
+      required this.onTimer});
 
   final RouterNotifier router;
   final UserNotifier user;
@@ -24,7 +29,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   Timer? _timer;
   bool isLoading = true;
   bool isAnswered = false;
-  String answer = "";
+  Map<String, dynamic> answer = {"option": "", "id": ""};
 
   String thumbnail = "";
   String title = "Loading...";
@@ -69,91 +74,128 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            !isLoading
-                ? Image.network(
-                    '${ApiHandler.url}/api/quiz/thumbnail/${widget.values['quiz']['id']}',
-                    height: 200,
-                  )
-                : const SizedBox(
-                    height: 200,
-                  ),
-            Text(
-              questionData['question'] ?? "",
-              style: TextStyle(
-                fontSize: 24,
-              ),
-            ),
-            isAnswered ? SizedBox(height: 350,
-            child: Center(
-              child: Text(
-                answer,
-                style: TextStyle(
-                  fontSize: 24,
-                ),
-              ),
-            ),) :
-            SizedBox(
-              width: 350,
-              height: 350,
-              child: ListView.builder(
-                itemCount: questionData['quizOptions'].length ?? 0,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isAnswered = true;
-                        answer = questionData['quizOptions'][index]['option'];
-                      });
-                      widget.onClick({
-                        "answer": questionData['quizOptions'][index]['option'],
-                        "answerId": questionData['quizOptions'][index]['id'],
-                      });
-                    },
-                    child: Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.primaryColor),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            questionData['quizOptions'][index]['option'] ?? "",
-                            style: TextStyle(
-                              fontSize: 16,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: 20),
+        Text(
+          questionData['question'] ?? "",
+          style: TextStyle(
+            fontSize: 18,
+          ),
+        ),
+        widget.values["message"] == "showAnswer"
+            ? SizedBox(
+                width: 350,
+                height: 350,
+                child: ListView.builder(
+                  itemCount: questionData['quizOptions'].length ?? 0,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          answer = questionData['quizOptions'][index];
+                          isAnswered = true;
+                        });
+                        widget.onClick({
+                          "answer": questionData['quizOptions'][index]
+                              ['option'],
+                          "answerId": questionData['quizOptions'][index]['id'],
+                        });
+                      },
+                      child: Container(
+                        width: 50,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: theme.primaryColor),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              questionData['quizOptions'][index]['option'] ??
+                                  "",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+            : isAnswered
+                ? SizedBox(
+                    height: 350,
+                    child: Center(
+                      child: Text(
+                        answer['option'],
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  )
+                : SizedBox(
+                    width: 350,
+                    height: 350,
+                    child: ListView.builder(
+                      itemCount: questionData['quizOptions'].length ?? 0,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              answer = questionData['quizOptions'][index];
+                              isAnswered = true;
+                            });
+                            widget.onClick({
+                              "answer": questionData['quizOptions'][index]
+                                  ['option'],
+                              "answerId": questionData['quizOptions'][index]
+                                  ['id'],
+                            });
+                          },
+                          child: Container(
+                            width: 50,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: theme.primaryColor),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  questionData['quizOptions'][index]
+                                          ['option'] ??
+                                      "",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+        Center(
+          child: Text(
+            "Time left: $counter",
+            style: TextStyle(
+              fontSize: 24,
             ),
-            Expanded(
-                child: const SizedBox(
-              width: 0,
-            )),
-            Center(
-              child: Text(
-                "Time left: $counter",
-                style: TextStyle(
-                  fontSize: 24,
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+          ),
+        )
+      ],
     );
   }
 }

@@ -3,7 +3,9 @@ package no.itszipzon.socket.quiz;
 import io.jsonwebtoken.Claims;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.repo.QuizQuestionRepo;
@@ -266,8 +268,8 @@ public class QuizController {
     quizSession.getPlayers().forEach(player -> {
       if (player.getUsername().equals(username)
           && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
-        player.getAnswers()
-            .add(quizSession.getCurrentQuestionIndex(), new QuizAnswer(answer, answerId));
+        player.getAnswers().add(quizSession.getCurrentQuestionIndex(),
+            new QuizAnswer(answer, answerId));
       }
     });
 
@@ -285,7 +287,8 @@ public class QuizController {
 
   private void handleQuizState(QuizSession quizSession) throws Exception {
     int current = quizSession.getCurrentQuestionIndex();
-    int amount = quizSession.getAmountOfQuestions() - 1;
+    int amount = quizSession.getAmountOfQuestions() - 1;\
+
     if (current == amount) {
       quizSession.setState("end");
       handleEnd(quizSession);
@@ -379,5 +382,16 @@ public class QuizController {
 
   private void handleEnd(QuizSession session) {
     quizSessionManager.deleteQuizSession(session.getToken());
+  }
+
+  private void getCorrectAnswers(QuizSession session) {
+    Optional<List<Long>> correctAnswers = quizQuestionRepo.findCorrectAnswers(
+        session.getQuiz().getQuizQuestions().get(session.getCurrentQuestionIndex()).getId());
+
+    if (correctAnswers.isPresent()) {
+      session.setLastCorrectAnswers(correctAnswers.get());
+    } else {
+      session.setLastCorrectAnswers(List.of());
+    }
   }
 }

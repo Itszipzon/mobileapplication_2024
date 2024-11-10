@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:client/elements/button.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_question.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_score.dart';
 import 'package:client/screens/quiz/socket/quiz_start_timer_socket.dart';
@@ -29,6 +30,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
   int timer = 0;
   String state = "countdown";
   int questionNumber = 0;
+  bool isLoading = true;
 
   Map<String, dynamic> values = {};
 
@@ -69,8 +71,8 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       thumbnail = router.getValues!['thumbnail'];
       values = router.getValues!;
       values['message'] = {"message": "firstCountDown"};
+      isLoading = false;
     });
-    print("Values: $values");
   }
 
   void _connectToSocket() {
@@ -164,29 +166,21 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-      ),
-      body: _displaySelectedScene(),
-    );
-  }
-
   Widget _displaySelectedScene() {
     if (state == "quiz") {
-
-      return QuizSocketQuestion(router: router, user: user, values: values, onTimer: _handleQuizTimer, onClick: (data) => _handleAnswer(data),);
-
+      print("Values: $values");
+      return QuizSocketQuestion(
+        router: router,
+        user: user,
+        values: values,
+        onTimer: _handleQuizTimer,
+        onClick: (data) => _handleAnswer(data),
+      );
     } else if (state == "score") {
       return ScoreScreen(
         router: router,
         user: user,
         values: values,
-        end: false,
-        nextClick: _handleNext,
         username: username,
       );
     } else if (state == "end") {
@@ -194,8 +188,6 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         router: router,
         user: user,
         values: values,
-        end: true,
-        nextClick: _handleNext,
         username: username,
       );
     } else {
@@ -203,5 +195,70 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         onCountdownComplete: _handleNext,
       );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        centerTitle: true,
+        actions: [
+
+          state == "score" && username == values['leaderUsername']
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: SizedTextButton(
+                    text: "Next",
+                    onPressed: _handleNext,
+                    height: 30,
+                    width: 70,
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              : const SizedBox(
+                  width: 0,
+                ),
+
+          state == "end" 
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: SizedTextButton(
+                    text: "End",
+                    onPressed: () {
+                      router.setPath(context, 'join');
+                    },
+                    height: 30,
+                    width: 70,
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+              )
+              : const SizedBox(
+                  width: 0,
+                ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            !isLoading
+                ? Image.network(
+                    '${ApiHandler.url}/api/quiz/thumbnail/${values['quiz']['id']}',
+                    height: 200,
+                  )
+                : const SizedBox(
+                    height: 200,
+                  ),
+            _displaySelectedScene()
+          ],
+        ),
+      ),
+    );
   }
 }
