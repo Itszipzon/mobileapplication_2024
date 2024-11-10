@@ -11,7 +11,6 @@ import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.repo.QuizQuestionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -32,13 +31,6 @@ public class QuizController {
 
   @Autowired
   private QuizQuestionRepo quizQuestionRepo;
-
-  @MessageMapping("/quiz")
-  @SendTo("/topic/quiz")
-  public QuizMessage quiz(QuizMessage message) throws Exception {
-    System.out.println("Received message: " + message.getQuizId());
-    return new QuizMessage(message.getQuizId());
-  }
 
   /**
    * Sends a message to the client that a quiz has been created.
@@ -197,8 +189,6 @@ public class QuizController {
     quizSession.setMessage(leaveMessage);
     quizSession.setToken(message.getToken());
 
-    System.out.println("leaveMessage: " + claims.getSubject());
-
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
         getQuizDetailsFromSessionNoQuestions(quizSession));
   }
@@ -292,7 +282,6 @@ public class QuizController {
     if (message.getMessage().containsKey("quizState")
         && message.getMessage().get("quizState").equals("showAnswer")) {
       
-      System.out.println("quizState: " + message.getMessage().get("quizState"));
       quizSession.setMessage("showAnswer");
     } else {
       if (current == amount) {

@@ -102,7 +102,6 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       destination: "/topic/quiz/game/session/${router.getValues!['token']}",
       callback: (StompFrame frame) {
         if (frame.body != null) {
-          print(frame.body);
           var result = json.decode(frame.body!);
           setState(() {
             state = result['state'];

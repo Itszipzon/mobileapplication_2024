@@ -31,6 +31,8 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   bool isAnswered = false;
   Map<String, dynamic> answer = {"option": "", "id": -1};
 
+  bool showAnswer = false;
+
   String thumbnail = "";
   String title = "Loading...";
   int counter = 0;
@@ -60,26 +62,39 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
 
   void _startCountdown() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (widget.values["message"] == "showAnswer") {
+        _timer!.cancel();
+        _startAnswerCountdown();
+        return;
+      }
+
       if (counter == 0) {
         _timer!.cancel();
         widget.onTimer(widget.values["message"] != "showAnswer");
+        print(widget.values["message"]);
+
         if (widget.values["message"] != "showAnswer") {
-          setState(() {
-            counter = 5;
-          });
-          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-            if (counter == 0) {
-              _timer!.cancel();
-              widget.onTimer(widget.values["message"] != "showAnswer");
-              return;
-            }
-            setState(() {
-              counter--;
-            });
-          });
-        } else {
-          return;
+          _startAnswerCountdown();
         }
+        return;
+      }
+
+      setState(() {
+        counter--;
+      });
+    });
+  }
+
+  void _startAnswerCountdown() {
+    setState(() {
+      counter = 5;
+      showAnswer = true;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (counter == 0) {
+        _timer!.cancel();
+        widget.onTimer(widget.values["message"] != "showAnswer");
+        return;
       }
       setState(() {
         counter--;
@@ -100,7 +115,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
             fontSize: 18,
           ),
         ),
-        widget.values["message"] == "showAnswer"
+        showAnswer
             ? SizedBox(
                 width: 350,
                 height: 350,
