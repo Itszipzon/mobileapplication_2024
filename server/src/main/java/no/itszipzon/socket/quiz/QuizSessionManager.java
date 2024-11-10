@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class QuizSessionManager {
 
-  Map<String, QuizSession> quizSessions;
+  private Map<String, QuizSession> quizSessions;
 
   @Autowired
-  QuizRepo quizRepo;
+  private QuizRepo quizRepo;
 
   @Autowired
-  JwtUtil jwtUtil;
+  private JwtUtil jwtUtil;
 
   public QuizSessionManager() {
     quizSessions = new ConcurrentHashMap<>();

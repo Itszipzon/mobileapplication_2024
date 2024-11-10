@@ -8,10 +8,10 @@ import java.util.List;
  */
 public class QuizPlayer {
   
-  String username;
-  Long id;
-  List<QuizAnswer> answers;
-  int score;
+  private String username;
+  private Long id;
+  private List<QuizAnswer> answers;
+  private int score;
 
   public QuizPlayer() {
   }
