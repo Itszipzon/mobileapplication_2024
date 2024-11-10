@@ -287,7 +287,7 @@ public class QuizController {
 
   private void handleQuizState(QuizSession quizSession) throws Exception {
     int current = quizSession.getCurrentQuestionIndex();
-    int amount = quizSession.getAmountOfQuestions() - 1;\
+    int amount = quizSession.getAmountOfQuestions() - 1;
 
     if (current == amount) {
       quizSession.setState("end");
