@@ -250,6 +250,7 @@ public class QuizController {
           break;
 
         case "score":
+          fillUnansweredWithNull(quizSession);
           quizSession.setState("quiz");
           quizSession.setMessage("next");
           quizSession.setCurrentQuestionIndex(quizSession.getCurrentQuestionIndex() + 1);
@@ -289,11 +290,14 @@ public class QuizController {
     int current = quizSession.getCurrentQuestionIndex();
     int amount = quizSession.getAmountOfQuestions() - 1;
     if (message.getMessage().containsKey("quizState")
-        && !message.getMessage().get("quizState").equals("showAnswer")) {
+        && message.getMessage().get("quizState").equals("showAnswer")) {
+      
+      System.out.println("quizState: " + message.getMessage().get("quizState"));
       quizSession.setMessage("showAnswer");
     } else {
       if (current == amount) {
         quizSession.setState("end");
+        calculateScore(quizSession);
         handleEnd(quizSession);
       } else {
         calculateScore(quizSession);
@@ -378,6 +382,9 @@ public class QuizController {
       int score = 0;
       for (int i = 0; i < qp.getAnswers().size(); i++) {
         Long questionId = session.getQuiz().getQuizQuestions().get(i).getId();
+        if (qp.getAnswers().get(i).getAnswer() == null) {
+          continue;
+        }
         Long optionId = qp.getAnswers().get(i).getId();
         if (quizQuestionRepo.checkIfCorrectAnswer(questionId, optionId).get()) {
           score++;
@@ -400,5 +407,14 @@ public class QuizController {
     if (correctAnswers.isPresent()) {
       session.setLastCorrectAnswers(correctAnswers.get());
     }
+  }
+
+  private void fillUnansweredWithNull(QuizSession quizSession) {
+    int questionIndex = quizSession.getCurrentQuestionIndex();
+    quizSession.getPlayers().forEach(player -> {
+      while (player.getAnswers().size() <= questionIndex) {
+        player.getAnswers().add(new QuizAnswer(null, null));
+      }
+    });
   }
 }

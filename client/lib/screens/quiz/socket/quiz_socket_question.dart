@@ -62,8 +62,24 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (counter == 0) {
         _timer!.cancel();
-        widget.onTimer();
-        return;
+        widget.onTimer(widget.values["message"] != "showAnswer");
+        if (widget.values["message"] != "showAnswer") {
+          setState(() {
+            counter = 5;
+          });
+          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+            if (counter == 0) {
+              _timer!.cancel();
+              widget.onTimer(widget.values["message"] != "showAnswer");
+              return;
+            }
+            setState(() {
+              counter--;
+            });
+          });
+        } else {
+          return;
+        }
       }
       setState(() {
         counter--;
@@ -109,8 +125,10 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                           border: answer["id"] ==
                                       questionData['quizOptions'][index]
                                           ['id'] ||
-                                  widget.values["lastCorrectAnswers"].contains(questionData['quizOptions'][index]['id'])
-                              ? widget.values["lastCorrectAnswers"].contains(questionData['quizOptions'][index]['id'])
+                                  widget.values["lastCorrectAnswers"].contains(
+                                      questionData['quizOptions'][index]['id'])
+                              ? widget.values["lastCorrectAnswers"].contains(
+                                      questionData['quizOptions'][index]['id'])
                                   ? Border.all(color: Colors.green)
                                   : Border.all(color: Colors.red)
                               : Border.all(color: theme.primaryColor),

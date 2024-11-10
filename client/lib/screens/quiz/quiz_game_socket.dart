@@ -102,6 +102,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       destination: "/topic/quiz/game/session/${router.getValues!['token']}",
       callback: (StompFrame frame) {
         if (frame.body != null) {
+          print(frame.body);
           var result = json.decode(frame.body!);
           setState(() {
             state = result['state'];
@@ -117,12 +118,12 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
     );
   }
 
-  Future<void> _handleQuizTimer() async {
+  Future<void> _handleQuizTimer(bool showAnswers) async {
     stompClient!.send(
       destination: "/app/quiz/game",
       body: json.encode({
         "token": router.getValues!['token'],
-        "message": {"message": "next"},
+        "message": {"message": "next", "quizState": showAnswers ? "showAnswer" : "quiz"},
         "userToken": user.token,
         "quizId": router.getValues!['quiz']['id'],
       }),
@@ -172,7 +173,9 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         router: router,
         user: user,
         values: values,
-        onTimer: _handleQuizTimer,
+        onTimer: (data) => {
+          _handleQuizTimer(data)
+        },
         onClick: (data) => _handleAnswer(data),
       );
     } else if (state == "score") {

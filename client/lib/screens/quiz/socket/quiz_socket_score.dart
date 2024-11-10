@@ -40,7 +40,6 @@ class ScoreState extends ConsumerState<ScoreScreen> {
       quizId = widget.values["quiz"]['id'];
       title = widget.values["quiz"]['title'];
       token = widget.values['token'];
-      print("Players: ${widget.values['players']}");
       players = List<Map<String, dynamic>>.from(widget.values['players'])
         ..sort((a, b) => b['score'].compareTo(a['score']));
     });
