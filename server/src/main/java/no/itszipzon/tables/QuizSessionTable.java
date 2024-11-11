@@ -27,15 +27,14 @@ public class QuizSessionTable {
   private User user;
 
   @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
-  @JoinColumn(name = "quizId", referencedColumnName = "quizId")
+  @JoinColumn(name = "quizManagerId", referencedColumnName = "quizSessionManagerId")
   @JsonBackReference
   private QuizSessionManagerTable quizManager;
 
   @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
-  @JoinColumn(name = "quizAnswerId", referencedColumnName = "quizAnswerId")
+  @JoinColumn(name = "quizAttemptId", referencedColumnName = "quizAttemptId")
   @JsonBackReference
-  private QuizAnswer quizAnswer;
-
+  private QuizAttempt quizAttempt;
 
   public Long getQuizSessionId() {
     return quizSessionId;
@@ -61,12 +60,11 @@ public class QuizSessionTable {
     this.quizManager = quizManager;
   }
   
-  public QuizAnswer getQuizAnswer() {
-    return quizAnswer;
+  public QuizAttempt getQuizAttempt() {
+    return quizAttempt;
   }
 
-  public void setQuizAnswer(QuizAnswer quizAnswer) {
-    this.quizAnswer = quizAnswer;
+  public void setQuizAttempt(QuizAttempt quizAttempt) {
+    this.quizAttempt = quizAttempt;
   }
-
 }

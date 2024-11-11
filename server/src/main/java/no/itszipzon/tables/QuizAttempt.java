@@ -82,4 +82,12 @@ public class QuizAttempt {
     this.takenAt = takenAt;
   }
 
+  public List<QuizAnswer> getQuizAnswers() {
+    return quizAnswers;
+  }
+
+  public void setQuizAnswers(List<QuizAnswer> quizAnswers) {
+    this.quizAnswers = quizAnswers;
+  }
+
 }

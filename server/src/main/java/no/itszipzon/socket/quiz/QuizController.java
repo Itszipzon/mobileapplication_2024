@@ -1,6 +1,8 @@
 package no.itszipzon.socket.quiz;
 
 import io.jsonwebtoken.Claims;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +10,20 @@ import java.util.Map;
 import java.util.Optional;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.QuizQuestionDto;
+import no.itszipzon.repo.QuizAttemptRepo;
+import no.itszipzon.repo.QuizOptionRepo;
 import no.itszipzon.repo.QuizQuestionRepo;
+import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.repo.QuizSessionRepo;
+import no.itszipzon.repo.UserRepo;
+import no.itszipzon.tables.Quiz;
+import no.itszipzon.tables.QuizAnswer;
+import no.itszipzon.tables.QuizAttempt;
+import no.itszipzon.tables.QuizOption;
+import no.itszipzon.tables.QuizQuestion;
+import no.itszipzon.tables.QuizSessionManagerTable;
+import no.itszipzon.tables.QuizSessionTable;
+import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -35,6 +49,18 @@ public class QuizController {
 
   @Autowired
   private QuizSessionRepo quizSessionRepo;
+
+  @Autowired
+  private QuizRepo quizRepo;
+
+  @Autowired
+  private QuizOptionRepo quizOptionRepo;
+
+  @Autowired
+  private UserRepo userRepo;
+
+  @Autowired
+  private QuizAttemptRepo quizAttemptRepo;
 
   /**
    * Sends a message to the client that a quiz has been created.
@@ -285,7 +311,7 @@ public class QuizController {
     int amount = quizSession.getAmountOfQuestions() - 1;
     if (message.getMessage().containsKey("quizState")
         && message.getMessage().get("quizState").equals("showAnswer")) {
-      
+
       quizSession.setMessage("showAnswer");
     } else {
       if (current == amount) {
@@ -389,7 +415,52 @@ public class QuizController {
   }
 
   private void handleEnd(QuizSession session) {
-    // TODO: Save the quiz attempt to the database
+    QuizSessionManagerTable quizSessionManagerTable = new QuizSessionManagerTable();
+    Quiz quiz = quizRepo.findById(session.getQuiz().getId())
+        .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
+    quizSessionManagerTable.setQuiz(quiz);
+
+    List<QuizSessionTable> quizSessionTables = new ArrayList<>();
+    for (QuizPlayer player : session.getPlayers()) {
+      QuizSessionTable quizSessionTable = new QuizSessionTable();
+
+      User user = userRepo.findById(player.getId())
+          .orElseThrow(() -> new EntityNotFoundException("User not found"));
+      quizSessionTable.setUser(user);
+      quizSessionTable.setQuizManager(quizSessionManagerTable);
+
+      QuizAttempt quizAttempt = new QuizAttempt();
+      quizAttempt.setQuiz(quiz);
+      quizAttempt.setUser(user);
+
+      List<QuizAnswer> quizAnswers = new ArrayList<>();
+      for (int i = 0; i < session.getQuiz().getQuizQuestions().size(); i++) {
+        QuizAnswer quizAnswer = new QuizAnswer();
+        quizAnswer.setQuizAttempt(quizAttempt);
+
+        QuizQuestion quizQuestion = quizQuestionRepo
+            .findById(session.getQuiz().getQuizQuestions().get(i).getId())
+            .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
+        quizAnswer.setQuizQuestion(quizQuestion);
+
+        QuizOption quizOption = quizOptionRepo.findById(player.getAnswers().get(i).getId())
+            .orElseThrow(() -> new EntityNotFoundException("QuizOption not found"));
+        quizAnswer.setQuizOption(quizOption);
+
+        quizAnswers.add(quizAnswer);
+      }
+      quizAttempt.setQuizAnswers(quizAnswers);
+
+      quizAttempt = quizAttemptRepo.save(quizAttempt);
+
+      quizSessionTable.setQuizAttempt(quizAttempt);
+      quizSessionTables.add(quizSessionTable);
+    }
+
+    quizSessionManagerTable.setQuizSessions(quizSessionTables);
+
+    quizSessionRepo.save(quizSessionManagerTable);
+
     quizSessionManager.deleteQuizSession(session.getToken());
   }
 

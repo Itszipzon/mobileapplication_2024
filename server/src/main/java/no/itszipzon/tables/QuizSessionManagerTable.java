@@ -1,6 +1,7 @@
 package no.itszipzon.tables;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +24,8 @@ public class QuizSessionManagerTable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizSessionManagerId;
 
-  @OneToMany(mappedBy = "quizSessionManager")
+  @OneToMany(mappedBy = "quizManager", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
   private List<QuizSessionTable> quizSessions;
 
   @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
@@ -54,5 +56,4 @@ public class QuizSessionManagerTable {
   public void setQuiz(Quiz quiz) {
     this.quiz = quiz;
   }
-
 }
