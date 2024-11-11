@@ -29,7 +29,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
-      print ("Quiz id: ${router.getValues!['id']}");
+      print("Quiz id: ${router.getValues!['id']}");
       if (router.getValues == null || router.getValues!['id'] == null) {
         ErrorHandler.showOverlayError(context, 'No quiz found.');
         router.setPath(context, 'home');
@@ -68,11 +68,12 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
-              isLoading
-                  ? DummyData.thumbnail
-                  : '${ApiHandler.url}/api/quiz/thumbnail/${router.getValues!['id']}',
-            ),
+            isLoading
+                ? SizedBox(height: 250)
+                : Image.network(
+                    '${ApiHandler.url}/api/quiz/thumbnail/${router.getValues!['id']}',
+                    height: 250,
+                  ),
             const SizedBox(height: 4),
             Row(
               children: [
@@ -136,7 +137,10 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
             const SizedBox(height: 8),
             SizedTextButton(
               text: "Play with friends",
-              onPressed: () => router.setPath(context, "quiz/lobby", values: {'id': int.parse(quiz['id'].toString()), 'create' : true}),
+              onPressed: () => router.setPath(context, "quiz/lobby", values: {
+                'id': int.parse(quiz['id'].toString()),
+                'create': true
+              }),
               width: double.infinity,
               inversed: true,
               height: 50,

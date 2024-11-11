@@ -56,7 +56,6 @@ class ProfileState extends ConsumerState<Profile> {
 
   void _getHistory(String token) async {
     ApiHandler.getQuizzesByUserHistory(token, 0, 5).then((value) {
-      print(value);
       setState(() {
         history = value;
       });
