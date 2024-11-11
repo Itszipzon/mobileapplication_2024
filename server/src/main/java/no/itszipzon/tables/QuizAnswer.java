@@ -24,14 +24,14 @@ public class QuizAnswer {
   private Long quizAnswerId;
 
   @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
-  @JoinColumn(name = "quizQuestionId", referencedColumnName = "quizQuestionId")
-  @JsonBackReference
-  private QuizQuestion quizOption;
-
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizOptionId", referencedColumnName = "quizOptionId")
   @JsonBackReference
-  private QuizOption quizQuestion;
+  private QuizOption quizOption;
+
+  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @JoinColumn(name = "quizQuestionId", referencedColumnName = "quizQuestionId")
+  @JsonBackReference
+  private QuizQuestion quizQuestion;
 
   @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
   @JoinColumn(name = "quizAttemptId", referencedColumnName = "quizAttemptId")
@@ -46,20 +46,28 @@ public class QuizAnswer {
     this.quizAnswerId = quizAnswerId;
   }
 
-  public QuizQuestion getQuizOption() {
+  public QuizOption getQuizOption() {
     return quizOption;
   }
 
-  public void setQuizOption(QuizQuestion quizOption) {
+  public void setQuizOption(QuizOption quizOption) {
     this.quizOption = quizOption;
   }
 
-  public QuizOption getQuizQuestion() {
+  public QuizQuestion getQuizQuestion() {
     return quizQuestion;
   }
 
-  public void setQuizQuestion(QuizOption quizQuestion) {
+  public void setQuizQuestion(QuizQuestion quizQuestion) {
     this.quizQuestion = quizQuestion;
+  }
+
+  public QuizAttempt getQuizAttempt() {
+    return quizAttempt;
+  }
+
+  public void setQuizAttempt(QuizAttempt quizAttempt) {
+    this.quizAttempt = quizAttempt;
   }
 
 }

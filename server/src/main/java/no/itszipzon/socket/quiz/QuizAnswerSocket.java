@@ -3,12 +3,12 @@ package no.itszipzon.socket.quiz;
 /**
  * A class representing a quiz answer.
  */
-public class QuizAnswer {
+public class QuizAnswerSocket {
   
   private Long id;
   private String answer;
 
-  public QuizAnswer() {
+  public QuizAnswerSocket() {
   }
 
   /**
@@ -17,7 +17,7 @@ public class QuizAnswer {
    * @param id The id of the question.
    * @param answer The answer to the question.
    */
-  public QuizAnswer(String answer, Long id) {
+  public QuizAnswerSocket(String answer, Long id) {
     this.answer = answer;
     this.id = id;
   }

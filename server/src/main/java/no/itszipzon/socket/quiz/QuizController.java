@@ -9,6 +9,7 @@ import java.util.Optional;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.repo.QuizQuestionRepo;
+import no.itszipzon.repo.QuizSessionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -31,6 +32,9 @@ public class QuizController {
 
   @Autowired
   private QuizQuestionRepo quizQuestionRepo;
+
+  @Autowired
+  private QuizSessionRepo quizSessionRepo;
 
   /**
    * Sends a message to the client that a quiz has been created.
@@ -265,7 +269,7 @@ public class QuizController {
       if (player.getUsername().equals(username)
           && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
         player.getAnswers().add(quizSession.getCurrentQuestionIndex(),
-            new QuizAnswer(answer, answerId));
+            new QuizAnswerSocket(answer, answerId));
       }
     });
 
@@ -385,7 +389,7 @@ public class QuizController {
   }
 
   private void handleEnd(QuizSession session) {
-    //TODO: Add session to the database
+    // TODO: Save the quiz attempt to the database
     quizSessionManager.deleteQuizSession(session.getToken());
   }
 
@@ -402,7 +406,7 @@ public class QuizController {
     int questionIndex = quizSession.getCurrentQuestionIndex();
     quizSession.getPlayers().forEach(player -> {
       while (player.getAnswers().size() <= questionIndex) {
-        player.getAnswers().add(new QuizAnswer(null, null));
+        player.getAnswers().add(new QuizAnswerSocket(null, null));
       }
     });
   }

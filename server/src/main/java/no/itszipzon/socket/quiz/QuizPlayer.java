@@ -10,7 +10,7 @@ public class QuizPlayer {
   
   private String username;
   private Long id;
-  private List<QuizAnswer> answers;
+  private List<QuizAnswerSocket> answers;
   private int score;
 
   public QuizPlayer() {
@@ -36,11 +36,11 @@ public class QuizPlayer {
     this.username = username;
   }
 
-  public List<QuizAnswer> getAnswers() {
+  public List<QuizAnswerSocket> getAnswers() {
     return answers;
   }
 
-  public void setAnswers(List<QuizAnswer> answers) {
+  public void setAnswers(List<QuizAnswerSocket> answers) {
     this.answers = answers;
   }
 
