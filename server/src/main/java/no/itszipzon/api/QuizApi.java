@@ -14,6 +14,7 @@ import no.itszipzon.dto.QuizOptionDto;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
 import no.itszipzon.repo.CategoryRepo;
+import no.itszipzon.repo.QuizAttemptRepo;
 import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.tables.Category;
@@ -61,6 +62,9 @@ public class QuizApi {
 
   @Autowired
   private QuizQuestionRepo questionRepo;
+
+  @Autowired
+  private QuizAttemptRepo quizAttemptRepo;
 
   /**
    * Get all quizzes.
@@ -244,8 +248,11 @@ public class QuizApi {
     }
 
     String username = claims.getSubject();
-    Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
-    Optional<List<QuizDto>> optQuizzes = quizRepo.findQuizzedFromUserHistory(username, pageable);
+    Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "takenAt"));
+
+    Optional<List<QuizDto>> optQuizzes = quizAttemptRepo
+        .findQuizzedFromUserHistory(username, pageable);
+
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
 
     return new ResponseEntity<>(quizzes, HttpStatus.OK);
