@@ -1,12 +1,16 @@
 import 'package:client/elements/card.dart';
+import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:client/elements/bottom_navbar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Categories extends StatelessWidget {
+class Categories extends ConsumerWidget {
   const Categories({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    late RouterNotifier router = ref.watch(routerProvider.notifier);
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,11 +26,18 @@ class Categories extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16.0,
                 mainAxisSpacing: 16.0,
-                children: const [
-                  CategoryCard(icon: Icons.star, title: "General", quizCount: 128),
-                  CategoryCard(icon: Icons.movie, title: "Pop Cult", quizCount: 58),
-                  CategoryCard(icon: Icons.history, title: "History", quizCount: 89),
-                  CategoryCard(icon: Icons.science, title: "Science", quizCount: 69),
+                children: [
+                  GestureDetector(
+                    onTap: () => router.setPath(context, "category", values: {"category" : "general knowledge"}),
+                    child: CategoryCard(
+                        icon: Icons.star, title: "General", quizCount: 128),
+                  ),
+                  CategoryCard(
+                      icon: Icons.movie, title: "Pop Cult", quizCount: 58),
+                  CategoryCard(
+                      icon: Icons.history, title: "History", quizCount: 89),
+                  CategoryCard(
+                      icon: Icons.science, title: "Science", quizCount: 69),
                 ],
               ),
             ),

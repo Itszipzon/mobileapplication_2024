@@ -1,5 +1,6 @@
 import 'package:client/elements/loading.dart';
 import 'package:client/screens/categories.dart';
+import 'package:client/screens/category.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/join.dart';
 import 'package:client/screens/login.dart';
@@ -31,6 +32,7 @@ class AppSettings {
     router.addScreen("quiz", const QuizScreen());
     router.addScreen("quiz/lobby", const QuizLobby());
     router.addScreen("quiz/game/socket", const QuizGameSocket());
+    router.addScreen("category", Category());
 
     router.excludePaths(["", "login", "register", "test"]);
   }
