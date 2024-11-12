@@ -6,17 +6,15 @@ import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ApiHandler {
-
   //////////////////////////Remote rune//////////////////////////////////
 
-  /*
-  static final String _url = "http://10.24.37.237:8080";
+/*   
+  static final String _url = "http://10.24.37.76:8080";
 
-  static String get url => _url;
-  */
+  static String get url => _url; */
 
   //////////////////////////local//////////////////////////////////
-  
+
   static final String _url =
       Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
@@ -28,7 +26,6 @@ class ApiHandler {
   static String get wsUrl => _wsUrl;
 
   ///////////////////////////////////////////////////////////////////////
-  
 
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
@@ -48,10 +45,12 @@ class ApiHandler {
   }
 
   /// Logs in the user.
-  static Future<Response> login(String email, String password, bool rememberMe) async {
+  static Future<Response> login(
+      String email, String password, bool rememberMe) async {
     final response = await http.post(Uri.parse('$_url/api/user/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user': email, 'password': password, 'rememberMe': rememberMe}));
+        body: jsonEncode(
+            {'user': email, 'password': password, 'rememberMe': rememberMe}));
     return response;
   }
 
@@ -109,8 +108,10 @@ class ApiHandler {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getUserQuizzesByToken(String token, int page, int amount) async {
-    final response = await http.get(Uri.parse('$_url/api/quiz/user/self/$page/$amount'),
+  static Future<List<Map<String, dynamic>>> getUserQuizzesByToken(
+      String token, int page, int amount) async {
+    final response = await http.get(
+        Uri.parse('$_url/api/quiz/user/self/$page/$amount'),
         headers: {"Authorization": "Bearer $token"});
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
@@ -120,8 +121,10 @@ class ApiHandler {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getUserQuizzesByUsername(String username, int page, int amount) async {
-    final response = await http.get(Uri.parse('$_url/api/quiz/user/username/$username/$page/$amount'));
+  static Future<List<Map<String, dynamic>>> getUserQuizzesByUsername(
+      String username, int page, int amount) async {
+    final response = await http
+        .get(Uri.parse('$_url/api/quiz/user/username/$username/$page/$amount'));
 
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
@@ -131,9 +134,11 @@ class ApiHandler {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getQuizzesByUserHistory(String token, int page, int amount) async {
-    final response = await http.get(Uri.parse('$_url/api/quiz/user/history/$page/$amount'),
-        headers: {"Authorization" : "Bearer $token"});
+  static Future<List<Map<String, dynamic>>> getQuizzesByUserHistory(
+      String token, int page, int amount) async {
+    final response = await http.get(
+        Uri.parse('$_url/api/quiz/user/history/$page/$amount'),
+        headers: {"Authorization": "Bearer $token"});
 
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
@@ -155,8 +160,10 @@ class ApiHandler {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getQuizzesByFilter(int page, int size, String by, String orientation) async {
-    final response = await http.get(Uri.parse("$_url/api/quiz/all/filter/$page/$size/$by/$orientation"));
+  static Future<List<Map<String, dynamic>>> getQuizzesByFilter(
+      int page, int size, String by, String orientation) async {
+    final response = await http.get(
+        Uri.parse("$_url/api/quiz/all/filter/$page/$size/$by/$orientation"));
 
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
@@ -195,7 +202,7 @@ class ApiHandler {
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
-    
+
     return response;
   }
 
@@ -209,4 +216,26 @@ class ApiHandler {
     return jsonDecode(response.body);
   }
 
+  // Modify ApiHandler.playQuiz
+  static Future<Map<String, dynamic>> playQuiz(
+      String token, int quizId, List<Map<String, int?>> quizAnswers) async {
+    final uri = Uri.parse('$_url/api/quiz/check-answers');
+    final payload = {
+      "token": token,
+      "quizId": quizId,
+      "quizAnswers": quizAnswers,
+    };
+
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to check quiz answers');
+    }
+  }
 }

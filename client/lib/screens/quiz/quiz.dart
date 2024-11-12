@@ -70,9 +70,13 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
           children: [
             isLoading
                 ? SizedBox(height: 250)
-                : Image.network(
-                    '${ApiHandler.url}/api/quiz/thumbnail/${router.getValues!['id']}',
-                    height: 250,
+                : Center(
+                    child: Image.network(
+                      '${ApiHandler.url}/api/quiz/thumbnail/${router.getValues!['id']}',
+                      height: 250,
+                      alignment: Alignment.center,
+                      fit: BoxFit.fill,
+                    ),
                   ),
             const SizedBox(height: 4),
             Row(
@@ -126,13 +130,16 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
             const SizedBox(height: 8),
             SizedTextButton(
               text: "Play",
-              onPressed: () => print("Play"),
+              onPressed: () => router.setPath(context, "quiz/solo", values: {
+                'quizData': quiz, // Pass the entire quiz data
+              }),
               width: double.infinity,
               height: 50,
               textStyle: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 8),
             SizedTextButton(

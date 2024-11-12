@@ -8,6 +8,7 @@ import 'package:client/screens/profile.dart';
 import 'package:client/screens/quiz/create_quiz.dart';
 import 'package:client/screens/quiz/quiz.dart';
 import 'package:client/screens/quiz/quiz_game_socket.dart';
+import 'package:client/screens/quiz/quiz_game_solo.dart';
 import 'package:client/screens/quiz/quiz_lobby.dart';
 import 'package:client/screens/register.dart';
 import 'package:client/tools/router.dart';
@@ -31,6 +32,7 @@ class AppSettings {
     router.addScreen("quiz", const QuizScreen());
     router.addScreen("quiz/lobby", const QuizLobby());
     router.addScreen("quiz/game/socket", const QuizGameSocket());
+    router.addScreen("quiz/solo", const QuizGameSolo());
 
     router.excludePaths(["", "login", "register", "test"]);
   }
