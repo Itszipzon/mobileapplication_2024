@@ -20,13 +20,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   int currentQuestionIndex = 0;
   Map<String, dynamic>? quizData;
   String? selectedAnswer;
-  List<Map<String, int?>> userAnswers = []; 
+  List<Map<String, int?>> userAnswers = [];
   bool quizCompleted = false;
   Map<String, dynamic>? results;
-  bool submittingAnswers = false; 
+  bool submittingAnswers = false;
 
   late int questionTimer;
-  Timer? _timer; 
+  Timer? _timer;
   int timeLeft = 0;
 
   @override
@@ -46,7 +46,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
 
   @override
   void dispose() {
-    _timer?.cancel(); 
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -74,7 +74,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
     } else {
       userAnswers.add({
         "questionId": quizData!["quizQuestions"][currentQuestionIndex]["id"],
-        "answerId": null, 
+        "answerId": null,
       });
     }
 
@@ -85,7 +85,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
       });
       startTimer();
     } else {
-      _timer?.cancel(); 
+      _timer?.cancel();
       submitQuizAnswers();
     }
   }
@@ -100,7 +100,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   }
 
   Future<void> submitQuizAnswers() async {
-    if (submittingAnswers) return; 
+    if (submittingAnswers) return;
     submittingAnswers = true;
 
     setState(() {
@@ -217,7 +217,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(quizData!["title"] ?? "Quiz Game Solo"),
+        title: const Text('QuizAPP'),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -230,45 +230,95 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              "Time left: $timeLeft seconds",
-              style: const TextStyle(fontSize: 18, color: Colors.red),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Question ${currentQuestionIndex + 1}/${quizData!["quizQuestions"].length}",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Question Image (Thumbnail)
+            Center(
+              child: Image.network(
+                '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(height: 16),
+
+            // Timer Circle
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.orange, width: 3),
+              ),
+              child: Text(
+                "$timeLeft",
+                style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Question Text
             Text(
               questionText,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
-            ...options.map<Widget>((option) {
-              final optionText = option["option"];
-              return ListTile(
-                title: Text(optionText),
-                leading: Radio<String>(
-                  value: optionText,
-                  groupValue: selectedAnswer,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedAnswer = value;
-                    });
-                  },
-                ),
-              );
-            }).toList(),
+
+            // Options
+            Expanded(
+              child: ListView.builder(
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final optionText = options[index]["option"];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: Colors.orange, width: 2),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          selectedAnswer = optionText;
+                        });
+                      },
+                      child: Text(
+                        optionText,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             const SizedBox(height: 16),
+
+            // Next or Finish Button
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                minimumSize: const Size.fromHeight(50),
+              ),
               onPressed: selectedAnswer != null ? autoNextQuestion : null,
               child: Text(
                 currentQuestionIndex == quizData!["quizQuestions"].length - 1
                     ? "Finish Quiz"
-                    : "Next Question",
+                    : "Next",
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
