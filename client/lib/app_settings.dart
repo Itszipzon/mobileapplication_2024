@@ -33,7 +33,6 @@ class AppSettings {
     router.addScreen("quiz", const QuizScreen());
     router.addScreen("quiz/lobby", const QuizLobby());
     router.addScreen("quiz/game/socket", const QuizGameSocket());
-    router.addScreen("quiz/solo", const QuizGameSolo());
 
     router.excludePaths(["", "login", "register", "test"]);
   }

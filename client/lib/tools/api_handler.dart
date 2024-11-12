@@ -23,7 +23,7 @@ class ApiHandler {
 
   static String get url => _url;
 
-  static String get wsUrl => _wsUrl; */
+  static String get wsUrl => _wsUrl;
 
   ///////////////////////////////////////////////////////////////////////
 
