@@ -109,7 +109,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Add time"),
+          title: const Text("Seconds to answer each question"),
           content: Theme(
             data: Theme.of(context).copyWith(
               textSelectionTheme: TextSelectionThemeData(
@@ -223,7 +223,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
 
     questionController.text = questions[newIndex].question;
     for (int i = 0; i < controllers.length; i++) {
-      if (i < questions[newIndex].options.length ) {
+      if (i < questions[newIndex].options.length) {
         controllers[i].text = questions[newIndex].options[i].option;
       } else {
         controllers[i].clear();
@@ -324,9 +324,17 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         final XFile? image =
             await picker.pickImage(source: ImageSource.gallery);
         if (image != null) {
-          setState(() {
-            imageFile = File(image.path);
-          });
+          final allowedExtensions = ['jpg', 'jpeg', 'png'];
+          final fileExtension = image.path.split('.').last.toLowerCase();
+
+          if (allowedExtensions.contains(fileExtension)) {
+            setState(() {
+              imageFile = File(image.path);
+            });
+          } else {
+            ErrorHandler.showOverlayError(
+                context, "Please select a jpg, jpeg, or png image");
+          }
         }
       } catch (e) {
         ErrorHandler.showOverlayError(context, "Failed to pick image");
@@ -499,6 +507,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const topButtonTextStyle = TextStyle(color: Colors.white, fontSize: 12);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -530,12 +539,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                 height: 30,
                 text: "Categories",
                 onPressed: () => showCategoriesPopup(theme)),
-            SizedTextButton(
-                textStyle: topButtonTextStyle,
-                width: 63,
-                height: 30,
-                text: "Save",
-                onPressed: () => createQuiz(_selectedIndex)),
             IconButton(
                 onPressed: () => router.goBack(context),
                 icon: const Icon(Icons.close)),
@@ -719,85 +722,98 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(left: 16, right: 16),
-        color: theme.canvasColor,
-        height: 80,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: ListView(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    for (int i = 0; i < questions.length; i++)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () =>
-                              changeSelectedQuestion(_selectedIndex, i),
-                          child: Container(
-                            height: 30,
-                            width: 80,
-                            decoration: BoxDecoration(
-                              color: i == _selectedIndex
-                                  ? Colors.orange
-                                  : Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Question ${i + 1}",
-                                style: TextStyle(
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            color: theme.canvasColor,
+            height: 80,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: ListView(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        for (int i = 0; i < questions.length; i++)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () =>
+                                  changeSelectedQuestion(_selectedIndex, i),
+                              child: Container(
+                                height: 30,
+                                width: 80,
+                                decoration: BoxDecoration(
                                   color: i == _selectedIndex
-                                      ? Colors.white
-                                      : Colors.black,
+                                      ? Colors.orange
+                                      : Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Question ${i + 1}",
+                                    style: TextStyle(
+                                      color: i == _selectedIndex
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(6),
                       ),
+                      width: 50,
+                      child: IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          addNewQuestion();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      width: 50,
+                      child: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          _deleteQuestion(_selectedIndex);
+                        },
+                      ),
+                    ),
                   ],
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  width: 50,
-                  child: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      addNewQuestion();
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  width: 50,
-                  child: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      _deleteQuestion(_selectedIndex);
-                    },
-                  ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Container(
+              padding: EdgeInsets.all(8),
+              width: double.infinity,
+              child: SizedTextButton(
+                  text: "Save",
+                  onPressed: () => createQuiz(_selectedIndex),
+                  height: 40,
+                  textStyle: TextStyle(color: Colors.white))),
+        ],
       ),
     );
   }

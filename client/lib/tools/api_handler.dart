@@ -23,7 +23,7 @@ class ApiHandler {
 
   static String get url => _url;
 
-  static String get wsUrl => _wsUrl;
+  static String get wsUrl => _wsUrl; */
 
   ///////////////////////////////////////////////////////////////////////
 
@@ -209,6 +209,17 @@ class ApiHandler {
   static Future<List<String>> getQuizCategories() async {
     final response = await http.get(Uri.parse('$_url/api/quiz/categories'));
     return jsonDecode(response.body).cast<String>();
+  }
+
+  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(String category, int page) async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
+    
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load quizzes');
+    }
   }
 
   static Future<Map<String, dynamic>> getQuiz(int id) async {

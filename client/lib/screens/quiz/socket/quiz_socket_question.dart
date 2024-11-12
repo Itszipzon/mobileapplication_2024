@@ -122,48 +122,33 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                 child: ListView.builder(
                   itemCount: questionData['quizOptions'].length ?? 0,
                   itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          answer = questionData['quizOptions'][index];
-                          isAnswered = true;
-                        });
-                        widget.onClick({
-                          "answer": questionData['quizOptions'][index]
-                              ['option'],
-                          "answerId": questionData['quizOptions'][index]['id'],
-                        });
-                      },
-                      child: Container(
-                        width: 50,
-                        decoration: BoxDecoration(
-                          border: answer["id"] ==
-                                      questionData['quizOptions'][index]
-                                          ['id'] ||
-                                  widget.values["lastCorrectAnswers"].contains(
-                                      questionData['quizOptions'][index]['id'])
-                              ? widget.values["lastCorrectAnswers"].contains(
-                                      questionData['quizOptions'][index]['id'])
-                                  ? Border.all(color: Colors.green)
-                                  : Border.all(color: Colors.red)
-                              : Border.all(color: theme.primaryColor),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              questionData['quizOptions'][index]['option'] ??
-                                  "",
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
+                    return Container(
+                      width: 50,
+                      decoration: BoxDecoration(
+                        border: answer["id"] ==
+                                    questionData['quizOptions'][index]['id'] ||
+                                widget.values["lastCorrectAnswers"].contains(
+                                    questionData['quizOptions'][index]['id'])
+                            ? widget.values["lastCorrectAnswers"].contains(
+                                    questionData['quizOptions'][index]['id'])
+                                ? Border.all(color: Colors.green)
+                                : Border.all(color: Colors.red)
+                            : Border.all(color: theme.primaryColor),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            questionData['quizOptions'][index]['option'] ?? "",
+                            style: TextStyle(
+                              fontSize: 16,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     );
                   },

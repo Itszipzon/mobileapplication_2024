@@ -176,7 +176,7 @@ public class QuizApi {
     Pageable pageable = PageRequest.of(page, 10); // 10 quizzes per page
     Optional<List<QuizDto>> quizzes = quizRepo.findQuizzesByCategory(category, pageable);
     if (quizzes.isEmpty()) {
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
     return new ResponseEntity<>(quizzes.get(), HttpStatus.OK);
   }
@@ -391,6 +391,7 @@ public class QuizApi {
     }
 
     User quizUser = new User();
+    System.out.println(claims.getSubject() + " Trying to create a quiz");
     quizUser.setId(claims.get("id", Long.class));
     quizUser.setUsername(claims.getSubject());
 
