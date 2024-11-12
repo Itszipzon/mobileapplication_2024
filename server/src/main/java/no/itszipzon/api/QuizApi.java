@@ -288,9 +288,20 @@ public class QuizApi {
   public ResponseEntity<Map<String, Object>> checkAnswers(
       @RequestBody Map<String, Object> userAnswer) {
 
-    Claims claims = jwtUtil.extractClaims(userAnswer.get("token").toString());
+    System.out.println("checking answers");
+    System.out.println(userAnswer);
 
-    long quizId = Long.parseLong(userAnswer.get("quizId").toString());
+    Claims claims = jwtUtil.extractClaims(userAnswer.get("token").toString());
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    long quizId;
+    try {
+      quizId = Long.parseLong(userAnswer.get("quizId").toString());
+    } catch (NumberFormatException e) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     // Retrieve the quiz by ID
     Optional<Quiz> quizOptional = quizRepo.findById(quizId);
@@ -299,7 +310,6 @@ public class QuizApi {
     }
 
     Map<String, Object> userCorrectAnswers = new HashMap<>();
-
     userCorrectAnswers.put("username", claims.getSubject());
     userCorrectAnswers.put("userId", claims.get("id"));
     userCorrectAnswers.put("quizId", quizId);
@@ -310,22 +320,44 @@ public class QuizApi {
     }
 
     List<?> answersList = (List<?>) answersObj;
-    List<Map<String, Object>> answers = answersList.stream().filter(Map.class::isInstance)
-        .map(Map.class::cast).collect(Collectors.toList());
+    List<Map<String, Object>> answers = answersList.stream()
+        .filter(Map.class::isInstance)
+        .map(Map.class::cast)
+        .collect(Collectors.toList());
 
     List<Map<String, Object>> answerCheck = new ArrayList<>();
     for (Map<String, Object> answer : answers) {
-      long questionId = Long.parseLong(answer.get("questionId").toString());
-      long answerId = Long.parseLong(answer.get("answerId").toString());
-      Optional<Boolean> correctOptional = questionRepo.checkIfCorrectAnswer(questionId, answerId);
-      if (correctOptional.isEmpty()) {
+      long questionId;
+      try {
+        questionId = Long.parseLong(answer.get("questionId").toString());
+      } catch (NumberFormatException e) {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
 
+      // Check if answerId is null
+      Object answerIdObj = answer.get("answerId");
       Map<String, Object> check = new HashMap<>();
       check.put("questionId", questionId);
-      check.put("answerId", answerId);
-      check.put("correct", correctOptional);
+      check.put("answerId", answerIdObj);
+
+      if (answerIdObj == null) {
+        // If answerId is null, mark as incorrect
+        check.put("correct", false);
+      } else {
+        long answerId;
+        try {
+          answerId = Long.parseLong(answerIdObj.toString());
+        } catch (NumberFormatException e) {
+          return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        // Check if the provided answerId is correct
+        Optional<Boolean> correctOptional = questionRepo.checkIfCorrectAnswer(questionId, answerId);
+        if (correctOptional.isEmpty()) {
+          return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        check.put("correct", correctOptional.get());
+      }
 
       answerCheck.add(check);
     }
