@@ -148,6 +148,19 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                               fontSize: 16,
                             ),
                           ),
+                          answer["id"] ==
+                                  questionData['quizOptions'][index]['id']
+                              ? Icon(
+                                  widget.values["lastCorrectAnswers"].contains(
+                                          questionData['quizOptions'][index]['id'])
+                                      ? Icons.check
+                                      : Icons.close,
+                                  color: widget.values["lastCorrectAnswers"]
+                                          .contains(questionData['quizOptions'][index]['id'])
+                                      ? Colors.green
+                                      : Colors.red,
+                                )
+                              : Container(),
                         ],
                       ),
                     );
