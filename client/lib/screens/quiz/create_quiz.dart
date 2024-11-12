@@ -109,7 +109,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Add time"),
+          title: const Text("Seconds to answer each question"),
           content: Theme(
             data: Theme.of(context).copyWith(
               textSelectionTheme: TextSelectionThemeData(
@@ -324,10 +324,17 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         final XFile? image =
             await picker.pickImage(source: ImageSource.gallery);
         if (image != null) {
+        final allowedExtensions = ['jpg', 'jpeg', 'png'];
+        final fileExtension = image.path.split('.').last.toLowerCase();
+        
+        if (allowedExtensions.contains(fileExtension)) {
           setState(() {
             imageFile = File(image.path);
           });
+        } else {
+          ErrorHandler.showOverlayError(context, "Please select a jpg, jpeg, or png image");
         }
+      }
       } catch (e) {
         ErrorHandler.showOverlayError(context, "Failed to pick image");
         print("Error picking image: $e");
