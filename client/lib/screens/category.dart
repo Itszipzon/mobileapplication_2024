@@ -1,11 +1,11 @@
-import 'dart:convert';
-
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Category extends ConsumerStatefulWidget {
+  const Category({super.key});
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => CategoryState();
 }
