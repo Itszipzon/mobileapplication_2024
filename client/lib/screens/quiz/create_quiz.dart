@@ -514,31 +514,38 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedTextButton(
-                textStyle: topButtonTextStyle,
-                width: 63,
-                height: 30,
-                text: "Add title",
-                onPressed: () => showPopup(theme, "title", titleController)),
-            SizedTextButton(
-                textStyle: topButtonTextStyle,
-                width: 63,
-                height: 30,
-                text: "Add desc",
-                onPressed: () =>
-                    showPopup(theme, "description", descriptionController)),
-            SizedTextButton(
-                textStyle: topButtonTextStyle,
-                width: 63,
-                height: 30,
-                text: "Add time",
-                onPressed: () => showTimePopup(theme)),
-            SizedTextButton(
-                textStyle: topButtonTextStyle,
-                width: 63,
-                height: 30,
-                text: "Categories",
-                onPressed: () => showCategoriesPopup(theme)),
+            Expanded(
+              child: SizedTextButton(
+                  textStyle: topButtonTextStyle,
+                  height: 30,
+                  text: "Add title",
+                  onPressed: () => showPopup(theme, "title", titleController)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedTextButton(
+                  textStyle: topButtonTextStyle,
+                  height: 30,
+                  text: "Add desc",
+                  onPressed: () =>
+                      showPopup(theme, "description", descriptionController)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedTextButton(
+                  textStyle: topButtonTextStyle,
+                  height: 30,
+                  text: "Add time",
+                  onPressed: () => showTimePopup(theme)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedTextButton(
+                  textStyle: topButtonTextStyle,
+                  height: 30,
+                  text: "Categories",
+                  onPressed: () => showCategoriesPopup(theme)),
+            ),
             IconButton(
                 onPressed: () => router.goBack(context),
                 icon: const Icon(Icons.close)),
@@ -741,7 +748,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                       children: [
                         for (int i = 0; i < questions.length; i++)
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: i == 0 ? const EdgeInsets.only(right: 8.0, top: 8.0, bottom: 8.0) : const EdgeInsets.all(8.0),
                             child: GestureDetector(
                               onTap: () =>
                                   changeSelectedQuestion(_selectedIndex, i),
@@ -806,7 +813,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             ),
           ),
           Container(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.symmetric(horizontal:  18, vertical: 12),
               width: double.infinity,
               child: SizedTextButton(
                   text: "Save",
