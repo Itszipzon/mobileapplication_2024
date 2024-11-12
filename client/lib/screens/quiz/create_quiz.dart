@@ -74,13 +74,12 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     super.dispose();
   }
 
-  void showPopup(
-      ThemeData theme, String type, TextEditingController controller) {
+  void showTitlePopup(ThemeData theme) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Add $type"),
+          title: const Text("Add title"),
           content: Theme(
             data: Theme.of(context).copyWith(
               textSelectionTheme: TextSelectionThemeData(
@@ -89,9 +88,83 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
               ),
             ),
             child: TextField(
-              controller: controller,
+              controller: titleController,
               decoration: InputDecoration(
-                hintText: "Enter $type",
+                hintText: "Enter title",
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: 2.0,
+                  ),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: theme.primaryColor,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            SmallTextButton(
+              text: "Save",
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showDescriptionPopup(ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add description"),
+          content: Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: theme.primaryColor,
+                selectionColor: theme.primaryColor,
+              ),
+            ),
+            child: SizedBox(
+              width: 300,
+              child: SingleChildScrollView(
+                child: TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                    hintText: "Enter description",
+                    filled: true,
+                    fillColor: theme.cardColor,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: theme.primaryColor,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: theme.primaryColor,
+                        width: 2.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  maxLines: 5,
+                  minLines: 5,
+                  textInputAction: TextInputAction.newline,
+                ),
               ),
             ),
           ),
@@ -120,18 +193,49 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             child: TextField(
               controller: timeController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: "Enter time",
+              decoration: InputDecoration(
+                hintText: "Enter time in seconds",
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: 2.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: theme.primaryColor,
+                    width: 2.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                errorText:
+                    _isValidTime() ? null : "Please enter a valid number",
               ),
+              onChanged: (value) {
+                (context as Element).markNeedsBuild();
+              },
             ),
           ),
           actions: [
             SmallTextButton(
-                text: "Save", onPressed: () => Navigator.pop(context)),
+              text: "Save",
+              onPressed: () {
+                if (_isValidTime()) {
+                  Navigator.pop(context);
+                }
+              },
+            ),
           ],
         );
       },
     );
+  }
+
+  bool _isValidTime() {
+    if (timeController.text.isEmpty) return false;
+    final int? timeValue = int.tryParse(timeController.text);
+    return timeValue != null && timeValue > 0;
   }
 
   void showCategoriesPopup(ThemeData theme) {
@@ -519,7 +623,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                   textStyle: topButtonTextStyle,
                   height: 30,
                   text: "Add title",
-                  onPressed: () => showPopup(theme, "title", titleController)),
+                  onPressed: () => showTitlePopup(theme)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -527,8 +631,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                   textStyle: topButtonTextStyle,
                   height: 30,
                   text: "Add desc",
-                  onPressed: () =>
-                      showPopup(theme, "description", descriptionController)),
+                  onPressed: () => showDescriptionPopup(theme)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -748,7 +851,10 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
                       children: [
                         for (int i = 0; i < questions.length; i++)
                           Padding(
-                            padding: i == 0 ? const EdgeInsets.only(right: 8.0, top: 8.0, bottom: 8.0) : const EdgeInsets.all(8.0),
+                            padding: i == 0
+                                ? const EdgeInsets.only(
+                                    right: 8.0, top: 8.0, bottom: 8.0)
+                                : const EdgeInsets.all(8.0),
                             child: GestureDetector(
                               onTap: () =>
                                   changeSelectedQuestion(_selectedIndex, i),
@@ -813,7 +919,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             ),
           ),
           Container(
-              padding: EdgeInsets.symmetric(horizontal:  18, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               width: double.infinity,
               child: SizedTextButton(
                   text: "Save",
