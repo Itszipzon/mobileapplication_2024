@@ -251,6 +251,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
     final currentQuestion = quizData!["quizQuestions"][currentQuestionIndex];
     final questionText = currentQuestion["question"] ?? "No question text";
     final List<dynamic> options = currentQuestion["quizOptions"] ?? [];
+    final totalQuestions = quizData!["quizQuestions"].length;
+    final progress = (currentQuestionIndex + 1) / totalQuestions;
 
     return Scaffold(
       appBar: AppBar(
@@ -404,15 +406,27 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
               ),
               onPressed: selectedAnswer != null ? autoNextQuestion : null,
               child: Text(
-                currentQuestionIndex == quizData!["quizQuestions"].length - 1
+                currentQuestionIndex == totalQuestions - 1
                     ? "Finish Quiz"
                     : "Next",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // Set text color to white
+                  color: Colors.white,
                 ),
               ),
+            ),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: Colors.grey[300],
+              color: Theme.of(context).primaryColor,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Question ${currentQuestionIndex + 1} of $totalQuestions',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
