@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:client/elements/button.dart';
+import 'package:client/elements/counter.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_question.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_score.dart';
-import 'package:client/screens/quiz/socket/quiz_start_timer_socket.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
@@ -192,9 +192,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         username: username,
       );
     } else {
-      return QuizStartTimer(
-        onCountdownComplete: _handleNext,
-      );
+      return Counter(onCountdownComplete: _handleNext, duration: 5, marginTop: 16);
     }
   }
 

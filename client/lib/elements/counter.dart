@@ -1,28 +1,36 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QuizStartTimer extends ConsumerStatefulWidget {
+class Counter extends ConsumerStatefulWidget {
   final VoidCallback onCountdownComplete;
+  final int duration;
+  final double? marginTop;
 
-  const QuizStartTimer({super.key, required this.onCountdownComplete});
+  const Counter(
+      {super.key,
+      required this.onCountdownComplete,
+      required this.duration,
+      this.marginTop});
 
   @override
-  QuizStartTimerState createState() => QuizStartTimerState();
+  CounterState createState() => CounterState();
 }
 
-class QuizStartTimerState extends ConsumerState<QuizStartTimer>
+class CounterState extends ConsumerState<Counter>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
-  int _counter = 5;
+  late int _counter;
 
   @override
   void initState() {
     super.initState();
+    _counter = widget.duration;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 5),
+      duration: Duration(seconds: widget.duration),
     );
 
     _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -56,7 +64,9 @@ class QuizStartTimerState extends ConsumerState<QuizStartTimer>
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const SizedBox(height: 16),
+        widget.marginTop != null
+            ? SizedBox(height: widget.marginTop)
+            : SizedBox(height: 0),
         SizedBox(
           width: 100,
           height: 100,
