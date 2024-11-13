@@ -208,7 +208,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                   ],
                 ),
                 child: Text(
-                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows you've got a solid start in your Star Wars knowledge.",
+                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows you've got a solid start in your knowledge of ${quizData!["title"]}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,
@@ -284,52 +284,65 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // White background box for image, timer, and question
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Question Image (Thumbnail)
-                  Center(
-                    child: Image.network(
-                      '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+            // Image with Timer Overlay
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Question Image (Thumbnail)
+                Center(
+                  child: Image.network(
+                    '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(height: 16),
-
-                  // Timer Circle
-                  Container(
+                ),
+                // Timer Circle Overlayed on the Image
+                Positioned(
+                  bottom:
+                      10, // Position it slightly above the bottom of the image
+                  child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
+                      color: Colors.orange,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                          color: Theme.of(context).primaryColor, width: 3),
                     ),
                     child: Text(
                       "$timeLeft",
                       style: const TextStyle(
                         fontSize: 24,
-                        color: Colors.orange,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
 
-                  // Question Text
-                  Text(
-                    questionText,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // White background box for question text only
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
                   ),
                 ],
+              ),
+              child: Text(
+                questionText,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 16),
