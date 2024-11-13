@@ -51,6 +51,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   }
 
   void startTimer() {
+    _timer?.cancel(); // Cancel any existing timer
     setState(() {
       timeLeft = questionTimer;
     });
