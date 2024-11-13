@@ -55,7 +55,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   }
 
   void _onTimerTick() {
-    setState(() {}); 
+    setState(() {});
   }
 
   void autoNextQuestion() async {
@@ -63,11 +63,11 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
       answerManager.recordAnswer(
           quizData!, currentQuestionIndex, selectedAnswer!);
     } else {
+      audioManager.playSoundEffect('error.mp3');
       answerManager.saveUnanswered(quizData!, currentQuestionIndex);
     }
 
     if (currentQuestionIndex < (quizData?["quizQuestions"].length ?? 0) - 1) {
-      audioManager.playSoundEffect('error.mp3');
       setState(() {
         currentQuestionIndex++;
         selectedAnswer = null;
@@ -392,7 +392,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
               onPressed: selectedAnswer != null ? autoNextQuestion : null,
               child: Text(
                 currentQuestionIndex == quizData!["quizQuestions"].length - 1
-                    ? "Finish Quiz" 
+                    ? "Finish Quiz"
                     : "Next",
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
