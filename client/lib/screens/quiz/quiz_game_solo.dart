@@ -347,18 +347,23 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                 itemCount: options.length,
                 itemBuilder: (context, index) {
                   final optionText = options[index]["option"];
+                  final isSelected = selectedAnswer == optionText;
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor:
+                            isSelected ? Colors.white : Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         side: BorderSide(
-                          color: Theme.of(context).primaryColor,
+                          color: isSelected
+                              ? Colors.green
+                              : Theme.of(context).primaryColor,
                           width: 1,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       onPressed: () {
@@ -366,12 +371,20 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                           selectedAnswer = optionText;
                         });
                       },
-                      child: Text(
-                        optionText,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w600,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Text(
+                            optionText,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isSelected ? Colors.black : Colors.black,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -394,8 +407,11 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                 currentQuestionIndex == quizData!["quizQuestions"].length - 1
                     ? "Finish Quiz"
                     : "Next",
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white, // Set text color to white
+                ),
               ),
             ),
           ],
