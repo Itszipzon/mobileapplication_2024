@@ -114,22 +114,20 @@ class CirclePainter extends CustomPainter {
     final Offset center = Offset(size.width / 2, size.height / 2);
     final double radius = size.width / 2;
 
-    // Draw background circle
     canvas.drawCircle(center, radius, backgroundPaint);
 
-    // Draw progress arc
     double sweepAngle = 2 * pi * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -pi / 2, // Start angle (12 o'clock position)
-      sweepAngle, // Sweep angle (counterclockwise)
-      false, // Do not draw as a filled arc
+      -pi / 2,
+      sweepAngle,
+      false,
       progressPaint,
     );
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true; // Always repaint to reflect changes in the timer
+    return true;
   }
 }
