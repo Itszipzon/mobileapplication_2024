@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,16 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
 
   void _playAudio() async {
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await _audioPlayer.play(AssetSource('audio.mp3'));
+
+    List<String> audioFiles = [
+      'audio.mp3',
+      'audio1.mp3',
+      'audio2.mp3',
+    ];
+
+    String selectedAudio = audioFiles[Random().nextInt(audioFiles.length)];
+
+    await _audioPlayer.play(AssetSource(selectedAudio));
   }
 
   @override
