@@ -1,11 +1,13 @@
-import 'dart:async';
-import 'dart:math';
+// file: quiz_game_solo.dart
+
+import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
+import 'package:client/screens/quiz/quiz_solo/quizAnswerManager.dart';
+import 'package:client/screens/quiz/quiz_solo/quizTimer.dart';
+import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:client/tools/api_handler.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 class QuizGameSolo extends ConsumerStatefulWidget {
   const QuizGameSolo({super.key});
@@ -17,149 +19,105 @@ class QuizGameSolo extends ConsumerStatefulWidget {
 class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   late final RouterNotifier router;
   late final UserNotifier user;
-  late final AudioPlayer _audioPlayer = AudioPlayer();
-  late final AudioPlayer _audioPlayer1 = AudioPlayer();
+  late final AudioManager audioManager;
+  late final QuizTimer quizTimer;
+  late final QuizAnswerManager answerManager;
 
   bool loading = true;
   int currentQuestionIndex = 0;
   Map<String, dynamic>? quizData;
   String? selectedAnswer;
-  List<Map<String, int?>> userAnswers = [];
   bool quizCompleted = false;
   Map<String, dynamic>? results;
-  bool submittingAnswers = false;
-
-  late int questionTimer;
-  Timer? _timer;
-  int timeLeft = 0;
+  bool submitting = false;
 
   @override
   void initState() {
     super.initState();
+    audioManager = AudioManager();
+    answerManager = QuizAnswerManager();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
       quizData = router.getValues?["quizData"] as Map<String, dynamic>?;
-      questionTimer = quizData?["timer"] ?? 30;
+
+      if (quizData != null) {
+        quizTimer = QuizTimer(duration: quizData!["timer"] ?? 30);
+        quizTimer.start(_onTimerTick, autoNextQuestion);
+      }
+      audioManager.playBackgroundAudio(
+          ['audio.mp3', 'audio1.mp3', 'audio2.mp3', 'audio3.mp3']);
+
       setState(() {
         loading = false;
       });
-      startTimer();
-      _playAudio();
     });
   }
 
-  void _playAudio() async {
-    _audioPlayer.setReleaseMode(ReleaseMode.loop);
-
-    List<String> audioFiles = [
-      'audio.mp3',
-      'audio1.mp3',
-      'audio2.mp3',
-      'audio3.mp3',
-    ];
-
-    String selectedAudio = audioFiles[Random().nextInt(audioFiles.length)];
-
-    await _audioPlayer.play(AssetSource(selectedAudio));
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  void startTimer() {
-    _timer?.cancel();
-    setState(() {
-      timeLeft = questionTimer;
-    });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (timeLeft < 3) {
-        _audioPlayer1.play(AssetSource('error.mp3'));
-        if (mounted) {
-          setState(() {
-            timeLeft--;
-          });
-        }
-      }
-      if (timeLeft > 0) {
-        if (mounted) {
-          setState(() {
-            timeLeft--;
-          });
-        }
-      } else {
-        _timer?.cancel();
-        autoNextQuestion();
-      }
-    });
+  void _onTimerTick() {
+    setState(() {}); 
   }
 
   void autoNextQuestion() async {
     if (selectedAnswer != null) {
-      recordAnswer();
+      answerManager.recordAnswer(
+          quizData!, currentQuestionIndex, selectedAnswer!);
     } else {
-      userAnswers.add({
-        "questionId": quizData!["quizQuestions"][currentQuestionIndex]["id"],
-        "answerId": null,
-      });
+      answerManager.saveUnanswered(quizData!, currentQuestionIndex);
     }
 
     if (currentQuestionIndex < (quizData?["quizQuestions"].length ?? 0) - 1) {
+      audioManager.playSoundEffect('error.mp3');
       setState(() {
         currentQuestionIndex++;
         selectedAnswer = null;
       });
-      startTimer();
+      quizTimer.start(_onTimerTick, autoNextQuestion);
     } else {
-      _timer?.cancel();
+      quizTimer.stop();
+
       submitQuizAnswers();
     }
   }
 
-  void recordAnswer() {
-    final questionId = quizData!["quizQuestions"][currentQuestionIndex]["id"];
-    final selectedOption = quizData!["quizQuestions"][currentQuestionIndex]
-            ["quizOptions"]
-        .firstWhere((option) => option["option"] == selectedAnswer)["id"];
-
-    userAnswers.add({"questionId": questionId, "answerId": selectedOption});
-  }
-
   Future<void> submitQuizAnswers() async {
-    if (submittingAnswers) return;
-    submittingAnswers = true;
+    if (submitting) return;
+    submitting = true;
 
     setState(() {
       loading = true;
     });
 
     try {
-      final quizId = quizData!["id"];
-      final response =
-          await ApiHandler.playQuiz(user.token!, quizId, userAnswers);
+      final String token = user.token!.toString();
+      final int quizId = quizData!["id"] as int;
 
-      if (mounted) {
-        setState(() {
-          results = response;
-          quizCompleted = true;
-          loading = false;
-        });
-        _audioPlayer.stop();
+      final response = await answerManager.submitAnswers(token, quizId);
 
-        await _audioPlayer1.play(AssetSource('finish.mp3'));
-      }
+      setState(() {
+        results = response;
+        quizCompleted = true;
+        loading = false;
+      });
+
+      await audioManager.stopAudio();
+
+      audioManager.playSoundEffect('finish.mp3');
     } catch (error) {
       print("Error submitting quiz answers: $error");
-      if (mounted) {
-        setState(() {
-          loading = false;
-        });
-      }
+      setState(() {
+        loading = false;
+      });
+    } finally {
+      submitting = false;
     }
+  }
+
+  @override
+  void dispose() {
+    quizTimer.stop();
+    audioManager.dispose();
+    super.dispose();
   }
 
   @override
@@ -223,8 +181,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Result Text Box
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -240,7 +196,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                   ],
                 ),
                 child: Text(
-                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows you've got a solid start in your knowledge of ${quizData!["title"]}",
+                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows your knowledge of ${quizData!["title"]}.",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,
@@ -249,8 +205,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // List of Questions with Result Indicators
               Column(
                 children: checks.map<Widget>((check) {
                   final questionId = check["questionId"];
@@ -310,7 +264,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
           ),
         ],
       ),
-      // Main Body aka timer,image and option
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -336,7 +289,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                         width: 70,
                         height: 70,
                         child: CircularProgressIndicator(
-                          value: timeLeft / questionTimer,
+                          value: quizTimer.timeLeft / quizTimer.duration,
                           strokeWidth: 8,
                           backgroundColor: Colors.grey.withOpacity(0.3),
                           valueColor: AlwaysStoppedAnimation<Color>(
@@ -351,7 +304,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                           shape: BoxShape.circle,
                         ),
                         child: Text(
-                          "$timeLeft",
+                          "${quizTimer.timeLeft}",
                           style: const TextStyle(
                             fontSize: 24,
                             color: Colors.orange,
@@ -389,8 +342,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Options List
             Expanded(
               child: ListView.builder(
                 itemCount: options.length,
@@ -429,7 +380,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
               ),
             ),
             const SizedBox(height: 16),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
@@ -442,7 +392,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
               onPressed: selectedAnswer != null ? autoNextQuestion : null,
               child: Text(
                 currentQuestionIndex == quizData!["quizQuestions"].length - 1
-                    ? "Finish Quiz"
+                    ? "Finish Quiz" 
                     : "Next",
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
