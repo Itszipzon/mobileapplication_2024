@@ -296,7 +296,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                   ),
                 ),
                 Positioned(
-                  bottom: -10,
+                  bottom: 10,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -305,7 +305,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                         height: 70,
                         child: CircularProgressIndicator(
                           value: timeLeft / questionTimer,
-                          strokeWidth: 6,
+                          strokeWidth: 8,
                           backgroundColor: Colors.grey.withOpacity(0.3),
                           valueColor: AlwaysStoppedAnimation<Color>(
                             Theme.of(context).primaryColor,
@@ -321,7 +321,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                         child: Text(
                           "$timeLeft",
                           style: const TextStyle(
-                            fontSize: 44,
+                            fontSize: 24,
                             color: Colors.orange,
                             fontWeight: FontWeight.bold,
                           ),
@@ -372,7 +372,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         side: BorderSide(
                           color: Theme.of(context).primaryColor,
-                          width: 2,
+                          width: 1,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
