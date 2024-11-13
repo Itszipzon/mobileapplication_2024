@@ -158,7 +158,9 @@ class ProfileState extends ConsumerState<Profile> {
                           height: 32,
                           width: 73,
                           textStyle: const TextStyle(
-                              fontSize: 12, color: Colors.white),
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
@@ -171,19 +173,64 @@ class ProfileState extends ConsumerState<Profile> {
                               itemCount: quizzes.length,
                               itemBuilder: (context, index) {
                                 final quiz = quizzes[index];
-                                return QuizPost(
-                                  id: quiz['id'] ?? '',
-                                  profilePicture: quiz['profile_picture'] ?? '',
-                                  title: quiz['title'] ?? '',
-                                  username: quiz['username'] ?? '',
-                                  createdAt: DateTime(
-                                    quiz['createdAt'][0],
-                                    quiz['createdAt'][1],
-                                    quiz['createdAt'][2],
-                                    quiz['createdAt'][3],
-                                    quiz['createdAt'][4],
-                                    quiz['createdAt'][5],
-                                  ),
+                                return Stack(
+                                  children: [
+                                    // Quiz post content
+                                    QuizPost(
+                                      id: quiz['id'] ?? '',
+                                      profilePicture:
+                                          quiz['profile_picture'] ?? '',
+                                      title: quiz['title'] ?? '',
+                                      username: quiz['username'] ?? '',
+                                      createdAt: DateTime(
+                                        quiz['createdAt'][0],
+                                        quiz['createdAt'][1],
+                                        quiz['createdAt'][2],
+                                        quiz['createdAt'][3],
+                                        quiz['createdAt'][4],
+                                        quiz['createdAt'][5],
+                                      ),
+                                    ),
+
+                                    // Three dots menu button in bottom-right corner
+                                    Positioned(
+                                      right: 8,
+                                      bottom: 30,
+                                      child: PopupMenuButton<String>(
+                                        icon: const Icon(Icons.more_vert),
+                                        onSelected: (String result) {
+                                          // Handle menu options here
+                                          switch (result) {
+                                            case 'Edit':
+                                              print("Edit quiz ${quiz['id']}");
+                                              break;
+                                            case 'Delete':
+                                              print(
+                                                  "Delete quiz ${quiz['id']}");
+                                              break;
+                                            case 'Share':
+                                              print("Share quiz ${quiz['id']}");
+                                              break;
+                                          }
+                                        },
+                                        itemBuilder: (BuildContext context) =>
+                                            <PopupMenuEntry<String>>[
+                                          const PopupMenuItem<String>(
+                                            value: 'Edit',
+                                            child: Text('Edit'),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'Delete',
+                                            child: Text('Delete'),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'Share',
+                                            child: Text('Share'),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
                             ),
