@@ -109,12 +109,31 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 20),
-        Text(
-          questionData['question'] ?? "",
-          style: TextStyle(
-            fontSize: 18,
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 3,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Text(
+            questionData['question'] ?? "No question found",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+        const SizedBox(height: 20),
         showAnswer
             ? SizedBox(
                 width: 350,
@@ -125,6 +144,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                     return Container(
                       width: 50,
                       decoration: BoxDecoration(
+                        color: Colors.white,
                         border: answer["id"] ==
                                     questionData['quizOptions'][index]['id'] ||
                                 widget.values["lastCorrectAnswers"].contains(
@@ -152,11 +172,13 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                                   questionData['quizOptions'][index]['id']
                               ? Icon(
                                   widget.values["lastCorrectAnswers"].contains(
-                                          questionData['quizOptions'][index]['id'])
+                                          questionData['quizOptions'][index]
+                                              ['id'])
                                       ? Icons.check
                                       : Icons.close,
                                   color: widget.values["lastCorrectAnswers"]
-                                          .contains(questionData['quizOptions'][index]['id'])
+                                          .contains(questionData['quizOptions']
+                                              [index]['id'])
                                       ? Colors.green
                                       : Colors.red,
                                 )
@@ -201,6 +223,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                           child: Container(
                             width: 50,
                             decoration: BoxDecoration(
+                              color: Colors.white,
                               border: Border.all(color: theme.primaryColor),
                               borderRadius: BorderRadius.circular(8),
                             ),
