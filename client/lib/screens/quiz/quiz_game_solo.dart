@@ -175,13 +175,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.orange,
+                        color: Theme.of(context).primaryColor,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
                         "$correctAnswersCount/$totalQuestions",
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 34,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -278,17 +278,15 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
           ),
         ],
       ),
-      // Main Body
+      // Main Body aka timer,image and option
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Image with Timer Overlay
             Stack(
               alignment: Alignment.center,
               children: [
-                // Question Image (Thumbnail)
                 Center(
                   child: Image.network(
                     '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
@@ -297,31 +295,44 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                // Timer Circle Overlayed on the Image
                 Positioned(
-                  bottom:
-                      10, // Position it slightly above the bottom of the image
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      "$timeLeft",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  bottom: -10,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: CircularProgressIndicator(
+                          value: timeLeft / questionTimer,
+                          strokeWidth: 6,
+                          backgroundColor: Colors.grey.withOpacity(0.3),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor,
+                          ),
+                        ),
                       ),
-                    ),
+                      Container(
+                        padding: const EdgeInsets.all(22),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          "$timeLeft",
+                          style: const TextStyle(
+                            fontSize: 44,
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // White background box for question text only
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -357,15 +368,14 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor:
-                            Colors.white, // Set background to white
+                        backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         side: BorderSide(
                           color: Theme.of(context).primaryColor,
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero, // Square corners
+                          borderRadius: BorderRadius.zero,
                         ),
                       ),
                       onPressed: () {
@@ -377,8 +387,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                         optionText,
                         style: TextStyle(
                           fontSize: 18,
-                          color: Theme.of(context)
-                              .primaryColor, // Primary color for text
+                          color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -389,14 +398,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
             ),
             const SizedBox(height: 16),
 
-            // Next or Finish Button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 minimumSize: const Size.fromHeight(50),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero, // Square corners
+                  borderRadius: BorderRadius.zero,
                 ),
               ),
               onPressed: selectedAnswer != null ? autoNextQuestion : null,
