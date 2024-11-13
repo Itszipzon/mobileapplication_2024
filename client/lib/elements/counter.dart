@@ -7,12 +7,16 @@ class Counter extends ConsumerStatefulWidget {
   final VoidCallback onCountdownComplete;
   final int duration;
   final double? marginTop;
+  final double width;
+  final double height;
 
   const Counter(
       {super.key,
       required this.onCountdownComplete,
       required this.duration,
-      this.marginTop});
+      this.marginTop,
+      this.width = 100,
+      this.height = 100});
 
   @override
   CounterState createState() => CounterState();
@@ -68,8 +72,8 @@ class CounterState extends ConsumerState<Counter>
             ? SizedBox(height: widget.marginTop)
             : SizedBox(height: 0),
         SizedBox(
-          width: 100,
-          height: 100,
+          width: widget.width,
+          height: widget.height,
           child: CustomPaint(
             painter: CirclePainter(_progressAnimation.value),
             child: Center(
