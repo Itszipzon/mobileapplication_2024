@@ -4,6 +4,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/tools/api_handler.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class QuizGameSolo extends ConsumerStatefulWidget {
   const QuizGameSolo({super.key});
@@ -15,6 +16,7 @@ class QuizGameSolo extends ConsumerStatefulWidget {
 class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   late final RouterNotifier router;
   late final UserNotifier user;
+  late final AudioPlayer _audioPlayer = AudioPlayer(); // Initialize AudioPlayer
 
   bool loading = true;
   int currentQuestionIndex = 0;
@@ -41,12 +43,19 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
         loading = false;
       });
       startTimer();
+      _playAudio(); // Start audio when quiz starts
     });
+  }
+
+  void _playAudio() async {
+    _audioPlayer.setReleaseMode(ReleaseMode.loop); // Set the audio to loop
+    await _audioPlayer.play(AssetSource('audio.mp3'));
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _audioPlayer.dispose(); // Dispose audio player
     super.dispose();
   }
 
@@ -119,6 +128,11 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
           quizCompleted = true;
           loading = false;
         });
+        _audioPlayer.stop();
+
+        _audioPlayer.setReleaseMode(ReleaseMode.stop);
+
+        await _audioPlayer.play(AssetSource('finish.mp3'));
       }
     } catch (error) {
       print("Error submitting quiz answers: $error");

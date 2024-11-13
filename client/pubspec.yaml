@@ -20,6 +20,7 @@ dependencies:
   permission_handler: ^11.3.1
   image_picker: ^1.1.2
   stomp_dart_client: ^2.1.0
+  audioplayers: ^6.1.0 
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +35,8 @@ flutter:
   assets:
     - assets/logo.png
     - assets/svg/
+    - assets/audio.mp3
+    - assets/finish.mp3
 
 flutter_launcher_icons:
   android: true
