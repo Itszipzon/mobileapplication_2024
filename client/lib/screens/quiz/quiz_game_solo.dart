@@ -16,7 +16,8 @@ class QuizGameSolo extends ConsumerStatefulWidget {
 class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   late final RouterNotifier router;
   late final UserNotifier user;
-  late final AudioPlayer _audioPlayer = AudioPlayer(); // Initialize AudioPlayer
+  late final AudioPlayer _audioPlayer = AudioPlayer();
+  late final AudioPlayer _audioPlayer1 = AudioPlayer();
 
   bool loading = true;
   int currentQuestionIndex = 0;
@@ -43,28 +44,36 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
         loading = false;
       });
       startTimer();
-      _playAudio(); // Start audio when quiz starts
+      _playAudio();
     });
   }
 
   void _playAudio() async {
-    _audioPlayer.setReleaseMode(ReleaseMode.loop); // Set the audio to loop
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
     await _audioPlayer.play(AssetSource('audio.mp3'));
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _audioPlayer.dispose(); // Dispose audio player
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   void startTimer() {
-    _timer?.cancel(); // Cancel any existing timer
+    _timer?.cancel();
     setState(() {
       timeLeft = questionTimer;
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (timeLeft < 3) {
+        _audioPlayer1.play(AssetSource('error.mp3'));
+        if (mounted) {
+          setState(() {
+            timeLeft--;
+          });
+        }
+      }
       if (timeLeft > 0) {
         if (mounted) {
           setState(() {
@@ -78,7 +87,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
     });
   }
 
-  void autoNextQuestion() {
+  void autoNextQuestion() async {
     if (selectedAnswer != null) {
       recordAnswer();
     } else {
@@ -130,9 +139,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
         });
         _audioPlayer.stop();
 
-        _audioPlayer.setReleaseMode(ReleaseMode.stop);
-
-        await _audioPlayer.play(AssetSource('finish.mp3'));
+        await _audioPlayer1.play(AssetSource('finish.mp3'));
       }
     } catch (error) {
       print("Error submitting quiz answers: $error");
@@ -175,7 +182,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Image with Score Overlay
               Stack(
                 alignment: Alignment.center,
                 children: [

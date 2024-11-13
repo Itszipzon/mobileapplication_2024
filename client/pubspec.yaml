@@ -37,6 +37,7 @@ flutter:
     - assets/svg/
     - assets/audio.mp3
     - assets/finish.mp3
+    - assets/error.mp3
 
 flutter_launcher_icons:
   android: true
