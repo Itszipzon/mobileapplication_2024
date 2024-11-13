@@ -139,9 +139,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
 
     if (quizCompleted && results != null) {
       final checks = results!["checks"] ?? [];
-      final correctAnswersCount =
-          checks.where((check) => check["correct"] == true).length;
-      final totalQuestions = quizData!["quizQuestions"].length;
 
       return Scaffold(
         appBar: AppBar(
@@ -158,104 +155,56 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image with Score Overlay
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.network(
-                    '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        "$correctAnswersCount/$totalQuestions",
-                        style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                "Results for ${quizData!["title"]}",
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-
-              // Result Text Box
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 3,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows you've got a solid start in your Star Wars knowledge.",
-                  textAlign: TextAlign.center,
+              Text(
+                "Score: ${checks.where((check) => check["correct"] == true).length}/${quizData!["quizQuestions"].length}",
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(height: 16),
+              Text("Details:",
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ...checks.map<Widget>((check) {
+                final questionId = check["questionId"];
+                final answerCorrect = check["correct"] ?? false;
+                final questionData = quizData!["quizQuestions"]
+                    .firstWhere((q) => q["id"] == questionId);
+                final questionText = questionData["question"];
+                final answerText = check["answerId"] != null
+                    ? questionData["quizOptions"].firstWhere(
+                        (option) => option["id"] == check["answerId"])["option"]
+                    : "No Answer, Time Ran Out";
 
-              // List of Questions with Result Indicators
-              Column(
-                children: checks.map<Widget>((check) {
-                  final questionId = check["questionId"];
-                  final answerCorrect = check["correct"] ?? false;
-                  final questionData = quizData!["quizQuestions"]
-                      .firstWhere((q) => q["id"] == questionId);
-                  final questionText = questionData["question"];
-
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: answerCorrect ? Colors.green : Colors.red,
-                        width: 2,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        questionText,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "${checks.indexOf(check) + 1}. $questionText",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        Icon(
-                          answerCorrect ? Icons.check_circle : Icons.cancel,
+                      Text(
+                        "Your answer: $answerText - ${answerCorrect ? "Correct" : "Incorrect"}",
+                        style: TextStyle(
+                          fontSize: 16,
                           color: answerCorrect ? Colors.green : Colors.red,
-                          size: 28,
                         ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                );
+              }).toList(),
             ],
           ),
         ),
@@ -278,63 +227,52 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
           ),
         ],
       ),
-      // Main Body
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // White background box for image, timer, and question
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Question Image (Thumbnail)
-                  Center(
-                    child: Image.network(
-                      '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Timer Circle
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: Theme.of(context).primaryColor, width: 3),
-                    ),
-                    child: Text(
-                      "$timeLeft",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Question Text
-                  Text(
-                    questionText,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            // Question Image (Thumbnail)
+            Center(
+              child: Image.network(
+                '${ApiHandler.url}/api/quiz/thumbnail/${quizData!["id"]}',
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: 16),
 
-            // Options List
+            // Timer Circle
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.orange, width: 3),
+              ),
+              child: Text(
+                "$timeLeft",
+                style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Question Text
+            Text(
+              questionText,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Options
             Expanded(
               child: ListView.builder(
                 itemCount: options.length,
@@ -344,16 +282,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor:
-                            Colors.white, // Set background to white
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(
-                          color: Theme.of(context).primaryColor,
-                          width: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero, // Square corners
-                        ),
+                        side: const BorderSide(color: Colors.orange, width: 2),
                       ),
                       onPressed: () {
                         setState(() {
@@ -362,10 +292,9 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                       },
                       child: Text(
                         optionText,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
-                          color: Theme.of(context)
-                              .primaryColor, // Primary color for text
+                          color: Colors.orange,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -379,12 +308,9 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
             // Next or Finish Button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context).canvasColor,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 minimumSize: const Size.fromHeight(50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero, // Square corners
-                ),
               ),
               onPressed: selectedAnswer != null ? autoNextQuestion : null,
               child: Text(
