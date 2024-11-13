@@ -18,7 +18,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// Holds all the settings for the application.
 class AppSettings {
-  
   /// Initiates all the screens in the application.
   static void initiateScreens(RouterNotifier router) {
     router.addScreen("", const LogoLoading());

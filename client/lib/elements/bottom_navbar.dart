@@ -16,8 +16,13 @@ class BottomNavbar extends ConsumerWidget {
     final router = ref.read(routerProvider.notifier);
     final theme = Theme.of(context);
     return Container(
-      color: theme.canvasColor,
       height: 80,
+      decoration: BoxDecoration(
+        color: theme.canvasColor,
+        border: const Border(
+          top: BorderSide(color: Colors.white, width: 2),
+        ),
+      ),
       child: Align(
         alignment: Alignment.center,
         child: SizedBox(
