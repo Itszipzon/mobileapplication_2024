@@ -38,6 +38,7 @@ flutter:
     - assets/audio.mp3
     - assets/audio1.mp3
     - assets/audio2.mp3
+    - assets/audio3.mp3
     - assets/finish.mp3
     - assets/error.mp3
 

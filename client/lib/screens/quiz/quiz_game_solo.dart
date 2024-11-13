@@ -56,6 +56,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
       'audio.mp3',
       'audio1.mp3',
       'audio2.mp3',
+      'audio3.mp3',
     ];
 
     String selectedAudio = audioFiles[Random().nextInt(audioFiles.length)];
