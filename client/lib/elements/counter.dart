@@ -9,6 +9,7 @@ class Counter extends ConsumerStatefulWidget {
   final double? marginTop;
   final double width;
   final double height;
+  final Color? color;
 
   const Counter(
       {super.key,
@@ -16,7 +17,8 @@ class Counter extends ConsumerStatefulWidget {
       required this.duration,
       this.marginTop,
       this.width = 100,
-      this.height = 100});
+      this.height = 100,
+      this.color = Colors.transparent});
 
   @override
   CounterState createState() => CounterState();
@@ -49,7 +51,8 @@ class CounterState extends ConsumerState<Counter>
         widget.onCountdownComplete();
       } else {
         setState(() {
-          _counter = (widget.duration - (_controller.value * widget.duration).floor());
+          _counter =
+              (widget.duration - (_controller.value * widget.duration).floor());
         });
       }
     });
@@ -75,7 +78,8 @@ class CounterState extends ConsumerState<Counter>
           width: widget.width,
           height: widget.height,
           child: CustomPaint(
-            painter: CirclePainter(_progressAnimation.value),
+            painter: CirclePainter(
+                _progressAnimation.value, widget.color ?? Colors.transparent),
             child: Center(
               child: Text(
                 _counter > 0 ? _counter.toString() : '',
@@ -92,16 +96,24 @@ class CounterState extends ConsumerState<Counter>
 
 class CirclePainter extends CustomPainter {
   final double progress;
+  final Color middleCircleColor;
 
-  CirclePainter(this.progress);
+  CirclePainter(this.progress, this.middleCircleColor);
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Paint for the inner circle (middle color)
+    final Paint middleCirclePaint = Paint()
+      ..color = middleCircleColor
+      ..style = PaintingStyle.fill;
+
+    // Paint for the background circle
     final Paint backgroundPaint = Paint()
       ..color = Colors.grey.shade300
       ..strokeWidth = 8.0
       ..style = PaintingStyle.stroke;
 
+    // Paint for the progress arc
     final Paint progressPaint = Paint()
       ..shader = LinearGradient(
         colors: [Colors.orange, Colors.deepOrangeAccent],
@@ -118,8 +130,13 @@ class CirclePainter extends CustomPainter {
     final Offset center = Offset(size.width / 2, size.height / 2);
     final double radius = size.width / 2;
 
+    // Draw the middle circle (background color)
+    canvas.drawCircle(center, radius, middleCirclePaint);
+
+    // Draw the background circle (stroke)
     canvas.drawCircle(center, radius, backgroundPaint);
 
+    // Draw the progress arc
     double sweepAngle = 2 * pi * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),

@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as developer;
+import 'package:client/elements/counter.dart';
 import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizAnswerManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizTimer.dart';
@@ -318,6 +319,16 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                 ),
                 Positioned(
                   bottom: 10,
+                  child: Counter(
+                    duration: quizData!["timer"],
+                    onCountdownComplete: autoNextQuestion,
+                    height: 70,
+                    width: 70,
+                    color: Colors.white,
+                  ),
+                ),
+/*                 Positioned( // This is the old timer
+                  bottom: 10,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -350,7 +361,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                       ),
                     ],
                   ),
-                ),
+                ), */
               ],
             ),
             const SizedBox(height: 16),
