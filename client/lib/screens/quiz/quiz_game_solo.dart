@@ -1,5 +1,8 @@
 // file: quiz_game_solo.dart
 
+import 'dart:convert';
+import 'dart:math';
+import 'dart:developer' as developer;
 import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizAnswerManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizTimer.dart';
@@ -34,12 +37,17 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   @override
   void initState() {
     super.initState();
+
     audioManager = AudioManager();
     answerManager = QuizAnswerManager();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
       quizData = router.getValues?["quizData"] as Map<String, dynamic>?;
+
+      // Log quizData to confirm content
+      developer.log('Quiz data: ${quizData.toString()}');
 
       if (quizData != null) {
         quizTimer = QuizTimer(duration: quizData!["timer"] ?? 30);
@@ -76,7 +84,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
       quizTimer.start(_onTimerTick, autoNextQuestion);
     } else {
       quizTimer.stop();
-
       submitQuizAnswers();
     }
   }
@@ -102,10 +109,9 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
       });
 
       await audioManager.stopAudio();
-
       audioManager.playSoundEffect('finish.mp3');
     } catch (error) {
-      print("Error submitting quiz answers: $error");
+      developer.log("Error submitting quiz answers: $error");
       setState(() {
         loading = false;
       });
@@ -119,6 +125,10 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
     quizTimer.stop();
     audioManager.dispose();
     super.dispose();
+  }
+
+  String fixEncoding(String text) {
+    return utf8.decode(text.runes.toList(), allowMalformed: true);
   }
 
   @override
@@ -166,7 +176,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
+                        color: Colors.green,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -197,7 +207,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                   ],
                 ),
                 child: Text(
-                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows your knowledge of ${quizData!["title"]}.",
+                  "Great job! Scoring $correctAnswersCount out of $totalQuestions shows your knowledge of ${fixEncoding(quizData!["title"])}.",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,
@@ -212,7 +222,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                   final answerCorrect = check["correct"] ?? false;
                   final questionData = quizData!["quizQuestions"]
                       .firstWhere((q) => q["id"] == questionId);
-                  final questionText = questionData["question"];
+                  final questionText = fixEncoding(questionData["question"]);
 
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -244,8 +254,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                 }).toList(),
               ),
               const SizedBox(height: 16),
-
-              // Leave Quiz Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
@@ -274,7 +282,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
     }
 
     final currentQuestion = quizData!["quizQuestions"][currentQuestionIndex];
-    final questionText = currentQuestion["question"] ?? "No question text";
+    final questionText =
+        fixEncoding(currentQuestion["question"] ?? "No question text");
     final List<dynamic> options = currentQuestion["quizOptions"] ?? [];
     final totalQuestions = quizData!["quizQuestions"].length;
     final progress = (currentQuestionIndex + 1) / totalQuestions;
@@ -373,15 +382,14 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
               child: ListView.builder(
                 itemCount: options.length,
                 itemBuilder: (context, index) {
-                  final optionText = options[index]["option"];
+                  final optionText = fixEncoding(options[index]["option"]);
                   final isSelected = selectedAnswer == optionText;
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        backgroundColor:
-                            isSelected ? Colors.white : Colors.white,
+                        backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         side: BorderSide(
                           color: isSelected
