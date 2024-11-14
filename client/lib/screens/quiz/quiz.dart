@@ -62,6 +62,17 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('QuizAPP'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              router.goBack(context);
+            },
+          ),
+        ],
+      ),
       body: Container(
         color: theme.canvasColor,
         padding: const EdgeInsets.all(16),
