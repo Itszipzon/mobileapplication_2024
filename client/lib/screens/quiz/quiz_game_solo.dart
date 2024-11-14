@@ -243,6 +243,30 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                   );
                 }).toList(),
               ),
+              const SizedBox(height: 16),
+
+              // Leave Quiz Button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                onPressed: () {
+                  router.goBack(context);
+                },
+                child: const Text(
+                  "Leave Quiz",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
