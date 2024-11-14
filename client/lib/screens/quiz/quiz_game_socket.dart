@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:client/elements/button.dart';
 import 'package:client/elements/counter.dart';
+import 'package:client/screens/quiz/socket/quiz_socket_answers.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_question.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_score.dart';
 import 'package:client/tools/api_handler.dart';
@@ -31,6 +32,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
   String state = "countdown";
   int questionNumber = 0;
   bool isLoading = true;
+  String message = "";
 
   Map<String, dynamic> values = {};
 
@@ -65,12 +67,14 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       return;
     }
 
+    print(router.getValues!);
     setState(() {
       title = router.getValues!['quiz']['title'];
       timer = router.getValues!['quiz']['timer'];
       thumbnail = router.getValues!['thumbnail'];
       values = router.getValues!;
       values['message'] = {"message": "firstCountDown"};
+      values['username'] = username;
       isLoading = false;
     });
   }
@@ -107,7 +111,9 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
             state = result['state'];
             title = result["quiz"]['title'];
             timer = result["quiz"]['timer'];
+            message = result['message'];
             values = result;
+            values['username'] = username;
           });
           _displaySelectedScene();
         } else {
@@ -168,15 +174,27 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
 
   Widget _displaySelectedScene() {
     if (state == "quiz") {
-      return QuizSocketQuestion(
-        router: router,
-        user: user,
-        values: values,
-        onTimer: (data) => {
-          _handleQuizTimer(data)
-        },
-        onClick: (data) => _handleAnswer(data),
-      );
+      if (message == "showAnswer") {
+        return QuizSocketAnswers(
+          router: router,
+          user: user,
+          values: values,
+          onTimer: (data) => {
+            _handleQuizTimer(data)
+          },
+          onClick: (data) => _handleAnswer(data),
+        );
+      } else {
+        return QuizSocketQuestion(
+          router: router,
+          user: user,
+          values: values,
+          onTimer: (data) => {
+            _handleQuizTimer(data)
+          },
+          onClick: (data) => _handleAnswer(data),
+        );
+      }
     } else if (state == "score") {
       return ScoreScreen(
         router: router,

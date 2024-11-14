@@ -3,7 +3,6 @@ package no.itszipzon.socket.quiz;
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -385,8 +384,6 @@ public class QuizController {
     quizDetails.put("quiz", quiz);
 
     QuizQuestionDto quizQuestion = quizSession.getQuiz().getQuizQuestions().get(questionIndex);
-
-    Collections.shuffle(quizQuestion.getQuizOptions());
 
     Map<String, Object> quizQuestions = new HashMap<>();
     quizQuestions.put("questions", quizQuestion);
