@@ -1,6 +1,7 @@
 package no.itszipzon.socket.quiz;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
@@ -106,6 +107,9 @@ public class QuizSession {
    * @param quiz The quiz.
    */
   public void setQuiz(QuizWithQuestionsDto quiz) {
+    for (QuizQuestionDto question : quiz.getQuizQuestions()) {
+      Collections.shuffle(question.getQuizOptions());
+    }
     this.quiz = quiz;
     this.amountOfQuestions = quiz.getQuizQuestions().size();
   }

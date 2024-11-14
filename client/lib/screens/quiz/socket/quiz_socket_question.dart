@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'package:client/elements/counter.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,6 @@ class QuizSocketQuestion extends ConsumerStatefulWidget {
 class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   late final RouterNotifier router;
   late final UserNotifier user;
-  Timer? _timer;
   bool isLoading = true;
   bool isAnswered = false;
   Map<String, dynamic> answer = {"option": "", "id": -1};
@@ -54,51 +53,8 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
       counter = widget.values['quiz']['timer'];
       questionData = widget.values['quizQuestions']["questions"];
     });
-    _startCountdown();
     setState(() {
       isLoading = false;
-    });
-  }
-
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (widget.values["message"] == "showAnswer") {
-        _timer!.cancel();
-        _startAnswerCountdown();
-        return;
-      }
-
-      if (counter == 0) {
-        _timer!.cancel();
-        widget.onTimer(widget.values["message"] != "showAnswer");
-        print(widget.values["message"]);
-
-        if (widget.values["message"] != "showAnswer") {
-          _startAnswerCountdown();
-        }
-        return;
-      }
-
-      setState(() {
-        counter--;
-      });
-    });
-  }
-
-  void _startAnswerCountdown() {
-    setState(() {
-      counter = 5;
-      showAnswer = true;
-    });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (counter == 0) {
-        _timer!.cancel();
-        widget.onTimer(widget.values["message"] != "showAnswer");
-        return;
-      }
-      setState(() {
-        counter--;
-      });
     });
   }
 
@@ -134,127 +90,69 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
           ),
         ),
         const SizedBox(height: 20),
-        showAnswer
+        isAnswered
             ? SizedBox(
+                height: 350,
+                child: Center(
+                  child: Text(
+                    answer['option'],
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              )
+            : SizedBox(
                 width: 350,
                 height: 350,
                 child: ListView.builder(
                   itemCount: questionData['quizOptions'].length ?? 0,
                   itemBuilder: (context, index) {
-                    return Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: answer["id"] ==
-                                    questionData['quizOptions'][index]['id'] ||
-                                widget.values["lastCorrectAnswers"].contains(
-                                    questionData['quizOptions'][index]['id'])
-                            ? widget.values["lastCorrectAnswers"].contains(
-                                    questionData['quizOptions'][index]['id'])
-                                ? Border.all(color: Colors.green)
-                                : Border.all(color: Colors.red)
-                            : Border.all(color: theme.primaryColor),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            questionData['quizOptions'][index]['option'] ?? "",
-                            style: TextStyle(
-                              fontSize: 16,
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          answer = questionData['quizOptions'][index];
+                          isAnswered = true;
+                        });
+                        widget.onClick({
+                          "answer": questionData['quizOptions'][index]
+                              ['option'],
+                          "answerId": questionData['quizOptions'][index]['id'],
+                        });
+                      },
+                      child: Container(
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: theme.primaryColor),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              questionData['quizOptions'][index]['option'] ??
+                                  "",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          answer["id"] ==
-                                  questionData['quizOptions'][index]['id']
-                              ? Icon(
-                                  widget.values["lastCorrectAnswers"].contains(
-                                          questionData['quizOptions'][index]
-                                              ['id'])
-                                      ? Icons.check
-                                      : Icons.close,
-                                  color: widget.values["lastCorrectAnswers"]
-                                          .contains(questionData['quizOptions']
-                                              [index]['id'])
-                                      ? Colors.green
-                                      : Colors.red,
-                                )
-                              : Container(),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
                 ),
-              )
-            : isAnswered
-                ? SizedBox(
-                    height: 350,
-                    child: Center(
-                      child: Text(
-                        answer['option'],
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  )
-                : SizedBox(
-                    width: 350,
-                    height: 350,
-                    child: ListView.builder(
-                      itemCount: questionData['quizOptions'].length ?? 0,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              answer = questionData['quizOptions'][index];
-                              isAnswered = true;
-                            });
-                            widget.onClick({
-                              "answer": questionData['quizOptions'][index]
-                                  ['option'],
-                              "answerId": questionData['quizOptions'][index]
-                                  ['id'],
-                            });
-                          },
-                          child: Container(
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: theme.primaryColor),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  questionData['quizOptions'][index]
-                                          ['option'] ??
-                                      "",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+              ),
         Center(
-          child: Text(
-            "Time left: $counter",
-            style: TextStyle(
-              fontSize: 24,
-            ),
-          ),
+          child: Counter(
+              onCountdownComplete: () =>
+                  widget.onTimer(widget.values["message"] != "showAnswer"),
+              duration: widget.values['quiz']['timer'],
+              marginTop: 16),
         )
       ],
     );

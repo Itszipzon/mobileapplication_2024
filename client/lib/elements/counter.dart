@@ -40,7 +40,7 @@ class CounterState extends ConsumerState<Counter>
     _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Curves.easeInOut,
+        curve: Curves.linear,
       ),
     );
 
@@ -49,7 +49,7 @@ class CounterState extends ConsumerState<Counter>
         widget.onCountdownComplete();
       } else {
         setState(() {
-          _counter = (5 - (_controller.value * 5).floor());
+          _counter = (widget.duration - (_controller.value * widget.duration).floor());
         });
       }
     });
