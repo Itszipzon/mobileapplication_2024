@@ -59,6 +59,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   }
 
   void autoNextQuestion() async {
+    audioManager.playSoundEffect('next.mp3');
     if (selectedAnswer != null) {
       answerManager.recordAnswer(
           quizData!, currentQuestionIndex, selectedAnswer!);
