@@ -8,7 +8,6 @@ import 'package:http_parser/http_parser.dart';
 class ApiHandler {
   //////////////////////////Remote rune//////////////////////////////////
 
-  
   static final String _url = "http://10.24.35.178:8080";
 
   static String get url => _url;
@@ -252,7 +251,7 @@ class ApiHandler {
     }
   }
 
-    /// Adds a quiz attempt.
+  /// Adds a quiz attempt.
   static Future<http.Response> addQuizAttempt(String token, int quizId) async {
     final uri = Uri.parse('$_url/api/quiz/attempt/$quizId');
 
@@ -265,7 +264,7 @@ class ApiHandler {
     );
 
     if (response.statusCode == 201) {
-      return response; 
+      return response;
     } else if (response.statusCode == 404) {
       throw Exception('Quiz not found');
     } else if (response.statusCode == 401) {
@@ -275,4 +274,19 @@ class ApiHandler {
     }
   }
 
+  /// Fetches the 10 most popular quizzes based on the number of attempts.
+  static Future<List<Map<String, dynamic>>> getMostPopularQuizzes() async {
+    final uri = Uri.parse('$_url/api/quiz/popular');
+
+    final response = await http.get(uri, headers: {
+      'Content-Type': 'application/json',
+    });
+
+    if (response.statusCode == 200) {
+      List<dynamic> quizzes = jsonDecode(response.body);
+      return quizzes.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to fetch popular quizzes');
+    }
+  }
 }
