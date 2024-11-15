@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -252,8 +251,8 @@ public class QuizApi {
     String username = claims.getSubject();
     Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "takenAt"));
 
-    Optional<List<QuizDto>> optQuizzes = quizAttemptRepo
-        .findQuizzedFromUserHistory(username, pageable);
+    Optional<List<QuizDto>> optQuizzes = quizAttemptRepo.findQuizzedFromUserHistory(username,
+        pageable);
 
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
 
@@ -288,8 +287,7 @@ public class QuizApi {
    */
   @GetMapping("/popular/{page}")
   @Transactional(readOnly = true)
-  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes(
-      @PathVariable int page) {
+  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes(@PathVariable int page) {
 
     // Create a pageable object
     Pageable pageable = PageRequest.of(page, 5);
@@ -327,11 +325,11 @@ public class QuizApi {
   @PostMapping("/attempt/{quizId}")
   @Transactional
   public ResponseEntity<String> addQuizAttempt(
-      @RequestHeader("Authorization") String authorizationHeader,
-      @PathVariable Long quizId) {
+      @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long quizId) {
 
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-      return new ResponseEntity<>("Unauthorized: Missing or invalid token.", HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>("Unauthorized: Missing or invalid token.",
+          HttpStatus.UNAUTHORIZED);
     }
 
     String token = authorizationHeader.substring(7);
@@ -345,7 +343,8 @@ public class QuizApi {
     String username = claims.getSubject();
 
     if (userId == null || username == null) {
-      return new ResponseEntity<>("Unauthorized: Invalid user data in token.", HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>("Unauthorized: Invalid user data in token.",
+          HttpStatus.UNAUTHORIZED);
     }
 
     Optional<Quiz> quizOptional = quizRepo.findById(quizId);
@@ -353,13 +352,13 @@ public class QuizApi {
       return new ResponseEntity<>("Quiz not found.", HttpStatus.NOT_FOUND);
     }
 
-    Quiz quiz = quizOptional.get();
 
     QuizAttempt quizAttempt = new QuizAttempt();
     User user = new User();
     user.setId(userId);
     user.setUsername(username);
     quizAttempt.setUser(user);
+    Quiz quiz = quizOptional.get();
     quizAttempt.setQuiz(quiz);
 
     quizAttemptRepo.save(quizAttempt);
@@ -405,10 +404,8 @@ public class QuizApi {
     }
 
     List<?> answersList = (List<?>) answersObj;
-    List<Map<String, Object>> answers = answersList.stream()
-        .filter(Map.class::isInstance)
-        .map(Map.class::cast)
-        .collect(Collectors.toList());
+    List<Map<String, Object>> answers = answersList.stream().filter(Map.class::isInstance)
+        .map(Map.class::cast).collect(Collectors.toList());
 
     List<Map<String, Object>> answerCheck = new ArrayList<>();
     for (Map<String, Object> answer : answers) {
