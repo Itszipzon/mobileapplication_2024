@@ -1,8 +1,16 @@
 class Tools {
 
-    static String formatCreatedAt(DateTime date) {
+    static String formatCreatedAt(List<int> date) {
+      final dateFromParameter = DateTime(
+        date[0],
+        date[1],
+        date[2],
+        date[3],
+        date[4],
+        date[5],
+      );
     final now = DateTime.now();
-    final difference = now.difference(date);
+    final difference = now.difference(dateFromParameter);
 
     if (difference.inDays >= 365) {
       if ((difference.inDays / 365).floor() == 1) {

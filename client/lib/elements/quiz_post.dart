@@ -20,7 +20,7 @@ class QuizPost extends ConsumerWidget {
   final String profilePicture;
   final String title;
   final String username;
-  final DateTime createdAt;
+  final List<dynamic> createdAt;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,7 +69,7 @@ class QuizPost extends ConsumerWidget {
                         const SizedBox(width: 4),
                         const Text("|"),
                         const SizedBox(width: 4),
-                        Text(Tools.formatCreatedAt(createdAt)),
+                        Text(Tools.formatCreatedAt(createdAt.map((e) => e as int).toList())),
                       ],
                     ),
                   ],

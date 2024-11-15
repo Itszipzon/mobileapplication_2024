@@ -8,21 +8,22 @@ import 'package:http_parser/http_parser.dart';
 class ApiHandler {
   //////////////////////////Remote rune//////////////////////////////////
 
-  static final String _url = "http://10.24.35.178:8080";
+/*   
+  static final String _url = "http://10.24.37.76:8080";
 
-  static String get url => _url;
+  static String get url => _url; */
 
   //////////////////////////local//////////////////////////////////
 
-/*   static final String _url =
-      Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080r';
+  static final String _url =
+      Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
   static final String _wsUrl =
       Platform.isAndroid ? 'ws://10.0.2.2:8080' : 'ws://localhost:8080';
 
   static String get url => _url;
 
-  static String get wsUrl => _wsUrl; */
+  static String get wsUrl => _wsUrl;
 
   ///////////////////////////////////////////////////////////////////////
 
@@ -210,11 +211,9 @@ class ApiHandler {
     return jsonDecode(response.body).cast<String>();
   }
 
-  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(
-      String category, int page) async {
-    final response =
-        await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
-
+  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(String category, int page) async {
+    final response = await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
+    
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
       return quizzes.cast<Map<String, dynamic>>();

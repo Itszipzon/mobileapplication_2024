@@ -182,14 +182,7 @@ class ProfileState extends ConsumerState<Profile> {
                                           quiz['profile_picture'] ?? '',
                                       title: quiz['title'] ?? '',
                                       username: quiz['username'] ?? '',
-                                      createdAt: DateTime(
-                                        quiz['createdAt'][0],
-                                        quiz['createdAt'][1],
-                                        quiz['createdAt'][2],
-                                        quiz['createdAt'][3],
-                                        quiz['createdAt'][4],
-                                        quiz['createdAt'][5],
-                                      ),
+                                      createdAt: quiz['createdAt'],
                                     ),
 
                                     // Three dots menu button in bottom-right corner
@@ -278,14 +271,7 @@ class ProfileState extends ConsumerState<Profile> {
                                   profilePicture: quiz['profile_picture'] ?? '',
                                   title: quiz['title'] ?? '',
                                   username: quiz['username'] ?? '',
-                                  createdAt: DateTime(
-                                    quiz['createdAt'][0],
-                                    quiz['createdAt'][1],
-                                    quiz['createdAt'][2],
-                                    quiz['createdAt'][3],
-                                    quiz['createdAt'][4],
-                                    quiz['createdAt'][5],
-                                  ),
+                                  createdAt: quiz['createdAt'],
                                 );
                               },
                             ),

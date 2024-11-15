@@ -64,16 +64,6 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Positioned(
-          bottom: 10,
-          child: Counter(
-              height: 70,
-              width: 70,
-              onCountdownComplete: () =>
-                  widget.onTimer(widget.values["message"] != "showAnswer"),
-              duration: widget.values['quiz']['timer'],
-              marginTop: 16),
-        ),
         const SizedBox(height: 20),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -156,7 +146,14 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                     );
                   },
                 ),
-              )
+              ),
+        Center(
+          child: Counter(
+              onCountdownComplete: () =>
+                  widget.onTimer(widget.values["message"] != "showAnswer"),
+              duration: widget.values['quiz']['timer'],
+              marginTop: 16),
+        )
       ],
     );
   }

@@ -128,7 +128,10 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       destination: "/app/quiz/game",
       body: json.encode({
         "token": router.getValues!['token'],
-        "message": {"message": "next", "quizState": showAnswers ? "showAnswer" : "quiz"},
+        "message": {
+          "message": "next",
+          "quizState": showAnswers ? "showAnswer" : "quiz"
+        },
         "userToken": user.token,
         "quizId": router.getValues!['quiz']['id'],
       }),
@@ -179,9 +182,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
           router: router,
           user: user,
           values: values,
-          onTimer: (data) => {
-            _handleQuizTimer(data)
-          },
+          onTimer: (data) => {_handleQuizTimer(data)},
           onClick: (data) => _handleAnswer(data),
         );
       } else {
@@ -189,9 +190,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
           router: router,
           user: user,
           values: values,
-          onTimer: (data) => {
-            _handleQuizTimer(data)
-          },
+          onTimer: (data) => {_handleQuizTimer(data)},
           onClick: (data) => _handleAnswer(data),
         );
       }
@@ -210,7 +209,8 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         username: username,
       );
     } else {
-      return Counter(onCountdownComplete: _handleNext, duration: 5, marginTop: 16);
+      return Counter(
+          onCountdownComplete: _handleNext, duration: 5, marginTop: 16);
     }
   }
 
@@ -235,9 +235,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                     ),
                   ),
                 )
-              : const SizedBox(
-                  width: 0,
-                ),
+              : const SizedBox(width: 0),
           state == "end"
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -254,23 +252,47 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                     ),
                   ),
                 )
-              : const SizedBox(
-                  width: 0,
-                ),
+              : const SizedBox(width: 0),
         ],
       ),
       body: Center(
         child: Column(
           children: [
-            !isLoading
-                ? Image.network(
-                    '${ApiHandler.url}/api/quiz/thumbnail/${values['quiz']['id']}',
+            isLoading
+                ? const SizedBox(
                     height: 200,
                   )
-                : const SizedBox(
-                    height: 200,
+                : Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.network(
+                        '${ApiHandler.url}/api/quiz/thumbnail/${values['quiz']['id']}',
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      if (state == "quiz")
+                        if (message == "showAnswer")
+                          Counter(
+                            height: 70,
+                            width: 70,
+                            onCountdownComplete: _handleNext,
+                            duration: 5,
+                            marginTop: 16,
+                          )
+                        else
+                          Counter(
+                            height: 70,
+                            width: 70,
+                            onCountdownComplete: _handleNext,
+                            duration: timer,
+                            marginTop: 16,
+                          ),
+                    ],
                   ),
-            _displaySelectedScene()
+            Expanded(
+              child: _displaySelectedScene(),
+            ),
           ],
         ),
       ),

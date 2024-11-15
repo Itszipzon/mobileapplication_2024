@@ -118,14 +118,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
                         const SizedBox(width: 4),
                         Text(isLoading
                             ? ""
-                            : Tools.formatCreatedAt(DateTime(
-                                quiz['createdAt'][0],
-                                quiz['createdAt'][1],
-                                quiz['createdAt'][2],
-                                quiz['createdAt'][3],
-                                quiz['createdAt'][4],
-                                quiz['createdAt'][5],
-                              ))),
+                            : Tools.formatCreatedAt(quiz['createdAt'])),
                       ],
                     ),
                   ],
