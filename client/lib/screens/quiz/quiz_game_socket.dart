@@ -254,50 +254,46 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
               : const SizedBox(width: 0),
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            isLoading
-                ? const SizedBox(
-                    height: 200,
-                  )
-                : Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Image.network(
-                        '${ApiHandler.url}/api/quiz/thumbnail/${values['quiz']['id']}',
-                        height: 200,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                      if (state == "quiz")
-                        if (message == "showAnswer")
-                          Counter(
-                            key: UniqueKey(),
-                            height: 70,
-                            width: 70,
-                            color: Colors.white,
-                            onCountdownComplete: _handleNext,
-                            duration: 5,
-                            marginTop: 16,
-                          )
-                        else
-                          Counter(
-                            key: UniqueKey(),
-                            height: 70,
-                            width: 70,
-                            color: Colors.white,
-                            onCountdownComplete: _handleNext,
-                            duration: timer,
-                            marginTop: 16,
-                          ),
-                    ],
-                  ),
-            Expanded(
-              child: _displaySelectedScene(),
-            ),
-          ],
-        ),
+      body: Column(
+        children: [
+          isLoading
+              ? const SizedBox(
+                  height: 200,
+                )
+              : Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.network(
+                      '${ApiHandler.url}/api/quiz/thumbnail/${values['quiz']['id']}',
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    if (state == "quiz")
+                      if (message == "showAnswer")
+                        Counter(
+                          key: UniqueKey(),
+                          height: 70,
+                          width: 70,
+                          color: Colors.white,
+                          onCountdownComplete: _handleNext,
+                          duration: 5,
+                          marginTop: 16,
+                        )
+                      else
+                        Counter(
+                          key: UniqueKey(),
+                          height: 70,
+                          width: 70,
+                          color: Colors.white,
+                          onCountdownComplete: _handleNext,
+                          duration: timer,
+                          marginTop: 16,
+                        ),
+                  ],
+                ),
+            _displaySelectedScene(),
+        ],
       ),
     );
   }

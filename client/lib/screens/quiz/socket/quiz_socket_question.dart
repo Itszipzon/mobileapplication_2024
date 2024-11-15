@@ -63,7 +63,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(16),
@@ -91,14 +91,41 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
         const SizedBox(height: 20),
         isAnswered
             ? SizedBox(
+                width: 350,
                 height: 350,
-                child: Center(
-                  child: Text(
-                    answer['option'],
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
+                child: ListView.builder(
+                  itemCount: questionData['quizOptions'].length ?? 0,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: answer["option"] ==
+                                questionData['quizOptions'][index]["option"]
+                            ? Colors.white
+                            : Colors.grey[200],
+                        border: Border.all(
+                            color: answer["option"] ==
+                                    questionData['quizOptions'][index]["option"]
+                                ? theme.primaryColor
+                                : Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            questionData['quizOptions'][index]['option'] ?? "",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               )
             : SizedBox(

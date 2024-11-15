@@ -82,7 +82,7 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(16),
