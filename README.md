@@ -6,6 +6,30 @@ QuizApp is a dynamic and engaging application designed to provide a comprehensiv
 
 ---
 
+## Table of Contents
+
+- [Concept of QuizApp](#concept-of-quizapp)
+- [Purpose of QuizApp](#purpose-of-quizapp)
+  - [Creative Freedom with Quiz Creation](#creative-freedom-with-quiz-creation)
+  - [Solo and Multiplayer Quiz Modes](#solo-and-multiplayer-quiz-modes)
+  - [Real-Time Engagement](#real-time-engagement)
+  - [Enhanced Community Experience](#enhanced-community-experience)
+- [Why QuizApp is Essential](#why-quizapp-is-essential)
+  - [Learning Made Fun](#learning-made-fun)
+  - [Social Connection](#social-connection)
+  - [Creative Outlet](#creative-outlet)
+  - [Convenience](#convenience)
+  - [Future-Ready](#future-ready)
+- [Built With](#built-with)
+- [Startup](#startup)
+  - [.env Variables](#env-variables)
+  - [env Example](#env-example)
+  - [Generate a JWT_SECRET Securely](#to-generate-a-jwt_secret-securely)
+  - [Properties Example](#properties-example)
+- [Code Contributors](#code-contributors)
+
+---
+
 ## Concept of QuizApp
 
 QuizApp revolutionizes the way users interact with quizzes by offering both solo and multiplayer experiences. The application enables users to create custom quizzes and explore a rich library of community-generated quizzes, catering to all interests and difficulty levels.
