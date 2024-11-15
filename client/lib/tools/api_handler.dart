@@ -211,9 +211,11 @@ class ApiHandler {
     return jsonDecode(response.body).cast<String>();
   }
 
-  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(String category, int page) async {
-    final response = await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
-    
+  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(
+      String category, int page) async {
+    final response =
+        await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
+
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
       return quizzes.cast<Map<String, dynamic>>();
@@ -274,8 +276,8 @@ class ApiHandler {
   }
 
   /// Fetches the 10 most popular quizzes based on the number of attempts.
-  static Future<List<Map<String, dynamic>>> getMostPopularQuizzes() async {
-    final uri = Uri.parse('$_url/api/quiz/popular');
+  static Future<List<Map<String, dynamic>>> getMostPopularQuizzes(int page) async {
+    final uri = Uri.parse('$_url/api/quiz/popular/$page');
 
     final response = await http.get(uri, headers: {
       'Content-Type': 'application/json',
