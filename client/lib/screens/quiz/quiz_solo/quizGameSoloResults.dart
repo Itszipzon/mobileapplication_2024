@@ -4,6 +4,7 @@ import 'package:client/tools/api_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:client/tools/router.dart';
+import 'scoringSystem.dart';
 
 class QuizResults extends ConsumerStatefulWidget {
   const QuizResults({super.key});
@@ -14,6 +15,8 @@ class QuizResults extends ConsumerStatefulWidget {
 
 class _QuizResultsState extends ConsumerState<QuizResults>
     with TickerProviderStateMixin {
+  final ScoringSystem scoringSystem = ScoringSystem();
+
   String fixEncoding(String? text) {
     return utf8.decode(text?.runes.toList() ?? [], allowMalformed: true);
   }
@@ -32,28 +35,19 @@ class _QuizResultsState extends ConsumerState<QuizResults>
 
     final checks = results["checks"] ?? [];
     final totalQuestions = quizData["quizQuestions"]?.length ?? 0;
+    final totalScore = results["totalScore"] ?? 0;
+    final questionScores = results["questionScores"] ?? [];
+
+    final int finalScore = scoringSystem.calculateFinalScore(
+      questionScores,
+      checks,
+      quizData,
+    );
+
     final correctPercentage =
         (checks.where((check) => check["correct"] == true).length /
                 totalQuestions) *
             100;
-
-    final totalScore = results["totalScore"] ?? 0;
-    final questionScores = results["questionScores"] ?? [];
-
-    int finalScore = 0;
-
-    for (int i = 0; i < questionScores.length; i++) {
-      final questionId = quizData["quizQuestions"][i]["id"];
-      final answerCorrect = checks.any((check) =>
-          check["questionId"] == questionId && check["correct"] == true);
-
-      if (answerCorrect) {
-        finalScore += (questionScores[i] as num).toInt();
-      } else {
-        finalScore += 0;
-      }
-    }
-
     String performanceComment() {
       if (finalScore >= totalQuestions * 1000 * 0.9) {
         return "Excellent job! You're a quiz master!";
@@ -77,7 +71,7 @@ class _QuizResultsState extends ConsumerState<QuizResults>
 
     final scoreAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2, milliseconds: 500), // 2.5 seconds
+      duration: const Duration(seconds: 2, milliseconds: 500),
     );
 
     final scoreAnimation = IntTween(begin: 0, end: finalScore).animate(
@@ -87,7 +81,6 @@ class _QuizResultsState extends ConsumerState<QuizResults>
       ),
     );
 
-    // Start the animation
     scoreAnimationController.forward();
 
     return Scaffold(
@@ -135,7 +128,7 @@ class _QuizResultsState extends ConsumerState<QuizResults>
                     ),
                     child: Column(
                       children: [
-                        Text(
+                        const Text(
                           "Your Total Score",
                           style: TextStyle(
                             fontSize: 24,
@@ -144,13 +137,12 @@ class _QuizResultsState extends ConsumerState<QuizResults>
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // Animated score display
                         AnimatedBuilder(
                           animation: scoreAnimationController,
                           builder: (context, child) {
                             return Text(
                               "${scoreAnimation.value}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -159,7 +151,7 @@ class _QuizResultsState extends ConsumerState<QuizResults>
                           },
                         ),
                         const SizedBox(height: 10),
-                        Icon(
+                        const Icon(
                           Icons.star,
                           color: Colors.white,
                           size: 36,
