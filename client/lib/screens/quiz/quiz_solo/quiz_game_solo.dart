@@ -197,7 +197,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QuizAPP'),
+        title: Text(
+          quizData?["title"] ?? "Untitled Quiz",
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back),
