@@ -316,7 +316,6 @@ public class UserApi {
   @PostMapping("/logout")
   public ResponseEntity<String> logout(@RequestBody String token) {
     token = token.replace("=", "");
-    System.out.println("Logging out");
     return new ResponseEntity<>("Logged out", HttpStatus.OK);
   }
 

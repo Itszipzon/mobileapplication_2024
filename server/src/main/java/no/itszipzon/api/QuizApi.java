@@ -339,9 +339,6 @@ public class QuizApi {
   public ResponseEntity<Map<String, Object>> checkAnswers(
       @RequestBody Map<String, Object> userAnswer) {
 
-    System.out.println("checking answers");
-    System.out.println(userAnswer);
-
     Claims claims = jwtUtil.extractClaims(userAnswer.get("token").toString());
     if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -442,7 +439,6 @@ public class QuizApi {
     }
 
     User quizUser = new User();
-    System.out.println(claims.getSubject() + " Trying to create a quiz");
     quizUser.setId(claims.get("id", Long.class));
     quizUser.setUsername(claims.getSubject());
 
@@ -553,7 +549,6 @@ public class QuizApi {
     String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");
 
     if (thumbnailString.isBlank()) {
-      System.out.println("Thumbnail is blank");
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
 
