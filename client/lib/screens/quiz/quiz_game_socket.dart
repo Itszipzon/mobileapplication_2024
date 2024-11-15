@@ -67,7 +67,6 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       return;
     }
 
-    print(router.getValues!);
     setState(() {
       title = router.getValues!['quiz']['title'];
       timer = router.getValues!['quiz']['timer'];
@@ -274,16 +273,20 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                       if (state == "quiz")
                         if (message == "showAnswer")
                           Counter(
+                            key: UniqueKey(),
                             height: 70,
                             width: 70,
+                            color: Colors.white,
                             onCountdownComplete: _handleNext,
                             duration: 5,
                             marginTop: 16,
                           )
                         else
                           Counter(
+                            key: UniqueKey(),
                             height: 70,
                             width: 70,
+                            color: Colors.white,
                             onCountdownComplete: _handleNext,
                             duration: timer,
                             marginTop: 16,

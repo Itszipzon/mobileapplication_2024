@@ -1,4 +1,3 @@
-import 'package:client/elements/counter.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -147,13 +146,6 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                   },
                 ),
               ),
-        Center(
-          child: Counter(
-              onCountdownComplete: () =>
-                  widget.onTimer(widget.values["message"] != "showAnswer"),
-              duration: widget.values['quiz']['timer'],
-              marginTop: 16),
-        )
       ],
     );
   }
