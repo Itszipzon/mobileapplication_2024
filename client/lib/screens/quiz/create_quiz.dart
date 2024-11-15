@@ -360,9 +360,9 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         });
         return;
       } else if (index == questions.length - 1) {
+        changeSelectedQuestion(_selectedIndex, _selectedIndex - 1);
         setState(() {
           questions.removeAt(index);
-          _selectedIndex--;
         });
       } else {
         setState(() {
