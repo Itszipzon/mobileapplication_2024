@@ -28,7 +28,7 @@ class HomeState extends ConsumerState<Home> {
       user = ref.read(userProvider.notifier);
     });
     _quizDataFuture = ApiHandler.getQuizzesByFilter(0, 5, "createdAt", "DESC");
-    _popularQuizDataFuture = ApiHandler.getMostPopularQuizzes();
+    _popularQuizDataFuture = ApiHandler.getMostPopularQuizzes(0);
   }
 
   @override
