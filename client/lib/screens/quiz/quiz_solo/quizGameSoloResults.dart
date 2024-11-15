@@ -1,20 +1,25 @@
 import 'dart:convert';
-
 import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:client/tools/router.dart';
 
-class QuizResults extends ConsumerWidget {
+class QuizResults extends ConsumerStatefulWidget {
   const QuizResults({super.key});
 
+  @override
+  _QuizResultsState createState() => _QuizResultsState();
+}
+
+class _QuizResultsState extends ConsumerState<QuizResults>
+    with TickerProviderStateMixin {
   String fixEncoding(String? text) {
     return utf8.decode(text?.runes.toList() ?? [], allowMalformed: true);
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final router = ref.read(routerProvider);
     final quizData = router.values?['quizData'];
     final results = router.values?['results'];
@@ -45,7 +50,7 @@ class QuizResults extends ConsumerWidget {
       if (answerCorrect) {
         finalScore += (questionScores[i] as num).toInt();
       } else {
-        finalScore += 0; 
+        finalScore += 0;
       }
     }
 
@@ -63,12 +68,27 @@ class QuizResults extends ConsumerWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final audioManager = AudioManager();
-      if (correctPercentage > 50) {
-        audioManager.playSoundEffect('finish.mp3');
+      if (correctPercentage > 20) {
+        audioManager.playSoundEffect('countup.mp3');
       } else {
         audioManager.playSoundEffect('losing.mp3');
       }
     });
+
+    final scoreAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2, milliseconds: 500), // 2.5 seconds
+    );
+
+    final scoreAnimation = IntTween(begin: 0, end: finalScore).animate(
+      CurvedAnimation(
+        parent: scoreAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    // Start the animation
+    scoreAnimationController.forward();
 
     return Scaffold(
       appBar: AppBar(
@@ -124,13 +144,19 @@ class QuizResults extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          "$finalScore", 
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                        // Animated score display
+                        AnimatedBuilder(
+                          animation: scoreAnimationController,
+                          builder: (context, child) {
+                            return Text(
+                              "${scoreAnimation.value}",
+                              style: TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 10),
                         Icon(

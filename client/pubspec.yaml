@@ -43,6 +43,7 @@ flutter:
     - assets/error.mp3
     - assets/next.mp3
     - assets/losing.mp3
+    - assets/countup.mp3
 
 
 flutter_launcher_icons:
