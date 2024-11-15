@@ -143,12 +143,12 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
         developer.log("Quiz attempt logged successfully.");
 
         final response = await answerManager.submitAnswers(token, quizId);
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        print(
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         print(questionScores);
         response['questionScores'] = questionScores;
         developer.log('Question scores: $questionScores');
 
-        // Navigate to results
         router.setPath(context, "quiz/results", values: {
           'quizData': quizData,
           'results': response,
