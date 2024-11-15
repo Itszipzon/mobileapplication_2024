@@ -35,7 +35,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   int duration = 0;
 
-
   int totalScore = 0;
   DateTime? questionStartTime;
 
@@ -151,19 +150,28 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       final String token = user.token!.toString();
       final int quizId = quizData!["id"] as int;
 
-      final response = await answerManager.submitAnswers(token, quizId);
-      response['questionScores'] = questionScores;
-      print(
-          'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-      print(questionScores);
+      final attemptResponse = await ApiHandler.addQuizAttempt(token, quizId);
 
-      router.setPath(context, "quiz/results", values: {
-        'quizData': quizData,
-        'results': response,
-      });
+      if (attemptResponse.statusCode == 201) {
+        developer.log("Quiz attempt logged successfully.");
 
-      await audioManager.stopAudio();
-      audioManager.playSoundEffect('finish.mp3');
+        final response = await answerManager.submitAnswers(token, quizId);
+
+        response['questionScores'] = questionScores;
+        developer.log('Question scores: $questionScores');
+
+        // Navigate to results
+        router.setPath(context, "quiz/results", values: {
+          'quizData': quizData,
+          'results': response,
+        });
+
+        await audioManager.stopAudio();
+        audioManager.playSoundEffect('finish.mp3');
+      } else {
+        developer.log("Failed to log quiz attempt: ${attemptResponse.body}");
+        throw Exception("Failed to log quiz attempt.");
+      }
     } catch (error) {
       developer.log("Error submitting quiz answers: $error");
       setState(() {
