@@ -22,6 +22,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
   bool isLoading = true;
 
   late Map<String, dynamic> quiz;
+  late List<dynamic> createdAt;
 
   @override
   void initState() {
@@ -29,7 +30,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
-      print("Quiz id: ${router.getValues!['id']}");
+      
       if (router.getValues == null || router.getValues!['id'] == null) {
         ErrorHandler.showOverlayError(context, 'No quiz found.');
         router.setPath(context, 'home');
@@ -53,6 +54,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
       setState(() {
         quiz = response;
         quiz['pfp'] = profilePicture;
+        createdAt = quiz['createdAt'];
         isLoading = false;
       });
     }
@@ -118,7 +120,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
                         const SizedBox(width: 4),
                         Text(isLoading
                             ? ""
-                            : Tools.formatCreatedAt(quiz['createdAt'])),
+                            : Tools.formatCreatedAt(createdAt.map((e) => e as int).toList())),
                       ],
                     ),
                   ],
