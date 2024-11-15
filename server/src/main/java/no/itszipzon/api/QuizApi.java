@@ -281,6 +281,34 @@ public class QuizApi {
   }
 
   /**
+   * Get the 10 most popular quizzes based on the number of attempts.
+   *
+   * @return List of popular quizzes.
+   */
+  @GetMapping("/popular")
+  @Transactional(readOnly = true)
+  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes() {
+    // Query to fetch the 10 most popular quizzes by number of attempts
+    List<Object[]> popularQuizzes = quizRepo.findTop10PopularQuizzes();
+
+    // Map the results to the desired response format
+    List<Map<String, Object>> response = popularQuizzes.stream().map(record -> {
+      Map<String, Object> quizMap = new HashMap<>();
+      quizMap.put("id", record[0]);
+      quizMap.put("title", record[1]);
+      quizMap.put("description", record[2]);
+      quizMap.put("thumbnail", record[3]);
+      quizMap.put("timer", record[4]);
+      quizMap.put("username", record[5]);
+      quizMap.put("createdAt", record[6]);
+      quizMap.put("profile_picture", record[7]);
+      return quizMap;
+    }).collect(Collectors.toList());
+
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  /**
    * Add a new quiz attempt.
    *
    * @param authorizationHeader Authorization token (Bearer token).
