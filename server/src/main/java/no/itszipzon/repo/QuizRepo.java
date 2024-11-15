@@ -78,23 +78,4 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       """)
   Optional<List<QuizDto>> findQuizzesByCategory(String category, Pageable pageable);
 
-  @Query("""
-          SELECT q.quizId AS id,
-                 q.title AS title,
-                 q.description AS description,
-                 q.thumbnail AS thumbnail,
-                 q.timer AS timer,
-                 u.username AS username,
-                 q.createdAt AS createdAt,
-                 u.profilePicture AS profile_picture,
-                 COUNT(qa.quizAttemptId) AS attempts
-          FROM Quiz q
-          JOIN q.user u
-          LEFT JOIN QuizAttempt qa ON q.quizId = qa.quiz.quizId
-          GROUP BY q.quizId, u.username, u.profilePicture
-          ORDER BY COUNT(qa.quizAttemptId) DESC
-          LIMIT 10
-      """)
-  List<Object[]> findTop10PopularQuizzes();
-
 }

@@ -12,16 +12,27 @@ import org.springframework.data.jpa.repository.Query;
  * QuizAttemptRepo.
  */
 public interface QuizAttemptRepo extends JpaRepository<QuizAttempt, Long> {
-  
-  @Query("""
-        SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
-                                           u.username, u.profilePicture, q.createdAt)
-          FROM QuizAttempt qa
-          JOIN qa.user u
-          JOIN qa.quiz q
-          WHERE u.username = :username
-      """)
-  Optional<List<QuizDto>> findQuizzedFromUserHistory(
-      String username,
-      Pageable pageable);
+
+    @Query("""
+              SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                                 u.username, u.profilePicture, q.createdAt)
+                FROM QuizAttempt qa
+                JOIN qa.user u
+                JOIN qa.quiz q
+                WHERE u.username = :username
+            """)
+    Optional<List<QuizDto>> findQuizzedFromUserHistory(
+            String username,
+            Pageable pageable);
+
+    @Query("""
+              SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
+                                             u.username, u.profilePicture, q.createdAt)
+            FROM QuizAttempt qa
+            JOIN qa.user u
+            JOIN qa.quiz q
+            GROUP BY q.quizId, u.username, u.profilePicture, q.title, q.description, q.thumbnail, q.timer, q.createdAt
+            ORDER BY COUNT(q.quizId) DESC
+              """)
+    Optional<List<QuizDto>> findTopPopularQuizzes(Pageable page);
 }

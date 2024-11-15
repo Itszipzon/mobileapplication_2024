@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -281,27 +282,35 @@ public class QuizApi {
   }
 
   /**
-   * Get the 10 most popular quizzes based on the number of attempts.
+   * Get popular quizzes with pagination.
    *
    * @return List of popular quizzes.
    */
-  @GetMapping("/popular")
+  @GetMapping("/popular/{page}")
   @Transactional(readOnly = true)
-  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes() {
-    // Query to fetch the 10 most popular quizzes by number of attempts
-    List<Object[]> popularQuizzes = quizRepo.findTop10PopularQuizzes();
+  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes(
+      @PathVariable int page) {
+
+    // Create a pageable object
+    Pageable pageable = PageRequest.of(page, 5);
+
+    Optional<List<QuizDto>> popularQuizzesPage = quizAttemptRepo.findTopPopularQuizzes(pageable);
+
+    if (popularQuizzesPage.isEmpty()) {
+      return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+    }
 
     // Map the results to the desired response format
-    List<Map<String, Object>> response = popularQuizzes.stream().map(record -> {
+    List<Map<String, Object>> response = popularQuizzesPage.get().stream().map(record -> {
       Map<String, Object> quizMap = new HashMap<>();
-      quizMap.put("id", record[0]);
-      quizMap.put("title", record[1]);
-      quizMap.put("description", record[2]);
-      quizMap.put("thumbnail", record[3]);
-      quizMap.put("timer", record[4]);
-      quizMap.put("username", record[5]);
-      quizMap.put("createdAt", record[6]);
-      quizMap.put("profile_picture", record[7]);
+      quizMap.put("id", record.getId());
+      quizMap.put("title", record.getTitle());
+      quizMap.put("description", record.getDescription());
+      quizMap.put("thumbnail", record.getThumbnail());
+      quizMap.put("timer", record.getTimer());
+      quizMap.put("username", record.getUsername());
+      quizMap.put("createdAt", record.getCreatedAt());
+      quizMap.put("profile_picture", record.getProfilePicture());
       return quizMap;
     }).collect(Collectors.toList());
 
