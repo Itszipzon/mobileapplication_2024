@@ -35,6 +35,16 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
 
+  int totalScore = 0;
+  DateTime? questionStartTime;
+
+  static const int singleSelectMaxPoints = 1000;
+  static const int multiSelectMaxPoints = 500;
+
+  bool isDoublePoints = false;
+
+  List<int> questionScores = [];
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +69,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       audioManager.playBackgroundAudio(
           ['audio.mp3', 'audio1.mp3', 'audio2.mp3', 'audio3.mp3']);
 
+      questionStartTime = DateTime.now();
+
       setState(() {
         loading = false;
       });
@@ -71,10 +83,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       duration: Duration(seconds: quizTimer.duration),
     )..forward(from: 0.0);
 
-    _progressAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
+    _progressAnimation =
+        Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
       parent: _progressController,
       curve: Curves.linear,
     ));
@@ -85,6 +95,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   }
 
   void autoNextQuestion() async {
+    questionStartTime ??= DateTime.now();
+
+    int timeTaken = 0;
+    if (questionStartTime != null) {
+      timeTaken = DateTime.now().difference(questionStartTime!).inSeconds;
+    }
+
     audioManager.playSoundEffect('next.mp3');
     if (selectedAnswer != null) {
       answerManager.recordAnswer(
@@ -95,10 +112,21 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       _initializeProgressAnimation();
     }
 
+    final currentQuestion = quizData!["quizQuestions"][currentQuestionIndex];
+    final isMultiSelect = currentQuestion["type"] == "multi-select";
+
+    int pointsPossible =
+        isMultiSelect ? multiSelectMaxPoints : singleSelectMaxPoints;
+
+    int pointsAwarded = calculatePoints(timeTaken, pointsPossible);
+
+    questionScores.add(pointsAwarded);
+
     if (currentQuestionIndex < (quizData?["quizQuestions"].length ?? 0) - 1) {
       setState(() {
         currentQuestionIndex++;
         selectedAnswer = null;
+        questionStartTime = DateTime.now();
       });
       _initializeProgressAnimation();
       quizTimer.start(_onTimerTick, autoNextQuestion);
@@ -106,6 +134,17 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       quizTimer.stop();
       submitQuizAnswers();
     }
+  }
+
+  int calculatePoints(int responseTime, int pointsPossible) {
+    if (responseTime < 0.5) {
+      return pointsPossible;
+    }
+
+    double reductionFactor = 1 - ((responseTime / quizTimer.duration) / 2);
+    double finalPoints = pointsPossible * reductionFactor;
+
+    return finalPoints.round();
   }
 
   Future<void> submitQuizAnswers() async {
@@ -121,8 +160,11 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       final int quizId = quizData!["id"] as int;
 
       final response = await answerManager.submitAnswers(token, quizId);
+      response['questionScores'] = questionScores;
+      print(
+          'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+      print(questionScores);
 
-      // ignore: use_build_context_synchronously
       router.setPath(context, "quiz/results", values: {
         'quizData': quizData,
         'results': response,

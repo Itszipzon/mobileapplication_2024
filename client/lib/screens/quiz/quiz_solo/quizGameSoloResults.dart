@@ -19,9 +19,6 @@ class QuizResults extends ConsumerWidget {
     final quizData = router.values?['quizData'];
     final results = router.values?['results'];
 
-    print("Received quizData in results screen: $quizData");
-    print("Received results in results screen: $results");
-
     if (quizData == null || results == null) {
       return const Scaffold(
         body: Center(child: Text('Error: Quiz data or results are missing.')),
@@ -29,10 +26,40 @@ class QuizResults extends ConsumerWidget {
     }
 
     final checks = results["checks"] ?? [];
-    final correctAnswersCount =
-        checks.where((check) => check["correct"] == true).length;
     final totalQuestions = quizData["quizQuestions"]?.length ?? 0;
-    final correctPercentage = (correctAnswersCount / totalQuestions) * 100;
+    final correctPercentage =
+        (checks.where((check) => check["correct"] == true).length /
+                totalQuestions) *
+            100;
+
+    final totalScore = results["totalScore"] ?? 0;
+    final questionScores = results["questionScores"] ?? [];
+
+    int finalScore = 0;
+
+    for (int i = 0; i < questionScores.length; i++) {
+      final questionId = quizData["quizQuestions"][i]["id"];
+      final answerCorrect = checks.any((check) =>
+          check["questionId"] == questionId && check["correct"] == true);
+
+      if (answerCorrect) {
+        finalScore += (questionScores[i] as num).toInt();
+      } else {
+        finalScore += 0; 
+      }
+    }
+
+    String performanceComment() {
+      if (finalScore >= totalQuestions * 1000 * 0.9) {
+        return "Excellent job! You're a quiz master!";
+      } else if (finalScore >= totalQuestions * 1000 * 0.7) {
+        return "Great job! You did well!";
+      } else if (finalScore >= totalQuestions * 1000 * 0.5) {
+        return "Good effort! But there's room for improvement.";
+      } else {
+        return "Keep trying! You'll do better next time!";
+      }
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final audioManager = AudioManager();
@@ -75,16 +102,43 @@ class QuizResults extends ConsumerWidget {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.orange.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      "$correctAnswersCount/$totalQuestions",
-                      style: const TextStyle(
-                        fontSize: 34,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Your Total Score",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "$finalScore", 
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 36,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -92,28 +146,27 @@ class QuizResults extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Text(
-                "Great job! Scoring $correctAnswersCount out of $totalQuestions shows your knowledge of ${fixEncoding(quizData["title"] ?? "Unknown Title")}.",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ),
-            ),
+                child: Text(
+                  "${performanceComment()} Scoring $finalScore out of ${totalQuestions * 1000} shows your knowledge of ${fixEncoding(quizData["title"] ?? "Unknown Title")}.",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )),
             const SizedBox(height: 16),
             Column(
               children: checks.map<Widget>((check) {
