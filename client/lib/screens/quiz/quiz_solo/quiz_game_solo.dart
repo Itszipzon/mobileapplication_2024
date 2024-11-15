@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:client/elements/counter.dart';
 import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizAnswerManager.dart';
+import 'package:client/screens/quiz/quiz_solo/scoringSystem.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
@@ -22,6 +23,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   late final UserNotifier user;
   late final AudioManager audioManager;
   late final QuizAnswerManager answerManager;
+  late final ScoringSystem scoringSystem;
 
   Widget? counter;
 
@@ -35,14 +37,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   int duration = 0;
 
-  int totalScore = 0;
   DateTime? questionStartTime;
-
-  static const int singleSelectMaxPoints = 1000;
-  static const int multiSelectMaxPoints = 500;
-
-  bool isDoublePoints = false;
-
   List<int> questionScores = [];
 
   @override
@@ -51,6 +46,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
     audioManager = AudioManager();
     answerManager = QuizAnswerManager();
+    scoringSystem = ScoringSystem();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
@@ -97,10 +93,12 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
     final currentQuestion = quizData!["quizQuestions"][currentQuestionIndex];
     final isMultiSelect = currentQuestion["type"] == "multi-select";
 
-    int pointsPossible =
-        isMultiSelect ? multiSelectMaxPoints : singleSelectMaxPoints;
+    int pointsPossible = isMultiSelect
+        ? scoringSystem.multiSelectMaxPoints
+        : scoringSystem.singleSelectMaxPoints;
 
-    int pointsAwarded = calculatePoints(timeTaken, pointsPossible);
+    int pointsAwarded =
+        scoringSystem.calculatePoints(timeTaken, duration, pointsPossible);
 
     questionScores.add(pointsAwarded);
 
@@ -127,17 +125,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
     }
   }
 
-  int calculatePoints(int responseTime, int pointsPossible) {
-    if (responseTime < 0.5) {
-      return pointsPossible;
-    }
-
-    double reductionFactor = 1 - ((responseTime / duration) / 2);
-    double finalPoints = pointsPossible * reductionFactor;
-
-    return finalPoints.round();
-  }
-
   Future<void> submitQuizAnswers() async {
     if (submitting) return;
     submitting = true;
@@ -156,7 +143,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
         developer.log("Quiz attempt logged successfully.");
 
         final response = await answerManager.submitAnswers(token, quizId);
-
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        print(questionScores);
         response['questionScores'] = questionScores;
         developer.log('Question scores: $questionScores');
 
@@ -238,48 +226,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                 Positioned(
                   bottom: 10,
                   child: counter != null ? counter! : Container(),
-/*                   bottom: 10,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _progressController,
-                        builder: (context, child) {
-                          return SizedBox(
-                            width: 70,
-                            height: 70,
-                            child: CircularProgressIndicator(
-                              value: _progressAnimation.value,
-                              strokeWidth: 24,
-                              backgroundColor: Colors.grey.withOpacity(0.3),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      Container(
-                        width: 80,
-                        height: 80,
-                        padding: const EdgeInsets.all(22),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "${quizTimer.timeLeft}",
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.orange,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ), */
                 ),
               ],
             ),
