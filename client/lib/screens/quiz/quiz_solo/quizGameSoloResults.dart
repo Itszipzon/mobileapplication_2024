@@ -27,15 +27,21 @@ class QuizResults extends ConsumerWidget {
         body: Center(child: Text('Error: Quiz data or results are missing.')),
       );
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final audioManager = AudioManager();
-      audioManager.playSoundEffect('finish.mp3');
-    });
 
     final checks = results["checks"] ?? [];
     final correctAnswersCount =
         checks.where((check) => check["correct"] == true).length;
     final totalQuestions = quizData["quizQuestions"]?.length ?? 0;
+    final correctPercentage = (correctAnswersCount / totalQuestions) * 100;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final audioManager = AudioManager();
+      if (correctPercentage > 50) {
+        audioManager.playSoundEffect('finish.mp3');
+      } else {
+        audioManager.playSoundEffect('losing.mp3');
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(

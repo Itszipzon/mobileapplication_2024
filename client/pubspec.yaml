@@ -42,6 +42,8 @@ flutter:
     - assets/finish.mp3
     - assets/error.mp3
     - assets/next.mp3
+    - assets/losing.mp3
+
 
 flutter_launcher_icons:
   android: true
