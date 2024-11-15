@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/quiz_post.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
@@ -40,13 +41,16 @@ class CategoryState extends ConsumerState<Category> {
 
   @override
   Widget build(BuildContext context) {
-    return loading ? SizedBox(height: 0,)
-      : ListView.builder(
-      scrollDirection: Axis.vertical,
-      itemCount: quizzes.length,
-      
-      itemBuilder: (context, index) {
-        final quiz = quizzes[index];
+    return Scaffold(
+      body: loading
+          ? SizedBox(
+              height: 0,
+            )
+          : ListView.builder(
+              scrollDirection: Axis.vertical,
+              itemCount: quizzes.length,
+              itemBuilder: (context, index) {
+                final quiz = quizzes[index];
 
                 return QuizPost(
                   id: quiz["id"],
@@ -55,7 +59,9 @@ class CategoryState extends ConsumerState<Category> {
                   username: quiz["username"],
                   createdAt: quiz["createdAt"],
                 );
-      },
-      );
+              },
+            ),
+            bottomNavigationBar: BottomNavbar(path: "categories")
+    );
   }
 }

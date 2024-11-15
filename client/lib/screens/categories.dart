@@ -28,12 +28,17 @@ class Categories extends ConsumerWidget {
                 mainAxisSpacing: 16.0,
                 children: [
                   GestureDetector(
-                    onTap: () => router.setPath(context, "category", values: {"category" : "general knowledge"}),
+                    onTap: () => router.setPath(context, "category",
+                        values: {"category": "general knowledge"}),
                     child: CategoryCard(
                         icon: Icons.star, title: "General", quizCount: 128),
                   ),
-                  CategoryCard(
-                      icon: Icons.movie, title: "Pop Cult", quizCount: 58),
+                  GestureDetector(
+                    onTap: () => router.setPath(context, "category",
+                        values: {"category": "pop culture"}),
+                    child: CategoryCard(
+                        icon: Icons.movie, title: "Pop Cult", quizCount: 58),
+                  ),
                   CategoryCard(
                       icon: Icons.history, title: "History", quizCount: 89),
                   CategoryCard(
