@@ -19,6 +19,7 @@ import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.tables.Category;
 import no.itszipzon.tables.Quiz;
+import no.itszipzon.tables.QuizAttempt;
 import no.itszipzon.tables.QuizCategory;
 import no.itszipzon.tables.QuizOption;
 import no.itszipzon.tables.QuizQuestion;
@@ -277,6 +278,56 @@ public class QuizApi {
         .map(this::mapToQuestionDto).collect(Collectors.toList());
 
     return new ResponseEntity<>(questionsDto, HttpStatus.OK);
+  }
+
+  /**
+   * Add a new quiz attempt.
+   *
+   * @param authorizationHeader Authorization token (Bearer token).
+   * @param quizId              The ID of the quiz to attempt.
+   * @return ResponseEntity indicating success or failure.
+   */
+  @PostMapping("/attempt/{quizId}")
+  @Transactional
+  public ResponseEntity<String> addQuizAttempt(
+      @RequestHeader("Authorization") String authorizationHeader,
+      @PathVariable Long quizId) {
+
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>("Unauthorized: Missing or invalid token.", HttpStatus.UNAUTHORIZED);
+    }
+
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>("Unauthorized: Invalid token.", HttpStatus.UNAUTHORIZED);
+    }
+
+    Long userId = claims.get("id", Long.class);
+    String username = claims.getSubject();
+
+    if (userId == null || username == null) {
+      return new ResponseEntity<>("Unauthorized: Invalid user data in token.", HttpStatus.UNAUTHORIZED);
+    }
+
+    Optional<Quiz> quizOptional = quizRepo.findById(quizId);
+    if (quizOptional.isEmpty()) {
+      return new ResponseEntity<>("Quiz not found.", HttpStatus.NOT_FOUND);
+    }
+
+    Quiz quiz = quizOptional.get();
+
+    QuizAttempt quizAttempt = new QuizAttempt();
+    User user = new User();
+    user.setId(userId);
+    user.setUsername(username);
+    quizAttempt.setUser(user);
+    quizAttempt.setQuiz(quiz);
+
+    quizAttemptRepo.save(quizAttempt);
+
+    return new ResponseEntity<>("Quiz attempt added successfully.", HttpStatus.CREATED);
   }
 
   /**
