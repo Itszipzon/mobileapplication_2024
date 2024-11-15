@@ -141,8 +141,8 @@ public class QuizController {
       Map<String, Object> socketMessage = message.getMessage();
 
       if (socketMessage.containsKey("setNewQuiz") && (boolean) socketMessage.get("setNewQuiz")) {
-        QuizSession newQuizSession = new QuizSession(quizSession.getLeaderUsername(),
-            (int) socketMessage.get("quizId"));
+        QuizSession newQuizSession =
+            new QuizSession(quizSession.getLeaderUsername(), (int) socketMessage.get("quizId"));
         newQuizSession.setPlayers(quizSession.getPlayers());
         newQuizSession.setToken(quizSession.getToken());
         newQuizSession.setMessage("update");
@@ -321,6 +321,7 @@ public class QuizController {
       if (current == amount) {
         quizSession.setState("end");
         calculateScore(quizSession);
+        fillUnansweredWithNull(quizSession);
         handleEnd(quizSession);
       } else {
         calculateScore(quizSession);
@@ -440,14 +441,18 @@ public class QuizController {
         QuizAnswer quizAnswer = new QuizAnswer();
         quizAnswer.setQuizAttempt(quizAttempt);
 
-        QuizQuestion quizQuestion = quizQuestionRepo
-            .findById(session.getQuiz().getQuizQuestions().get(i).getId())
-            .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
+        QuizQuestion quizQuestion =
+            quizQuestionRepo.findById(session.getQuiz().getQuizQuestions().get(i).getId())
+                .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
         quizAnswer.setQuizQuestion(quizQuestion);
 
-        QuizOption quizOption = quizOptionRepo.findById(player.getAnswers().get(i).getId())
-            .orElseThrow(() -> new EntityNotFoundException("QuizOption not found"));
-        quizAnswer.setQuizOption(quizOption);
+        if (player.getAnswers().get(i).getId() == null) {
+          quizAnswer.setQuizOption(null);
+        } else {
+          QuizOption quizOption = quizOptionRepo.findById(player.getAnswers().get(i).getId())
+              .orElseThrow(() -> new EntityNotFoundException("QuizOption not found"));
+          quizAnswer.setQuizOption(quizOption);
+        }
 
         quizAnswers.add(quizAnswer);
       }
