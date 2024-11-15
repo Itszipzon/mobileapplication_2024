@@ -63,7 +63,6 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QuizAPP'),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back),

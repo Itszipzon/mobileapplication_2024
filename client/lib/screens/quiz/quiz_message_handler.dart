@@ -12,10 +12,8 @@ class QuizMessageHandler {
       String error = message.substring(6);
 
       if (error.startsWith("onlyleader:")) {
-        if (error.substring(12) == "Quiz not found") {
-          if (username == values["leaderUsername"]) {
-            ErrorHandler.showOverlayError(context, "Quiz not found");
-          }
+        if (username == values["leaderUsername"]) {
+          ErrorHandler.showOverlayError(context, error.substring(12));
         }
       } else {
       error = message.substring(7);

@@ -16,7 +16,7 @@ class ApiHandler {
   //////////////////////////local//////////////////////////////////
 
 /*   static final String _url =
-      Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
+      Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080r';
 
   static final String _wsUrl =
       Platform.isAndroid ? 'ws://10.0.2.2:8080' : 'ws://localhost:8080';
@@ -211,9 +211,11 @@ class ApiHandler {
     return jsonDecode(response.body).cast<String>();
   }
 
-  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(String category, int page) async {
-    final response = await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
-    
+  static Future<List<Map<String, dynamic>>> getQuizzesByCategory(
+      String category, int page) async {
+    final response =
+        await http.get(Uri.parse('$_url/api/quiz/category/$category/$page'));
+
     if (response.statusCode == 200) {
       List<dynamic> quizzes = jsonDecode(response.body);
       return quizzes.cast<Map<String, dynamic>>();
@@ -249,4 +251,28 @@ class ApiHandler {
       throw Exception('Failed to check quiz answers');
     }
   }
+
+    /// Adds a quiz attempt.
+  static Future<http.Response> addQuizAttempt(String token, int quizId) async {
+    final uri = Uri.parse('$_url/api/quiz/attempt/$quizId');
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 201) {
+      return response; 
+    } else if (response.statusCode == 404) {
+      throw Exception('Quiz not found');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized access');
+    } else {
+      throw Exception('Failed to add quiz attempt');
+    }
+  }
+
 }

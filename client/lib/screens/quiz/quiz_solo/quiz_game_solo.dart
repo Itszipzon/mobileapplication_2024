@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'package:client/elements/counter.dart';
 import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizAnswerManager.dart';
-import 'package:client/screens/quiz/quiz_solo/quizTimer.dart';
+import 'package:client/screens/quiz/quiz_solo/scoringSystem.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
@@ -21,8 +22,10 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   late final RouterNotifier router;
   late final UserNotifier user;
   late final AudioManager audioManager;
-  late final QuizTimer quizTimer;
   late final QuizAnswerManager answerManager;
+  late final ScoringSystem scoringSystem;
+
+  Widget? counter;
 
   bool loading = true;
   int currentQuestionIndex = 0;
@@ -32,17 +35,9 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   Map<String, dynamic>? results;
   bool submitting = false;
 
-  late AnimationController _progressController;
-  late Animation<double> _progressAnimation;
+  int duration = 0;
 
-  int totalScore = 0;
   DateTime? questionStartTime;
-
-  static const int singleSelectMaxPoints = 1000;
-  static const int multiSelectMaxPoints = 500;
-
-  bool isDoublePoints = false;
-
   List<int> questionScores = [];
 
   @override
@@ -51,47 +46,31 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
     audioManager = AudioManager();
     answerManager = QuizAnswerManager();
+    scoringSystem = ScoringSystem();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
       quizData = router.getValues?["quizData"] as Map<String, dynamic>?;
 
-      developer.log('Quiz data: ${quizData.toString()}');
-
-      if (quizData != null) {
-        quizTimer = QuizTimer(duration: quizData!["timer"] ?? 30);
-        quizTimer.start(_onTimerTick, autoNextQuestion);
-
-        _initializeProgressAnimation();
-      }
+      setState(() {
+        loading = false;
+        duration = quizData!["timer"];
+        counter = Counter(
+          key: ValueKey<int>(currentQuestionIndex),
+          onCountdownComplete: autoNextQuestion,
+          duration: duration,
+          height: 70,
+          width: 70,
+          color: Colors.white,
+        );
+      });
 
       audioManager.playBackgroundAudio(
           ['audio.mp3', 'audio1.mp3', 'audio2.mp3', 'audio3.mp3']);
 
       questionStartTime = DateTime.now();
-
-      setState(() {
-        loading = false;
-      });
     });
-  }
-
-  void _initializeProgressAnimation() {
-    _progressController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: quizTimer.duration),
-    )..forward(from: 0.0);
-
-    _progressAnimation =
-        Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.linear,
-    ));
-  }
-
-  void _onTimerTick() {
-    setState(() {});
   }
 
   void autoNextQuestion() async {
@@ -109,42 +88,41 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
     } else {
       audioManager.playSoundEffect('error.mp3');
       answerManager.saveUnanswered(quizData!, currentQuestionIndex);
-      _initializeProgressAnimation();
     }
 
     final currentQuestion = quizData!["quizQuestions"][currentQuestionIndex];
     final isMultiSelect = currentQuestion["type"] == "multi-select";
 
-    int pointsPossible =
-        isMultiSelect ? multiSelectMaxPoints : singleSelectMaxPoints;
+    int pointsPossible = isMultiSelect
+        ? scoringSystem.multiSelectMaxPoints
+        : scoringSystem.singleSelectMaxPoints;
 
-    int pointsAwarded = calculatePoints(timeTaken, pointsPossible);
+    int pointsAwarded =
+        scoringSystem.calculatePoints(timeTaken, duration, pointsPossible);
 
     questionScores.add(pointsAwarded);
 
     if (currentQuestionIndex < (quizData?["quizQuestions"].length ?? 0) - 1) {
+      print(duration = quizData!["timer"]);
       setState(() {
         currentQuestionIndex++;
         selectedAnswer = null;
-        questionStartTime = DateTime.now();
+        duration = quizData!["timer"];
+
+        counter = Counter(
+          key: ValueKey<int>(currentQuestionIndex),
+          onCountdownComplete: () {
+            autoNextQuestion();
+          },
+          height: 70,
+          width: 70,
+          duration: duration,
+          color: Colors.white,
+        );
       });
-      _initializeProgressAnimation();
-      quizTimer.start(_onTimerTick, autoNextQuestion);
     } else {
-      quizTimer.stop();
       submitQuizAnswers();
     }
-  }
-
-  int calculatePoints(int responseTime, int pointsPossible) {
-    if (responseTime < 0.5) {
-      return pointsPossible;
-    }
-
-    double reductionFactor = 1 - ((responseTime / quizTimer.duration) / 2);
-    double finalPoints = pointsPossible * reductionFactor;
-
-    return finalPoints.round();
   }
 
   Future<void> submitQuizAnswers() async {
@@ -159,19 +137,29 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       final String token = user.token!.toString();
       final int quizId = quizData!["id"] as int;
 
-      final response = await answerManager.submitAnswers(token, quizId);
-      response['questionScores'] = questionScores;
-      print(
-          'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-      print(questionScores);
+      final attemptResponse = await ApiHandler.addQuizAttempt(token, quizId);
 
-      router.setPath(context, "quiz/results", values: {
-        'quizData': quizData,
-        'results': response,
-      });
+      if (attemptResponse.statusCode == 201) {
+        developer.log("Quiz attempt logged successfully.");
 
-      await audioManager.stopAudio();
-      audioManager.playSoundEffect('finish.mp3');
+        final response = await answerManager.submitAnswers(token, quizId);
+        print(
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        print(questionScores);
+        response['questionScores'] = questionScores;
+        developer.log('Question scores: $questionScores');
+
+        router.setPath(context, "quiz/results", values: {
+          'quizData': quizData,
+          'results': response,
+        });
+
+        await audioManager.stopAudio();
+        audioManager.playSoundEffect('finish.mp3');
+      } else {
+        developer.log("Failed to log quiz attempt: ${attemptResponse.body}");
+        throw Exception("Failed to log quiz attempt.");
+      }
     } catch (error) {
       developer.log("Error submitting quiz answers: $error");
       setState(() {
@@ -184,8 +172,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   @override
   void dispose() {
-    _progressController.dispose();
-    quizTimer.stop();
     audioManager.dispose();
     super.dispose();
   }
@@ -211,7 +197,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QuizAPP'),
+        title: Text(
+          quizData?["title"] ?? "Untitled Quiz",
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -239,47 +231,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                 ),
                 Positioned(
                   bottom: 10,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _progressController,
-                        builder: (context, child) {
-                          return SizedBox(
-                            width: 70,
-                            height: 70,
-                            child: CircularProgressIndicator(
-                              value: _progressAnimation.value,
-                              strokeWidth: 24,
-                              backgroundColor: Colors.grey.withOpacity(0.3),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      Container(
-                        width: 80,
-                        height: 80,
-                        padding: const EdgeInsets.all(22),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "${quizTimer.timeLeft}",
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.orange,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                  child: counter != null ? counter! : Container(),
                 ),
               ],
             ),
