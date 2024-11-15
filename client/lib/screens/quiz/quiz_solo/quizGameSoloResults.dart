@@ -35,7 +35,6 @@ class _QuizResultsState extends ConsumerState<QuizResults>
 
     final checks = results["checks"] ?? [];
     final totalQuestions = quizData["quizQuestions"]?.length ?? 0;
-    final totalScore = results["totalScore"] ?? 0;
     final questionScores = results["questionScores"] ?? [];
 
     final int finalScore = scoringSystem.calculateFinalScore(
