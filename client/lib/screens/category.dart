@@ -34,6 +34,7 @@ class CategoryState extends ConsumerState<Category> {
                 quizzes = value;
                 loading = false;
               }),
+              print(quizzes)
             });
   }
 
@@ -43,28 +44,16 @@ class CategoryState extends ConsumerState<Category> {
       : ListView.builder(
       scrollDirection: Axis.vertical,
       itemCount: quizzes.length,
+      
       itemBuilder: (context, index) {
         final quiz = quizzes[index];
-        final id = quiz["id"] as int;
-                final profilePicture = quiz["profilePicture"] is String
-                    ? quiz["profilePicture"]
-                    : "";
-                final title = quiz["title"] is String
-                    ? quiz["title"]
-                    : "Untitled";
-                final username = quiz["username"] is String
-                    ? quiz["username"]
-                    : "Anonymous";
-                final createdAt = quiz["createdAt"] is String
-                    ? DateTime.parse(quiz["createdAt"])
-                    : DateTime.now();
 
                 return QuizPost(
-                  id: id,
-                  profilePicture: profilePicture,
-                  title: title,
-                  username: username,
-                  createdAt: createdAt,
+                  id: quiz["id"],
+                  profilePicture: quiz["profilePicture"] ?? "",
+                  title: quiz["title"],
+                  username: quiz["username"],
+                  createdAt: quiz["createdAt"],
                 );
       },
       );
