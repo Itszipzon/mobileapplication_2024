@@ -8,14 +8,14 @@ import 'package:http_parser/http_parser.dart';
 class ApiHandler {
   //////////////////////////Remote rune//////////////////////////////////
 
-/*   
-  static final String _url = "http://10.24.37.76:8080";
+  
+  static final String _url = "http://10.24.35.178:8080";
 
-  static String get url => _url; */
+  static String get url => _url;
 
   //////////////////////////local//////////////////////////////////
 
-  static final String _url =
+/*   static final String _url =
       Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
   static final String _wsUrl =
@@ -23,7 +23,7 @@ class ApiHandler {
 
   static String get url => _url;
 
-  static String get wsUrl => _wsUrl;
+  static String get wsUrl => _wsUrl; */
 
   ///////////////////////////////////////////////////////////////////////
 
