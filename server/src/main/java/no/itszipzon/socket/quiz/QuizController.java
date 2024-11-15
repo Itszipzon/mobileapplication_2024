@@ -157,8 +157,13 @@ public class QuizController {
       }
 
       if (socketMessage.containsKey("changeTimer") && (boolean) socketMessage.get("changeTimer")) {
-        quizSession.getQuiz().setTimer((int) socketMessage.get("timer"));
-        quizSession.setMessage("update");
+        int timer = (int) socketMessage.get("timer");
+        if (timer >= 5) {
+          quizSession.getQuiz().setTimer(timer);
+          quizSession.setMessage("update");
+        } else {
+          quizSession.setMessage("error:onlyleader: Timer must be at least 5 seconds");
+        }
       }
 
       messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),

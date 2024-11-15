@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'package:client/elements/counter.dart';
 import 'package:client/screens/quiz/quiz_solo/audioManager.dart';
 import 'package:client/screens/quiz/quiz_solo/quizAnswerManager.dart';
-import 'package:client/screens/quiz/quiz_solo/quizTimer.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
@@ -21,8 +21,9 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   late final RouterNotifier router;
   late final UserNotifier user;
   late final AudioManager audioManager;
-  late final QuizTimer quizTimer;
   late final QuizAnswerManager answerManager;
+
+  Widget? counter;
 
   bool loading = true;
   int currentQuestionIndex = 0;
@@ -32,8 +33,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   Map<String, dynamic>? results;
   bool submitting = false;
 
-  late AnimationController _progressController;
-  late Animation<double> _progressAnimation;
+  int duration = 0;
+
 
   int totalScore = 0;
   DateTime? questionStartTime;
@@ -57,41 +58,24 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       user = ref.read(userProvider.notifier);
       quizData = router.getValues?["quizData"] as Map<String, dynamic>?;
 
-      developer.log('Quiz data: ${quizData.toString()}');
-
-      if (quizData != null) {
-        quizTimer = QuizTimer(duration: quizData!["timer"] ?? 30);
-        quizTimer.start(_onTimerTick, autoNextQuestion);
-
-        _initializeProgressAnimation();
-      }
+      setState(() {
+        loading = false;
+        duration = quizData!["timer"];
+        counter = Counter(
+          key: ValueKey<int>(currentQuestionIndex),
+          onCountdownComplete: autoNextQuestion,
+          duration: duration,
+          height: 70,
+          width: 70,
+          color: Colors.white,
+        );
+      });
 
       audioManager.playBackgroundAudio(
           ['audio.mp3', 'audio1.mp3', 'audio2.mp3', 'audio3.mp3']);
 
       questionStartTime = DateTime.now();
-
-      setState(() {
-        loading = false;
-      });
     });
-  }
-
-  void _initializeProgressAnimation() {
-    _progressController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: quizTimer.duration),
-    )..forward(from: 0.0);
-
-    _progressAnimation =
-        Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.linear,
-    ));
-  }
-
-  void _onTimerTick() {
-    setState(() {});
   }
 
   void autoNextQuestion() async {
@@ -109,7 +93,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
     } else {
       audioManager.playSoundEffect('error.mp3');
       answerManager.saveUnanswered(quizData!, currentQuestionIndex);
-      _initializeProgressAnimation();
     }
 
     final currentQuestion = quizData!["quizQuestions"][currentQuestionIndex];
@@ -123,15 +106,24 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
     questionScores.add(pointsAwarded);
 
     if (currentQuestionIndex < (quizData?["quizQuestions"].length ?? 0) - 1) {
+      print(duration = quizData!["timer"]);
       setState(() {
         currentQuestionIndex++;
         selectedAnswer = null;
-        questionStartTime = DateTime.now();
+        duration = quizData!["timer"];
+
+        counter = Counter(
+          key: ValueKey<int>(currentQuestionIndex),
+          onCountdownComplete: () {
+            autoNextQuestion();
+          },
+          height: 70,
+          width: 70,
+          duration: duration,
+          color: Colors.white,
+        );
       });
-      _initializeProgressAnimation();
-      quizTimer.start(_onTimerTick, autoNextQuestion);
     } else {
-      quizTimer.stop();
       submitQuizAnswers();
     }
   }
@@ -141,7 +133,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
       return pointsPossible;
     }
 
-    double reductionFactor = 1 - ((responseTime / quizTimer.duration) / 2);
+    double reductionFactor = 1 - ((responseTime / duration) / 2);
     double finalPoints = pointsPossible * reductionFactor;
 
     return finalPoints.round();
@@ -184,8 +176,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   @override
   void dispose() {
-    _progressController.dispose();
-    quizTimer.stop();
     audioManager.dispose();
     super.dispose();
   }
@@ -239,6 +229,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                 ),
                 Positioned(
                   bottom: 10,
+                  child: counter != null ? counter! : Container(),
+/*                   bottom: 10,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -279,7 +271,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                         ),
                       )
                     ],
-                  ),
+                  ), */
                 ),
               ],
             ),
