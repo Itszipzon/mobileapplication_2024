@@ -17,8 +17,7 @@ class QuizGameSolo extends ConsumerStatefulWidget {
   QuizGameSoloState createState() => QuizGameSoloState();
 }
 
-class QuizGameSoloState extends ConsumerState<QuizGameSolo>
-    with TickerProviderStateMixin {
+class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
   late final RouterNotifier router;
   late final UserNotifier user;
   late final AudioManager audioManager;
