@@ -24,7 +24,7 @@ class FeedCategory extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        SizedBox(
+        quizzes.length > 0 ? SizedBox(
           height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -39,6 +39,15 @@ class FeedCategory extends StatelessWidget {
                 createdAt: quiz['createdAt']
               );
             },
+          ),
+        )
+        : SizedBox(
+          height: 200,
+          child: Center(
+            child: Text(
+              'No quizzes found',
+              style: const TextStyle(fontSize: 18),
+            ),
           ),
         ),
       ],
