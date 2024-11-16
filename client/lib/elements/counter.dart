@@ -12,14 +12,14 @@ class Counter extends ConsumerStatefulWidget {
   final Color? color;
 
   const Counter({
-    Key? key,
+    super.key,
     required this.onCountdownComplete,
     required this.duration,
     this.marginTop,
     this.width = 100,
     this.height = 100,
     this.color = Colors.transparent,
-  }) : super(key: key);
+  });
 
   @override
   CounterState createState() => CounterState();
