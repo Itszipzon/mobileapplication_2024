@@ -24,7 +24,7 @@ class FeedCategory extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        quizzes.length > 0 ? SizedBox(
+        quizzes.isNotEmpty ? SizedBox(
           height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
