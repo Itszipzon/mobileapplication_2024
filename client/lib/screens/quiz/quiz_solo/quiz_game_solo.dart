@@ -182,6 +182,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -266,8 +267,38 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                 itemBuilder: (context, index) {
                   final optionText = fixEncoding(options[index]["option"]);
                   final isSelected = selectedAnswer == optionText;
+                  final isSelectedOrNoAnswer = isSelected || selectedAnswer == null;
 
-                  return Padding(
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedAnswer = optionText;
+                      });
+                    },
+                    child: Container(
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: isSelectedOrNoAnswer ? Colors.white : Colors.grey[200],
+                        border: Border.all(color: isSelectedOrNoAnswer ? theme.primaryColor : Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            optionText,
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                  /* return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
@@ -306,6 +337,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                       ),
                     ),
                   );
+                }, */
                 },
               ),
             ),

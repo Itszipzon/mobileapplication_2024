@@ -46,7 +46,6 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
     super.initState();
     _initStates();
     _setAnswer();
-    print(widget.values);
   }
 
   void _initStates() {
@@ -71,7 +70,7 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
         player["answers"] is List &&
         player["answers"].isNotEmpty) {
       setState(() {
-        answer = player["answers"].last; // Use the last answer
+        answer = player["answers"].last;
       });
     }
   }
