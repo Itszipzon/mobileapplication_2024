@@ -182,7 +182,6 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
           user: user,
           values: values,
           onTimer: (data) => {_handleQuizTimer(data)},
-          onClick: (data) => _handleAnswer(data),
         );
       } else {
         return QuizSocketQuestion(

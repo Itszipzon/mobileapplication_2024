@@ -9,14 +9,12 @@ class QuizSocketAnswers extends ConsumerStatefulWidget {
     required this.router,
     required this.user,
     required this.values,
-    required this.onClick,
     required this.onTimer,
   });
 
   final RouterNotifier router;
   final UserNotifier user;
   final Map<String, dynamic> values;
-  final Function onClick;
   final Function onTimer;
 
   @override
