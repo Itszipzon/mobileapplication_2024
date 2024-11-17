@@ -352,7 +352,6 @@ public class QuizApi {
       return new ResponseEntity<>("Quiz not found.", HttpStatus.NOT_FOUND);
     }
 
-
     QuizAttempt quizAttempt = new QuizAttempt();
     User user = new User();
     user.setId(userId);
@@ -404,8 +403,8 @@ public class QuizApi {
     }
 
     List<?> answersList = (List<?>) answersObj;
-    List<Map<String, Object>> answers = answersList.stream().filter(Map.class::isInstance)
-        .map(Map.class::cast).collect(Collectors.toList());
+    List<Map<String, Object>> answers = answersList.stream().filter(obj -> obj instanceof Map)
+        .map(obj -> (Map<String, Object>) obj).collect(Collectors.toList());
 
     List<Map<String, Object>> answerCheck = new ArrayList<>();
     for (Map<String, Object> answer : answers) {
@@ -502,8 +501,8 @@ public class QuizApi {
     }
 
     List<?> questionsList = (List<?>) questionsObj;
-    List<Map<String, Object>> questions = questionsList.stream().filter(Map.class::isInstance)
-        .map(Map.class::cast).collect(Collectors.toList());
+    List<Map<String, Object>> questions = questionsList.stream().filter(item -> item instanceof Map)
+        .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
 
     for (Map<String, Object> question : questions) {
       String questionText = (String) question.get("question");
@@ -523,8 +522,8 @@ public class QuizApi {
       }
 
       List<?> optionsList = (List<?>) optionsObj;
-      List<Map<String, Object>> options = optionsList.stream().filter(Map.class::isInstance)
-          .map(Map.class::cast).collect(Collectors.toList());
+      List<Map<String, Object>> options = optionsList.stream().filter(item -> item instanceof Map)
+          .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
 
       if (options.size() < 2) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
