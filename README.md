@@ -168,6 +168,61 @@ spring.output.ansi.enabled=always
 jwt.secret=${JWT_SECRET}
 ```
 
+## Running Backend with Docker
+
+The easiest way to get the backend up and running is using Docker. This method will automatically set up both the MySQL database and the Spring Boot backend application.
+
+### Prerequisites
+- Docker and Docker Compose installed on your system
+- Git (to clone the repository)
+
+### Steps to Run
+
+1. Navigate to the server directory:
+```bash
+cd server
+```
+2. Start the application using Docker Compose:
+```bash
+docker compose up
+```
+
+This command will:
+
+Pull two Docker images:
+
+MySQL latest version (database)
+jannordskog/springapimobilapp:latest (backend API)
+
+
+Create and configure the necessary volumes for data persistence
+Set up the required network connections
+Start both services with the correct configuration
+
+The backend API will be available at:
+
+http://localhost:8080 (or your machine's IP address:8080)
+
+Verifying the Setup
+You can check if both services are running properly using:
+```bash
+docker compose ps
+```
+To view the logs:
+```bash
+docker compose logs
+```
+To stop the services:
+```bash
+docker compose down
+```
+
+Note: When you run docker compose down, the database data will persist thanks to the volume configuration. If you want to completely reset everything, you can use:
+
+```bash
+docker compose down -v
+```
+
 ## Code Contributors
 
 This project exists thanks to the contributions from our development team:
