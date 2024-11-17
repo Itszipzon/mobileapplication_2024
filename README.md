@@ -227,8 +227,8 @@ docker compose down -v
 
 This project exists thanks to the contributions from our development team:
 
-- 👤 **Rune Molander** (Project Manager, Lead Programmer, Backend Developer)
-- 👤 **Jan Christian Nordskog** (Lead UI/UX Designer, Programmer)
+- 👤 **Rune Molander** (Project Manager, Lead Programmer [Frontend, Backend])
+- 👤 **Jan Christian Nordskog** (Lead UI/UX Designer, Programmer [Frontend, Backend])
 - 👤 **Phillip** (Frontend Developer, UI/UX Designer)
 - 👤 **Avnit** (Frontend Developer)
 
