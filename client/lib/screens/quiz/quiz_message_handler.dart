@@ -31,10 +31,6 @@ class QuizMessageHandler {
     } else if (message.startsWith("leave: ")) {
       List<String> error = message.substring(7).split(",");
 
-      for (String s in error) {
-        print(s);
-      }
-
       if (error[0] == "leader:true") {
         if (username == values["leaderUsername"]) {
           ErrorHandler.showOverlayError(context, "You have left the quiz");

@@ -41,31 +41,31 @@ class Quiz {
 }
 
 class Option {
-  String option;
+  String optionText;
   bool isCorrect;
 
-  Option({required this.option, this.isCorrect = false});
+  Option({required this.optionText, this.isCorrect = false});
 
   factory Option.fromJson(Map<String, dynamic> json) {
     return Option(
-      option: json['option'],
+      optionText: json['optionText'],
       isCorrect: json['isCorrect'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'option': option,
+      'optionText': optionText,
       'isCorrect': isCorrect,
     };
   }
 
   String getOption() {
-    return option;
+    return optionText;
   }
 
-  void setOption(String option) {
-    this.option = option;
+  void setOption(String optionText) {
+    this.optionText = optionText;
   }
 
   void setIsCorrect(bool isCorrect) {

@@ -531,12 +531,12 @@ public class QuizApi {
 
       boolean hasCorrect = false;
       for (Map<String, Object> option : options) {
-        String optionText = (String) option.get("option");
+        String optionText = (String) option.get("optionText");
         boolean isCorrect = (boolean) option.get("correct");
         QuizOption quizOption = new QuizOption();
         quizOption.setQuizQuestion(quizQuestion);
         quizOption.setCorrect(isCorrect);
-        quizOption.setOption(optionText);
+        quizOption.setOptionText(optionText);
 
         if (isCorrect) {
           hasCorrect = true;
@@ -625,7 +625,7 @@ public class QuizApi {
   private QuizQuestionDto mapToQuestionDto(QuizQuestion question) {
 
     List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
-        .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOption(),
+        .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOptionText(),
             option.isCorrect()))
         .collect(Collectors.toList());
 

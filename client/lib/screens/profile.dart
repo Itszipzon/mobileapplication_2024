@@ -51,7 +51,6 @@ class ProfileState extends ConsumerState<Profile> {
       setState(() {
         quizzes = value;
       });
-      print(value);
     });
   }
 

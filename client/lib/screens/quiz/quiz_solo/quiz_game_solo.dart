@@ -102,7 +102,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
     questionScores.add(pointsAwarded);
 
     if (currentQuestionIndex < (quizData?["quizQuestions"].length ?? 0) - 1) {
-      print(duration = quizData!["timer"]);
       setState(() {
         currentQuestionIndex++;
         selectedAnswer = null;
@@ -142,9 +141,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
         developer.log("Quiz attempt logged successfully.");
 
         final response = await answerManager.submitAnswers(token, quizId);
-        print(
-            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        print(questionScores);
         response['questionScores'] = questionScores;
         developer.log('Question scores: $questionScores');
 

@@ -29,8 +29,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
 
   final List<Quiz> questions = [
     Quiz(question: "", options: [
-      Option(option: ""),
-      Option(option: ""),
+      Option(optionText: ""),
+      Option(optionText: ""),
     ])
   ];
 
@@ -319,7 +319,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       options: [
         for (int i = 0; i < prevQuiz.options.length; i++)
           Option(
-            option: controllers[i].text,
+            optionText: controllers[i].text,
             isCorrect: prevQuiz.options[i].isCorrect,
           ),
       ],
@@ -328,7 +328,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     questionController.text = questions[newIndex].question;
     for (int i = 0; i < controllers.length; i++) {
       if (i < questions[newIndex].options.length) {
-        controllers[i].text = questions[newIndex].options[i].option;
+        controllers[i].text = questions[newIndex].options[i].optionText;
       } else {
         controllers[i].clear();
       }
@@ -341,7 +341,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
 
   void addOption(int index) {
     setState(() {
-      questions[_selectedIndex].options.add(Option(option: ""));
+      questions[_selectedIndex].options.add(Option(optionText: ""));
     });
   }
 
@@ -354,8 +354,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             controllers[i].clear();
           }
           questions[0].options = [
-            Option(option: ""),
-            Option(option: ""),
+            Option(optionText: ""),
+            Option(optionText: ""),
           ];
         });
         return;
@@ -384,7 +384,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       options: [
         for (int i = 0; i < prevQuiz.options.length; i++)
           Option(
-            option: controllers[i].text,
+            optionText: controllers[i].text,
             isCorrect: prevQuiz.options[i].isCorrect,
           ),
       ],
@@ -395,13 +395,13 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
 
         for (int i = 0; i < controllers.length; i++) {
           if (i < questions[_selectedIndex].options.length) {
-            controllers[i].text = questions[_selectedIndex].options[i].option;
+            controllers[i].text = questions[_selectedIndex].options[i].optionText;
           } else {
             controllers[i].clear();
           }
         }
       } else {
-        questions[_selectedIndex].options[index].option = "";
+        questions[_selectedIndex].options[index].optionText = "";
         controllers[index].text = "";
       }
     });
@@ -414,8 +414,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
     }
     setState(() {
       questions.add(Quiz(question: "", options: [
-        Option(option: ""),
-        Option(option: ""),
+        Option(optionText: ""),
+        Option(optionText: ""),
       ]));
     });
     changeSelectedQuestion(_selectedIndex, _selectedIndex + 1);
@@ -442,7 +442,6 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
         }
       } catch (e) {
         ErrorHandler.showOverlayError(context, "Failed to pick image");
-        print("Error picking image: $e");
       }
     } else {
       ErrorHandler.showOverlayError(context, "Permission denied");
@@ -466,7 +465,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       options: [
         for (int i = 0; i < prevQuiz.options.length; i++)
           Option(
-            option: controllers[i].text,
+            optionText: controllers[i].text,
             isCorrect: prevQuiz.options[i].isCorrect,
           ),
       ],
@@ -534,7 +533,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
 
       bool isCorrect = false;
       for (var option in question.options) {
-        if (option.option.isEmpty) {
+        if (option.optionText.isEmpty) {
           setState(() {
             loading = false;
           });
@@ -577,7 +576,7 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
             "quizOptions": [
               for (int j = 0; j < questions[i].options.length; j++)
                 {
-                  "option": questions[i].options[j].option,
+                  "optionText": questions[i].options[j].optionText,
                   "correct": questions[i].options[j].isCorrect,
                 }
             ],

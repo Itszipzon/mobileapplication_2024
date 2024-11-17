@@ -42,12 +42,12 @@ public class QuizOption {
     this.quizOptionId = quizOptionId;
   }
 
-  public String getOption() {
+  public String getOptionText() {
     return optionText;
   }
 
-  public void setOption(String option) {
-    this.optionText = option;
+  public void setOptionText(String optionText) {
+    this.optionText = optionText;
   }
 
   public boolean isCorrect() {

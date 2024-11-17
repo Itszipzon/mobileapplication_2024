@@ -54,7 +54,7 @@ public class DtoParser {
   public static QuizQuestionDto mapToQuestionDto(QuizQuestion question) {
 
     List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
-        .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOption(),
+        .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOptionText(),
             option.isCorrect()))
         .collect(Collectors.toList());
 
