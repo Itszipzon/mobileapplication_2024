@@ -227,9 +227,9 @@ docker compose down -v
 
 This project exists thanks to the contributions from our development team:
 
-- 👤 **Rune Molander** (Project Manager)
-- 👤 **Jan Christian Nordskog** (UI/UX Designer and Programmer)
-- 👤 **Phillip** (Frontend Developer and Designer)
+- 👤 **Rune Molander** (Project Manager, Lead Programmer, Backend Developer)
+- 👤 **Jan Christian Nordskog** (Lead UI/UX Designer, Programmer)
+- 👤 **Phillip** (Frontend Developer, UI/UX Designer)
 - 👤 **Avnit** (Frontend Developer)
 
 [Next.js]: https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white
