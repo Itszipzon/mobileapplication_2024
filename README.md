@@ -189,21 +189,21 @@ docker compose up
 
 This command will:
 
-Pull two Docker images:
+- Pull two Docker images:
 
-MySQL latest version (database)
-jannordskog/springapimobilapp:latest (backend API)
+  - MySQL latest version (database)
+  - jannordskog/springapimobilapp:latest (backend API)
 
 
-Create and configure the necessary volumes for data persistence
-Set up the required network connections
-Start both services with the correct configuration
+- Create and configure the necessary volumes for data persistence
+- Set up the required network connections
+- Start both services with the correct configuration
 
 The backend API will be available at:
 
 http://localhost:8080 (or your machine's IP address:8080)
 
-Verifying the Setup
+### Verifying the Setup
 You can check if both services are running properly using:
 ```bash
 docker compose ps
@@ -227,9 +227,9 @@ docker compose down -v
 
 This project exists thanks to the contributions from our development team:
 
+- 👤 **Rune Molander**
 - 👤 **Jan Christian Nordskog**
 - 👤 **Avnit**
-- 👤 **Rune**
 - 👤 **Phillip**
 
 [Next.js]: https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white
