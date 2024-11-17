@@ -223,6 +223,33 @@ Note: When you run docker compose down, the database data will persist thanks to
 docker compose down -v
 ```
 
+### Updating Docker Image
+
+When you make changes to the backend code, follow these steps to update the Docker image:
+
+1. Build a new version of your Docker image:
+```bash
+docker build -t jannordskog/springapimobilapp:latest .
+```
+2. Push the updated image to Docker Hub:
+```bash
+docker login
+docker push jannordskog/springapimobilapp:latest
+```
+3. If your containers are running, stop them:
+```bash
+docker compose down
+```
+4. Pull the latest version and restart:
+```bash
+docker compose pull
+docker compose up
+```
+Alternatively, you can do a one-line update and restart:
+```bash
+docker compose down && docker compose pull && docker compose up
+```
+Note: Make sure you're logged into Docker Hub with an account that has permission to push to the jannordskog repository.
 ## Code Contributors
 
 This project exists thanks to the contributions from our development team:
