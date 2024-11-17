@@ -23,8 +23,8 @@ public class QuizOption {
   @Column(name = "quizOptionId")
   private Long quizOptionId;
 
-  @Column(nullable = false, name = "option")
-  private String option;
+  @Column(nullable = false, name = "optionText")
+  private String optionText;
 
   @Column(nullable = false, name = "correct")
   private boolean correct;
@@ -43,11 +43,11 @@ public class QuizOption {
   }
 
   public String getOption() {
-    return option;
+    return optionText;
   }
 
   public void setOption(String option) {
-    this.option = option;
+    this.optionText = option;
   }
 
   public boolean isCorrect() {
