@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:developer' as developer;
 import 'package:client/elements/button.dart';
 import 'package:client/elements/counter.dart';
 import 'package:client/screens/quiz/socket/quiz_socket_answers.dart';
@@ -90,8 +90,9 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
             ErrorHandler.showOverlayError(context, 'WebSocket Error: $error'),
         onStompError: (dynamic error) =>
             ErrorHandler.showOverlayError(context, 'STOMP Error: $error'),
-        onDisconnect: (frame) =>
-            ErrorHandler.showOverlayError(context, 'Disconnected: $frame'),
+        onDisconnect: (frame) {
+          developer.log('Disconnected');
+        },
         webSocketConnectHeaders: {'Origin': ApiHandler.url},
         useSockJS: true,
       ),
@@ -200,6 +201,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
         username: username,
       );
     } else if (state == "end") {
+      stompClient!.deactivate();
       return ScoreScreen(
         router: router,
         user: user,

@@ -378,6 +378,7 @@ public class QuizController {
     quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
     quizDetails.put("state", quizSession.getState());
     quizDetails.put("lastCorrectAnswers", quizSession.getLastCorrectAnswers());
+    quizDetails.put("currentQuestionIndex", quizSession.getCurrentQuestionIndex());
 
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());

@@ -1,10 +1,11 @@
 import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 class QuizMessageHandler {
   static String handleLobbyMessages(BuildContext context, RouterNotifier router,
-      Map<String, dynamic> values, String username) {
+      Map<String, dynamic> values, String username, StompClient stompClient) {
     String value = "";
     String message = values["message"];
     if (message.startsWith("error:")) {
@@ -27,12 +28,14 @@ class QuizMessageHandler {
         }
       }
     } else if (message.startsWith("start")) {
+      stompClient.deactivate();
       router.setPath(context, "quiz/game/socket", values: values);
     } else if (message.startsWith("leave: ")) {
       List<String> error = message.substring(7).split(",");
 
       if (error[0] == "leader:true") {
         if (username == values["leaderUsername"]) {
+          stompClient.deactivate();
           ErrorHandler.showOverlayError(context, "You have left the quiz");
           router.setPath(context, "join");
         } else {
@@ -41,6 +44,7 @@ class QuizMessageHandler {
         }
       } else if (error[0] == "leader:false") {
         if (error[1] == " user:$username") {
+          stompClient.deactivate();
           ErrorHandler.showOverlayError(context, "You have left the quiz");
           router.setPath(context, "join");
         } else {

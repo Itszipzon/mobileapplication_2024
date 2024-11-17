@@ -73,92 +73,114 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 16),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
+@override
+Widget build(BuildContext context) {
+  final theme = Theme.of(context);
+  return Stack(
+    children: [
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 16),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 3,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Text(
+              questionData['question'] ?? "No question found",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          child: Text(
-            questionData['question'] ?? "No question found",
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: 350,
-          height: 350,
-          child: ListView.builder(
-            itemCount: questionData['quizOptions'].length ?? 0,
-            itemBuilder: (context, index) {
-              final option = questionData['quizOptions'][index];
-              final isCorrect = widget.values["lastCorrectAnswers"]
-                  .contains(option['id']);
-              final isSelected = answer["id"] ==
-                  option['id'];
+          const SizedBox(height: 20),
+          SizedBox(
+            width: 350,
+            height: 350,
+            child: ListView.builder(
+              itemCount: questionData['quizOptions'].length ?? 0,
+              itemBuilder: (context, index) {
+                final option = questionData['quizOptions'][index];
+                final isCorrect = widget.values["lastCorrectAnswers"]
+                    .contains(option['id']);
+                final isSelected = answer["id"] == option['id'];
 
-              return Container(
-                width: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: isSelected
-                      ? (isCorrect
-                          ? Border.all(
-                              color: Colors.green)
-                          : Border.all(
-                              color: Colors.red))
-                      : (isCorrect
-                          ? Border.all(color: Colors.green)
-                          : Border.all(color: theme.primaryColor)),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                margin: EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      option['option'] ?? "",
-                      style: TextStyle(
-                        fontSize: 16,
+                return Container(
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: isSelected
+                        ? (isCorrect
+                            ? Border.all(color: Colors.green)
+                            : Border.all(color: Colors.red))
+                        : (isCorrect
+                            ? Border.all(color: Colors.green)
+                            : Border.all(color: theme.primaryColor)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        option['option'] ?? "",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    if (isSelected)
-                      Icon(
-                        isCorrect
-                            ? Icons.check
-                            : Icons.close,
-                        color: isCorrect
-                            ? Colors.green
-                            : Colors.red,
-                      )
-                  ],
-                ),
-              );
-            },
+                      if (isSelected)
+                        Icon(
+                          isCorrect ? Icons.check : Icons.close,
+                          color: isCorrect ? Colors.green : Colors.red,
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
+        ],
+      ),
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            LinearProgressIndicator(
+              value: (widget.values["currentQuestionIndex"] + 1) /
+                  widget.values["amountOfQuestions"],
+              minHeight: 8,
+              backgroundColor: Colors.grey[300],
+              color: Theme.of(context).primaryColor,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Question ${widget.values["currentQuestionIndex"] + 1} of ${widget.values["amountOfQuestions"]}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 }

@@ -60,119 +60,151 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
       children: [
-        const SizedBox(height: 16),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Text(
-            questionData['question'] ?? "No question found",
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+              child: Text(
+                questionData['question'] ?? "No question found",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        isAnswered
-            ? SizedBox(
-                width: 350,
-                height: 350,
-                child: ListView.builder(
-                  itemCount: questionData['quizOptions'].length ?? 0,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: answer["option"] ==
-                                questionData['quizOptions'][index]["option"]
-                            ? Colors.white
-                            : Colors.grey[200],
-                        border: Border.all(
+            const SizedBox(height: 20),
+            isAnswered
+                ? SizedBox(
+                    width: 350,
+                    height: 350,
+                    child: ListView.builder(
+                      itemCount: questionData['quizOptions'].length ?? 0,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          width: 50,
+                          decoration: BoxDecoration(
                             color: answer["option"] ==
                                     questionData['quizOptions'][index]["option"]
-                                ? theme.primaryColor
-                                : Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            questionData['quizOptions'][index]['option'] ?? "",
-                            style: TextStyle(
-                              fontSize: 16,
+                                ? Colors.white
+                                : Colors.grey[200],
+                            border: Border.all(
+                                color: answer["option"] ==
+                                        questionData['quizOptions'][index]
+                                            ["option"]
+                                    ? theme.primaryColor
+                                    : Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                questionData['quizOptions'][index]['option'] ??
+                                    "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : SizedBox(
+                    width: 350,
+                    height: 350,
+                    child: ListView.builder(
+                      itemCount: questionData['quizOptions'].length ?? 0,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              answer = questionData['quizOptions'][index];
+                              isAnswered = true;
+                            });
+                            widget.onClick({
+                              "answer": questionData['quizOptions'][index]
+                                  ['option'],
+                              "answerId": questionData['quizOptions'][index]
+                                  ['id'],
+                            });
+                          },
+                          child: Container(
+                            width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: theme.primaryColor),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  questionData['quizOptions'][index]
+                                          ['option'] ??
+                                      "",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              )
-            : SizedBox(
-                width: 350,
-                height: 350,
-                child: ListView.builder(
-                  itemCount: questionData['quizOptions'].length ?? 0,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          answer = questionData['quizOptions'][index];
-                          isAnswered = true;
-                        });
-                        widget.onClick({
-                          "answer": questionData['quizOptions'][index]
-                              ['option'],
-                          "answerId": questionData['quizOptions'][index]['id'],
-                        });
+                        );
                       },
-                      child: Container(
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: theme.primaryColor),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              questionData['quizOptions'][index]['option'] ??
-                                  "",
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+          ],
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: (widget.values["currentQuestionIndex"] + 1) /
+                    widget.values["amountOfQuestions"],
+                minHeight: 8,
+                backgroundColor: Colors.grey[300],
+                color: Theme.of(context).primaryColor,
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Question ${widget.values["currentQuestionIndex"] + 1} of ${widget.values["amountOfQuestions"]}',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
       ],
     );
   }

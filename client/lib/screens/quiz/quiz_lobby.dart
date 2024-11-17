@@ -141,14 +141,14 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
             if (mounted) {
               setState(() {
                 players.remove(QuizMessageHandler.handleLobbyMessages(
-                    context, router, result, username));
+                    context, router, result, username, stompClient!));
               });
             }
           } else {
             result['thumbnail'] = '${ApiHandler.url}/api/quiz/thumbnail/$quizId';
             result["username"] = username;
             QuizMessageHandler.handleLobbyMessages(
-                context, router, result, username);
+                context, router, result, username, stompClient!);
           }
         } else {
           ErrorHandler.showOverlayError(context, 'Empty body');
