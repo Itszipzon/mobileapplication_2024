@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * QuizRepo.
@@ -37,7 +38,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       FROM Quiz q JOIN q.user u
       WHERE q.quizId = :id
       """)
-  Optional<QuizDto> findQuizSummaryById(Long id);
+  Optional<QuizDto> findQuizSummaryById(@Param("id") Long id);
 
   @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions" })
   Optional<Quiz> findById(Long id);
@@ -47,7 +48,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       FROM Quiz q JOIN q.user u
       WHERE q.quizId = :id
       """)
-  Optional<String> findUsernameFromQuizId(Long id);
+  Optional<String> findUsernameFromQuizId(@Param("id") Long id);
 
   @Query("""
       SELECT new no.ntnu.server.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
@@ -56,7 +57,8 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       WHERE u.username = :username
       ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findQuizHistoryByUsername(String username, Pageable pageable);
+  Optional<List<QuizDto>> findQuizHistoryByUsername(@Param("username") String username,
+      Pageable pageable);
 
   @Query("""
       SELECT new no.ntnu.server.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
@@ -65,7 +67,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       WHERE u.username = :username
       ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findUsersQuizzes(String username, Pageable pageable);
+  Optional<List<QuizDto>> findUsersQuizzes(@Param("username") String username, Pageable pageable);
 
   @Query("""
       SELECT new no.ntnu.server.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
@@ -76,6 +78,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       WHERE qc.category.name = :category
         ORDER BY q.createdAt DESC
       """)
-  Optional<List<QuizDto>> findQuizzesByCategory(String category, Pageable pageable);
+  Optional<List<QuizDto>> findQuizzesByCategory(@Param("category") String category,
+      Pageable pageable);
 
 }

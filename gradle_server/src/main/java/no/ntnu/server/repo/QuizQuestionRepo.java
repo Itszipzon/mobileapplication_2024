@@ -5,6 +5,7 @@ import java.util.Optional;
 import no.ntnu.server.tables.QuizQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * QuizQuestionRepo.
@@ -20,7 +21,8 @@ public interface QuizQuestionRepo extends JpaRepository<QuizQuestion, Long> {
             AND
                 qo.id = :optionId
             """)
-    Optional<Boolean> checkIfCorrectAnswer(long questionId, long optionId);
+    Optional<Boolean> checkIfCorrectAnswer(@Param("questionId") long questionId,
+        @Param("optionId") long optionId);
 
   @Query("""
             SELECT qo.id
@@ -31,5 +33,5 @@ public interface QuizQuestionRepo extends JpaRepository<QuizQuestion, Long> {
             AND
                 qo.correct = true
             """)
-  Optional<List<Long>> findCorrectAnswers(long questionId);
+  Optional<List<Long>> findCorrectAnswers(@Param("questionId") long questionId);
 }

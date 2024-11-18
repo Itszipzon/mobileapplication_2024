@@ -88,8 +88,9 @@ public class QuizApi {
    * @return quizzes.
    */
   @GetMapping("/all/filter/{page}/{size}/{by}/{orientation}")
-  public ResponseEntity<List<QuizDto>> getFilteredQuizzes(@PathVariable int page,
-      @PathVariable int size, @PathVariable String by, @PathVariable String orientation) {
+  public ResponseEntity<List<QuizDto>> getFilteredQuizzes(@PathVariable("page") int page,
+      @PathVariable("size") int size, @PathVariable("by") String by,
+      @PathVariable("orientation") String orientation) {
 
     Pageable pageable = PageRequest.of(page, size,
         Sort.by(Sort.Direction.fromString(orientation), by));
@@ -110,7 +111,7 @@ public class QuizApi {
    * @return quiz.
    */
   @GetMapping("/{id}")
-  public ResponseEntity<QuizWithQuestionsDto> getQuizById(@PathVariable Long id) {
+  public ResponseEntity<QuizWithQuestionsDto> getQuizById(@PathVariable("id") Long id) {
     Optional<Quiz> quiz = quizRepo.findById(id);
 
     return quiz.map(value -> ResponseEntity.ok(mapToQuizWithQuestionsDto(value)))
@@ -124,7 +125,7 @@ public class QuizApi {
    * @return image.
    */
   @GetMapping("/thumbnail/{id}")
-  public ResponseEntity<Resource> getQuizImage(@PathVariable Long id) {
+  public ResponseEntity<Resource> getQuizImage(@PathVariable("id") Long id) {
     Optional<QuizDto> quiz = quizRepo.findQuizSummaryById(id);
     String username = quiz.get().getUsername();
     String thumbnail = quiz.get().getThumbnail();
@@ -172,8 +173,9 @@ public class QuizApi {
    * @return quizzes.
    */
   @GetMapping("/category/{category}/{page}")
-  public ResponseEntity<List<QuizDto>> getQuizzesByCategory(@PathVariable String category,
-      @PathVariable int page) {
+  public ResponseEntity<List<QuizDto>> getQuizzesByCategory(
+      @PathVariable("category") String category,
+      @PathVariable("page") int page) {
     Pageable pageable = PageRequest.of(page, 10); // 10 quizzes per page
     Optional<List<QuizDto>> quizzes = quizRepo.findQuizzesByCategory(category, pageable);
     if (quizzes.isEmpty()) {
@@ -190,8 +192,8 @@ public class QuizApi {
    */
   @GetMapping("/user/self/{page}/{amount}")
   public ResponseEntity<List<QuizDto>> getQuizzesByUser(
-      @RequestHeader("Authorization") String authorizationHeader, @PathVariable int page,
-      @PathVariable int amount) {
+      @RequestHeader("Authorization") String authorizationHeader, @PathVariable("page") int page,
+      @PathVariable("amount") int amount) {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -218,8 +220,9 @@ public class QuizApi {
    * @return quizzes.
    */
   @GetMapping("/user/username/{username}/{page}/{amount}")
-  public ResponseEntity<List<QuizDto>> getQuizzesByUsername(@PathVariable String username,
-      @PathVariable int page, @PathVariable int amount) {
+  public ResponseEntity<List<QuizDto>> getQuizzesByUsername(
+      @PathVariable("username") String username, @PathVariable("page") int page,
+      @PathVariable("amount") int amount) {
     Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
     Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
@@ -235,8 +238,8 @@ public class QuizApi {
    */
   @GetMapping("/user/history/{page}/{amount}")
   public ResponseEntity<List<QuizDto>> getQuizzesByUserHistory(
-      @RequestHeader("Authorization") String authorizationHeader, @PathVariable int page,
-      @PathVariable int amount) {
+      @RequestHeader("Authorization") String authorizationHeader, @PathVariable("page") int page,
+      @PathVariable("amount") int amount) {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -266,7 +269,8 @@ public class QuizApi {
    * @return A list of questions associated with the quiz.
    */
   @GetMapping("/questions/{quizId}")
-  public ResponseEntity<List<QuizQuestionDto>> getQuestionsByQuizId(@PathVariable Long quizId) {
+  public ResponseEntity<List<QuizQuestionDto>> getQuestionsByQuizId(
+      @PathVariable("quizId") Long quizId) {
     Optional<Quiz> quizOptional = quizRepo.findById(quizId);
 
     if (quizOptional.isEmpty()) {
@@ -287,7 +291,8 @@ public class QuizApi {
    */
   @GetMapping("/popular/{page}")
   @Transactional(readOnly = true)
-  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes(@PathVariable int page) {
+  public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes(
+      @PathVariable("page") int page) {
 
     // Create a pageable object
     Pageable pageable = PageRequest.of(page, 5);
@@ -325,8 +330,9 @@ public class QuizApi {
   @PostMapping("/attempt/{quizId}")
   @Transactional
   public ResponseEntity<String> addQuizAttempt(
-      @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long quizId) {
-
+      @RequestHeader("Authorization") String authorizationHeader,
+      @PathVariable("quizId") Long quizId) {
+    //TODO: Use RequestBody instead of PathVariable
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>("Unauthorized: Missing or invalid token.",
           HttpStatus.UNAUTHORIZED);
@@ -615,7 +621,7 @@ public class QuizApi {
    * @return If the quiz was deleted.
    */
   @DeleteMapping("/{id}")
-  public ResponseEntity<Boolean> deleteQuiz(@PathVariable Long id) {
+  public ResponseEntity<Boolean> deleteQuiz(@PathVariable("id") Long id) {
     if (quizRepo.existsById(id)) {
       quizRepo.deleteById(id);
       return new ResponseEntity<>(true, HttpStatus.CREATED);

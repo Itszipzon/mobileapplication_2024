@@ -52,4 +52,8 @@ server/src/main/resources/static/images/*
 !server/src/main/resources/static/images/logo.png
 !server/src/main/resources/static/images/default_pfp.png
 
+gradle_server/src/main/resources/static/images/*
+!gradle_server/src/main/resources/static/images/logo.png
+!gradle_server/src/main/resources/static/images/default_pfp.png
+
 test.json

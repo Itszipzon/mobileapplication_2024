@@ -88,7 +88,7 @@ public class UserApi {
    * @return User.
    */
   @GetMapping("/haspfp/{username}")
-  public ResponseEntity<Boolean> hasProfilePicture(@PathVariable String username) {
+  public ResponseEntity<Boolean> hasProfilePicture(@PathVariable("username") String username) {
     Optional<User> userOpt = userRepo.findUserByUsername(username);
 
     if (userOpt.isEmpty()) {
@@ -109,8 +109,14 @@ public class UserApi {
    * @return User.
    */
   @GetMapping("/pfp/{username}")
-  public ResponseEntity<Resource> getProfilePicture(@PathVariable String username) {
+  public ResponseEntity<Resource> getProfilePicture(@PathVariable("username") String username) {
     Optional<User> userOpt = userRepo.findUserByUsername(username);
+
+    System.out.println(
+        "Username: " + userOpt.get().getUsername()
+        + "\nPfp: " + userOpt.get().getProfilePicture()
+        + "\nEmail: " + userOpt.get().getEmail()
+    );
 
     if (userOpt.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -154,7 +160,7 @@ public class UserApi {
   }
 
   @GetMapping("/usernameexists/{username}")
-  public ResponseEntity<Boolean> usernameExists(@PathVariable String username) {
+  public ResponseEntity<Boolean> usernameExists(@PathVariable("username") String username) {
     return new ResponseEntity<>(userRepo.findUserByUsername(username).isPresent(), HttpStatus.OK);
   }
 
