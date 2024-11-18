@@ -213,6 +213,12 @@ public class UserApi {
 
     if (claims == null) {
       return new ResponseEntity<>(false, HttpStatus.OK);
+    }    
+    
+    Optional<User> user = userRepo.findUserByUsername(claims.getSubject());
+
+    if (user.isEmpty()) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
     return new ResponseEntity<>(true, HttpStatus.OK);
