@@ -112,12 +112,6 @@ public class UserApi {
   public ResponseEntity<Resource> getProfilePicture(@PathVariable("username") String username) {
     Optional<User> userOpt = userRepo.findUserByUsername(username);
 
-    System.out.println(
-        "Username: " + userOpt.get().getUsername()
-        + "\nPfp: " + userOpt.get().getProfilePicture()
-        + "\nEmail: " + userOpt.get().getEmail()
-    );
-
     if (userOpt.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -218,6 +212,10 @@ public class UserApi {
     Optional<User> user = userRepo.findUserByUsername(claims.getSubject());
 
     if (user.isEmpty()) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
+
+    if (user.get().getBanned() != null && user.get().getBanned().isAfter(LocalDateTime.now())) {
       return new ResponseEntity<>(false, HttpStatus.OK);
     }
 

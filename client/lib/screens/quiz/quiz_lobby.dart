@@ -7,6 +7,7 @@ import 'package:client/tools/error_message.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
@@ -31,6 +32,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   String quizName = "";
   String quizId = "";
   int quizTimer = 0;
+  int questionCount = 0;
 
   @override
   void initState() {
@@ -50,7 +52,6 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
   Future<void> _initUsername() async {
     username = await ApiHandler.getProfile(user.token!)
         .then((value) => value['username']);
-    
   }
 
   @override
@@ -110,6 +111,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
             quizName = result['quiz']['title'];
             quizId = result["quiz"]['id'].toString();
             quizTimer = result['quiz']['timer'];
+            questionCount = result['amountOfQuestions'];
           });
           quizIdCompleter.complete();
         } else {
@@ -145,7 +147,8 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
               });
             }
           } else {
-            result['thumbnail'] = '${ApiHandler.url}/api/quiz/thumbnail/$quizId';
+            result['thumbnail'] =
+                '${ApiHandler.url}/api/quiz/thumbnail/$quizId';
             result["username"] = username;
             QuizMessageHandler.handleLobbyMessages(
                 context, router, result, username, stompClient!);
@@ -217,11 +220,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
       body: json.encode({
         'token': quizToken,
         "userToken": user.token!,
-        "message": {
-          "setNewQuiz": false,
-          "changeTimer": true,
-          "timer": newTime
-        }
+        "message": {"setNewQuiz": false, "changeTimer": true, "timer": newTime}
       }),
     );
   }
@@ -304,156 +303,182 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-        body: Column(
-      children: [
-        const SizedBox(height: 8),
-        quizId == ""
-            ? const SizedBox(
-                height: 200,
-              )
-            : Image(
-                image: NetworkImage(
-                    '${ApiHandler.url}/api/quiz/thumbnail/$quizId'),
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                quizName,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          const SizedBox(height: 8),
+          quizId == ""
+              ? const SizedBox(
+                  height: 200,
+                )
+              : Image(
+                  image: NetworkImage(
+                      '${ApiHandler.url}/api/quiz/thumbnail/$quizId'),
+                  height: 200,
+                  fit: BoxFit.cover,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Session token: $quizToken',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedTextButton(
-                    text: "${quizTimer.toString()} sec",
-                    height: 40,
-                    width: 50,
-                    textStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onPressed: () =>
-                        username == leader ? changeTimerClick() : null,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Players: ${players.length}"),
-        ]),
-        Expanded(
-          child: Center(
+          Container(
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: MediaQuery.of(context).size.height - 550,
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      children: [
-                        for (int i = 0; i < players.length; i++)
-                          Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Chip(
-                              label: Text(
-                                players[i],
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              shape: StadiumBorder(
-                                side: BorderSide(
-                                  color: players[i] == leader
-                                      ? Colors.orange
-                                      : Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  quizName,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: theme.primaryColor),
+                      ),
+                      child: GestureDetector(
+                        onTap: () => {
+                          Clipboard.setData(
+                            ClipboardData(text: quizToken),
+                          ),
+                        },
+                        child: Text(
+                          'Session token: $quizToken',
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedTextButton(
+                      text: "${quizTimer.toString()} sec",
+                      height: 40,
+                      width: 50,
+                      textStyle: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onPressed: () =>
+                          username == leader ? changeTimerClick() : null,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-        ),
-        username == leader
-            ? Container(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        width: 16,
-                      ),
-                      SizedTextButton(
-                        text: "Start",
-                        onPressed: _startQuiz,
-                        height: 50,
-                        width: 160,
-                        textStyle: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedTextButton(
-                        text: "Leave",
-                        onPressed: _leaveQuiz,
-                        inversed: true,
-                        height: 50,
-                        width: 160,
-                        textStyle: const TextStyle(
-                            color: Colors.orange,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 16,
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : Container(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Center(
-                  child: SizedTextButton(
-                    text: "Leave",
-                    onPressed: _leaveQuiz,
-                    inversed: true,
-                    height: 50,
-                    width: 200,
-                    textStyle: const TextStyle(
-                        color: Colors.orange,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                "Players: ${players.length}",
+                style: const TextStyle(fontSize: 16),
               ),
-      ],
-    ));
+              Text(
+                "Questions: $questionCount",
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - 550,
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        children: [
+                          for (int i = 0; i < players.length; i++)
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Chip(
+                                label: Text(
+                                  players[i],
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                shape: StadiumBorder(
+                                  side: BorderSide(
+                                    color: players[i] == leader
+                                        ? Colors.orange
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          username == leader
+              ? Container(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                        ),
+                        SizedTextButton(
+                          text: "Start",
+                          onPressed: _startQuiz,
+                          height: 50,
+                          width: 160,
+                          textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedTextButton(
+                          text: "Leave",
+                          onPressed: _leaveQuiz,
+                          inversed: true,
+                          height: 50,
+                          width: 160,
+                          textStyle: const TextStyle(
+                              color: Colors.orange,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Container(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Center(
+                    child: SizedTextButton(
+                      text: "Leave",
+                      onPressed: _leaveQuiz,
+                      inversed: true,
+                      height: 50,
+                      width: 200,
+                      textStyle: const TextStyle(
+                          color: Colors.orange,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+        ],
+      ),
+    );
   }
 }
