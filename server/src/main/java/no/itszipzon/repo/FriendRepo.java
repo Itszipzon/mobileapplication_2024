@@ -40,9 +40,9 @@ public interface FriendRepo extends JpaRepository<Friend, Long> {
             f.friendId,
             f.user.username,
             f.status,
-            CAST(f.createdAt AS string),
-            CAST(f.acceptedAt AS string),
-            CAST(f.user.lastLoggedIn AS string),
+            f.createdAt AS string,
+            f.acceptedAt AS string,
+            f.user.lastLoggedIn AS string,
             f.user.profilePicture
         )
         FROM Friend f
