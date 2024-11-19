@@ -1,6 +1,7 @@
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/loading.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/tools.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -262,6 +263,7 @@ class FriendsState extends ConsumerState<Friends> {
                     itemCount: _friendsData!.length,
                     itemBuilder: (context, index) {
                       final friend = _friendsData![index];
+                      print(friend);
                       return ListTile(
                         leading: buildAvatar(
                           friend['username'],
@@ -269,7 +271,7 @@ class FriendsState extends ConsumerState<Friends> {
                         ),
                         title: Text(friend['username']),
                         subtitle: Text(
-                          'Last seen: ${formatLastSeen(friend['lastLoggedIn'])}',
+                          'Last seen: ${Tools.formatCreatedAt(friend['lastLoggedIn'])}',
                           style: const TextStyle(fontSize: 12),
                         ),
                         trailing: Row(
