@@ -32,37 +32,6 @@ class FriendsState extends ConsumerState<Friends> {
     });
   }
 
-  String formatLastSeen(String? lastSeenStr) {
-    if (lastSeenStr == null || lastSeenStr == 'Never') return 'Never';
-
-    try {
-      final lastSeen = DateTime.parse(lastSeenStr);
-      final now = DateTime.now();
-      final difference = now.difference(lastSeen);
-
-      if (difference.inMinutes < 1) {
-        return 'Just now';
-      } else if (difference.inHours < 1) {
-        final minutes = difference.inMinutes;
-        return '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
-      } else if (difference.inDays < 1) {
-        final hours = difference.inHours;
-        return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
-      } else if (difference.inDays < 30) {
-        final days = difference.inDays;
-        return '$days ${days == 1 ? 'day' : 'days'} ago';
-      } else if (difference.inDays < 365) {
-        final months = (difference.inDays / 30).floor();
-        return '$months ${months == 1 ? 'month' : 'months'} ago';
-      } else {
-        final years = (difference.inDays / 365).floor();
-        return '$years ${years == 1 ? 'year' : 'years'} ago';
-      }
-    } catch (e) {
-      return 'Unknown';
-    }
-  }
-
   Widget buildAvatar(String username, String? profilePicture) {
     if (profilePicture != null) {
       return CircleAvatar(
