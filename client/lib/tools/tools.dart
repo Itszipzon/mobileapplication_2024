@@ -1,6 +1,7 @@
 class Tools {
 
-    static String formatCreatedAt(List<int> date) {
+    static String formatCreatedAt(List<dynamic> createdAt) {
+      List<int> date = createdAt.map((e) => int.parse(e.toString())).toList();
       final dateFromParameter = DateTime(
         date[0],
         date[1],

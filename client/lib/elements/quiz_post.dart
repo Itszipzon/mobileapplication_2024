@@ -69,7 +69,7 @@ class QuizPost extends ConsumerWidget {
                         const SizedBox(width: 4),
                         const Text("|"),
                         const SizedBox(width: 4),
-                        Text(Tools.formatCreatedAt(createdAt.map((e) => e as int).toList())),
+                        Text(Tools.formatCreatedAt(createdAt)),
                       ],
                     ),
                   ],

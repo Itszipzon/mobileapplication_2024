@@ -120,7 +120,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
                         const SizedBox(width: 4),
                         Text(isLoading
                             ? ""
-                            : Tools.formatCreatedAt(createdAt.map((e) => e as int).toList())),
+                            : Tools.formatCreatedAt(createdAt)),
                       ],
                     ),
                   ],
