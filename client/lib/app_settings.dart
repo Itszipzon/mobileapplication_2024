@@ -3,6 +3,7 @@ import 'package:client/screens/categories.dart';
 import 'package:client/screens/category.dart';
 import 'package:client/screens/home.dart';
 import 'package:client/screens/join.dart';
+import 'package:client/screens/friends.dart';
 import 'package:client/screens/login.dart';
 import 'package:client/screens/path_search.dart';
 import 'package:client/screens/profile.dart';
@@ -36,6 +37,7 @@ class AppSettings {
     router.addScreen("category", Category());
     router.addScreen("quiz/solo", QuizGameSolo());
     router.addScreen("quiz/results", QuizResults());
+    router.addScreen("friends", Friends());
 
     router.excludePaths(["", "login", "register", "test"]);
   }
