@@ -30,7 +30,7 @@ class Categories extends ConsumerWidget {
               future: allCategories,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // Show a loading spinner while waiting
+                  return const CircularProgressIndicator(); 
                 }
                 if (snapshot.hasError) {
                   return const Text("Error loading categories");
@@ -40,21 +40,18 @@ class Categories extends ConsumerWidget {
                   return const Text("No categories available");
                 }
 
-                // Get the list of categories once the Future completes
                 List<String> categories = snapshot.data!;
 
                 String selectedCategory = categories[0];
 
                 return Column(
                   children: [
-                    // Dropdown button to select a category
                     DropdownButton<String>(
                       value: selectedCategory,
                       onChanged: (newCategory) {
                         if (newCategory != null) {
                           selectedCategory = newCategory;
-                          // You can route or filter quizzes based on the selected category
-                          // For example: router.setPath(context, "category", values: {"category": newCategory});
+                          router.setPath(context, "category", values: {"category": newCategory});
                         }
                       },
                       items: categories.map<DropdownMenuItem<String>>((String category) {
@@ -68,7 +65,7 @@ class Categories extends ConsumerWidget {
                       hint: const Text("Select Category"),
                     ),
                     const SizedBox(height: 16.0),
-                    const Divider(), // A divider to separate dropdown from the grid
+                    const Divider(),
                     const SizedBox(height: 16.0),
                   ],
                 );
