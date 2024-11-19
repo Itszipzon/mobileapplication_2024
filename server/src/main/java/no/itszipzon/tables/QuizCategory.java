@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * Holds the relationship between a quiz and a category.
@@ -28,9 +30,10 @@ public class QuizCategory {
   @JsonBackReference
   private Category category;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne
   @JoinColumn(name = "quizId", referencedColumnName = "quizId")
   @JsonBackReference
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Quiz quiz;
 
   public Long getQuizCategoryId() {
@@ -56,5 +59,5 @@ public class QuizCategory {
   public void setQuiz(Quiz quiz) {
     this.quiz = quiz;
   }
-  
+
 }
