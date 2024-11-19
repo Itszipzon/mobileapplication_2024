@@ -77,6 +77,8 @@ public class Tools {
     path += "/";
     pathBefore += "/../../../src/main/resources/static/images/";
 
+    username = username.toLowerCase();
+
     try {
       byte[] bytes = image.getBytes();
       if (type.equalsIgnoreCase("pfp")) {
