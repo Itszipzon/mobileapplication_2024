@@ -1,3 +1,4 @@
+import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,14 @@ class SettingsState extends ConsumerState<Settings> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Container(
+        child: Center(
+          child: Text("Settings"),
+        ),
+      ),
+      bottomNavigationBar: BottomNavbar(path: "profile"),
+    );
   }
 
 }
