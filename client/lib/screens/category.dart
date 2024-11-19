@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/quiz_post.dart';
 import 'package:client/tools/api_handler.dart';
@@ -8,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Category extends ConsumerStatefulWidget {
+  const Category({super.key});
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => CategoryState();
 }
