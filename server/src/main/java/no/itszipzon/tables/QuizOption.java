@@ -1,5 +1,8 @@
 package no.itszipzon.tables;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * Option for a quiz question.
@@ -29,9 +34,10 @@ public class QuizOption {
   @Column(nullable = false, name = "correct")
   private boolean correct;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne
   @JoinColumn(name = "quizQuestionId", referencedColumnName = "quizQuestionId")
   @JsonBackReference
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private QuizQuestion quizQuestion;
 
   public Long getQuizOptionId() {
@@ -65,5 +71,5 @@ public class QuizOption {
   public void setQuizQuestion(QuizQuestion quizQuestion) {
     this.quizQuestion = quizQuestion;
   }
-  
+
 }
