@@ -47,7 +47,7 @@ class JoinState extends ConsumerState<Join> {
             children: [
               Expanded(
                 child: Input(
-                    labelText: "Game Pin", controller: codeController, onReturn: (_) => onPressed(),),
+                    labelText: "Game PIN", controller: codeController, onReturn: (_) => onPressed(),),
               ),
               const SizedBox(width: 5),
               SizedTextButton(
