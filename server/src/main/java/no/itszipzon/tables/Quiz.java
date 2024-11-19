@@ -60,6 +60,10 @@ public class Quiz {
   @JsonManagedReference
   private List<QuizCategory> categories;
 
+  @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
+  private List<QuizAttempt> quizAttempts;
+
   @PrePersist
   protected void onCreate() {
     LocalDateTime now = LocalDateTime.now();
