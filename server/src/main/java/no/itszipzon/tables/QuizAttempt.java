@@ -15,6 +15,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * QuizAttempt.
@@ -22,7 +24,7 @@ import java.util.List;
 @Entity
 @Table(name = "quizAttempt")
 public class QuizAttempt {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizAttemptId;
@@ -32,9 +34,10 @@ public class QuizAttempt {
   @JsonBackReference
   private User user;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne
   @JoinColumn(name = "quizId", referencedColumnName = "quizId")
   @JsonBackReference
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Quiz quiz;
 
   @Column(name = "takenAt")
@@ -49,7 +52,7 @@ public class QuizAttempt {
     LocalDateTime now = LocalDateTime.now();
     takenAt = now;
   }
-  
+
   public Long getQuizAttemptId() {
     return quizAttemptId;
   }
