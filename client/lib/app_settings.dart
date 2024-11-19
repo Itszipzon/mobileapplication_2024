@@ -22,7 +22,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppSettings {
   /// Initiates all the screens in the application.
   static void initiateScreens(RouterNotifier router) {
-    router.addScreen("", const LogoLoading());
+    router.addScreen("", const Center(child: LogoLoading()));
     router.addScreen("login", const LoginScreen());
     router.addScreen("register", const Register());
     router.addScreen("home", const Home());

@@ -27,15 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/friends")
 public final class FriendApi {
 
-  private final FriendRepo friendRepo;
-  private final UserRepo userRepo;
-  private final JwtUtil jwtUtil;
+  @Autowired
+  private FriendRepo friendRepo;
 
   @Autowired
-  public FriendApi(FriendRepo friendRepo, UserRepo userRepo, JwtUtil jwtUtil) {
-    this.friendRepo = friendRepo;
-    this.userRepo = userRepo;
-    this.jwtUtil = jwtUtil;
+  private UserRepo userRepo;
+
+  @Autowired
+  private JwtUtil jwtUtil;
+
+  public FriendApi() {
   }
 
   /**

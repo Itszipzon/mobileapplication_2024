@@ -1,19 +1,21 @@
 package no.itszipzon.dto;
 
+import java.time.LocalDateTime;
+
 public class FriendDto {
     private Long friendId;
     private String username;
     private String status;
-    private String createdAt;
-    private String acceptedAt;
-    private String lastLoggedIn;
+    private LocalDateTime createdAt;
+    private LocalDateTime acceptedAt;
+    private LocalDateTime lastLoggedIn;
     private String profilePicture;
 
     /**
      * Constructor matching the JPQL query parameters.
      */
-    public FriendDto(Long friendId, String username, String status, String createdAt, 
-    String acceptedAt, String lastLoggedIn, String profilePicture) {
+    public FriendDto(Long friendId, String username, String status, LocalDateTime createdAt, 
+    LocalDateTime acceptedAt, LocalDateTime lastLoggedIn, String profilePicture) {
     this.friendId = friendId;
     this.username = username;
     this.status = status;
@@ -49,27 +51,27 @@ public class FriendDto {
         this.status = status;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getAcceptedAt() {
+    public LocalDateTime getAcceptedAt() {
         return acceptedAt;
     }
 
-    public void setAcceptedAt(String acceptedAt) {
+    public void setAcceptedAt(LocalDateTime acceptedAt) {
         this.acceptedAt = acceptedAt;
     }
 
-    public String getLastLoggedIn() {
+    public LocalDateTime getLastLoggedIn() {
         return lastLoggedIn;
     }
 
-    public void setLastLoggedIn(String lastLoggedIn) {
+    public void setLastLoggedIn(LocalDateTime lastLoggedIn) {
         this.lastLoggedIn = lastLoggedIn;
     }
     

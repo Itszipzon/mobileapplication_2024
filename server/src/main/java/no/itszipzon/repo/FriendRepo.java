@@ -17,14 +17,12 @@ public interface FriendRepo extends JpaRepository<Friend, Long> {
                 ELSE f.user.username 
             END,
             f.status,
-            CAST(f.createdAt AS string),
-            CAST(f.acceptedAt AS string),
-            CAST(
+            f.createdAt,
+            f.acceptedAt,
                 CASE 
                     WHEN f.user.username = :username THEN f.friendUser.lastLoggedIn 
                     ELSE f.user.lastLoggedIn 
-                END 
-            AS string),
+                END,
             CASE 
                 WHEN f.user.username = :username THEN f.friendUser.profilePicture 
                 ELSE f.user.profilePicture 
