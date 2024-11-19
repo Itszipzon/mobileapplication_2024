@@ -290,4 +290,108 @@ class ApiHandler {
       throw Exception('Failed to fetch popular quizzes');
     }
   }
+   /// Get list of friends
+  static Future<List<Map<String, dynamic>>> getFriends(String token) async {
+    final response = await http.get(
+      Uri.parse('$_url/api/friends'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> friends = jsonDecode(response.body);
+      return friends.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load friends');
+    }
+  }
+
+  /// Get pending friend requests
+  static Future<List<Map<String, dynamic>>> getPendingFriendRequests(String token) async {
+    final response = await http.get(
+      Uri.parse('$_url/api/friends/pending'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> requests = jsonDecode(response.body);
+      return requests.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load friend requests');
+    }
+  }
+
+  /// Send friend request
+  static Future<void> sendFriendRequest(String token, String username) async {
+    final response = await http.post(
+      Uri.parse('$_url/api/friends/request/$username'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode != 200) {
+      String errorMessage = response.body;
+      if (response.statusCode == 400) {
+        // Handle specific error cases
+        switch (errorMessage) {
+          case "Cannot send friend request to yourself":
+            throw Exception("You can't send a friend request to yourself");
+          case "Friend request already exists":
+            throw Exception("Friend request already exists");
+          default:
+            throw Exception(errorMessage);
+        }
+      } else if (response.statusCode == 404) {
+        throw Exception("User not found");
+      } else {
+        throw Exception("Failed to send friend request");
+      }
+    }
+  }
+
+  /// Accept friend request
+  static Future<void> acceptFriendRequest(String token, int friendRequestId) async {
+    final response = await http.post(
+      Uri.parse('$_url/api/friends/accept/$friendRequestId'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode != 200) {
+      if (response.statusCode == 404) {
+        throw Exception("Friend request not found");
+      } else {
+        throw Exception("Failed to accept friend request");
+      }
+    }
+  }
+
+  /// Remove friend
+  static Future<void> removeFriend(String token, String username) async {
+    final response = await http.delete(
+      Uri.parse('$_url/api/friends/$username'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode != 200) {
+      if (response.statusCode == 404) {
+        throw Exception("Friendship not found");
+      } else {
+        throw Exception("Failed to remove friend");
+      }
+    }
+  }
+
+  /// Example usage of the friends list
+  /// This shows the structure of the data you'll get back
+  static Map<String, dynamic> _parseFriendData(Map<String, dynamic> data) {
+    return {
+      'friendId': data['friendId'] as int,
+      'username': data['username'] as String,
+      'status': data['status'] as String,
+      'createdAt': data['createdAt'] as String,
+      'acceptedAt': data['acceptedAt'] as String?,
+      'lastLoggedIn': data['lastLoggedIn'] as String?,
+      'profilePicture': data['profilePicture'] as String?,
+    };
+  }
+
+
 }
