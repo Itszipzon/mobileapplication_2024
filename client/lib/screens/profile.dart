@@ -113,8 +113,8 @@ class ProfileState extends ConsumerState<Profile> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: SizedTextButton(
-                      text: "Other",
-                      onPressed: () => {print("Other")},
+                      text: "Friends",
+                      onPressed: () => router.setPath(context, "friends"),
                       height: 40,
                       textStyle:
                           const TextStyle(fontSize: 16, color: Colors.white),
