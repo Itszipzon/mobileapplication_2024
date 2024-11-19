@@ -13,6 +13,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * QuizQuestion.
@@ -28,9 +30,10 @@ public class QuizQuestion {
   @Column(nullable = false, name = "question")
   private String question;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne
   @JoinColumn(name = "quizId", referencedColumnName = "quizId")
   @JsonBackReference
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Quiz quiz;
 
   @OneToMany(mappedBy = "quizQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -68,5 +71,5 @@ public class QuizQuestion {
   public void setQuizOptions(List<QuizOption> quizOptions) {
     this.quizOptions = quizOptions;
   }
-  
+
 }
