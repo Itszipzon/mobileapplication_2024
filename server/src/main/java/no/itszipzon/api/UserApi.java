@@ -76,7 +76,7 @@ public class UserApi {
       return new ResponseEntity<>(map, HttpStatus.OK);
 
     } catch (Exception e) {
-      
+
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
   }
@@ -215,6 +215,10 @@ public class UserApi {
       return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
+    if (user.get().getBanned() != null && user.get().getBanned().isAfter(LocalDateTime.now())) {
+      return new ResponseEntity<>(false, HttpStatus.OK);
+    }
+
     return new ResponseEntity<>(true, HttpStatus.OK);
   }
 
@@ -296,17 +300,17 @@ public class UserApi {
     }
 
     if (Tools.matchPasswords(values.get("password"), loggedInUser.get().getPassword())) {
-      
+
       loggedInUser.get().setLastLoggedIn(LocalDateTime.now());
       userRepo.save(loggedInUser.get());
 
       Logger.log("User " + loggedInUser.get().getUsername() + " logged in");
-      
-      boolean rememberMe = values.get("rememberMe") == null
-          ? false : Boolean.parseBoolean(values.get("rememberMe"));
+
+      boolean rememberMe =
+          values.get("rememberMe") == null ? false : Boolean.parseBoolean(values.get("rememberMe"));
 
       String token = jwtUtil.generateToken(loggedInUser.get(), (rememberMe ? (24 * 30) : 24));
-      
+
       return new ResponseEntity<>(token, HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Username or password is not correct", HttpStatus.UNAUTHORIZED);
@@ -332,10 +336,9 @@ public class UserApi {
    * @return Response.
    */
   @PostMapping("/changepassword")
-  public ResponseEntity<String> changePassword(
-      @RequestBody Map<String, String> map,
+  public ResponseEntity<String> changePassword(@RequestBody Map<String, String> map,
       @RequestHeader("Authorization") String authorizationHeader) {
-    
+
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -381,8 +384,7 @@ public class UserApi {
    * @return Response.
    */
   @PostMapping("/ban")
-  public ResponseEntity<Boolean> banUser(
-      @RequestBody HashMap<String, String> entity,
+  public ResponseEntity<Boolean> banUser(@RequestBody HashMap<String, String> entity,
       @RequestHeader("Authorization") String authorizationHeader) {
 
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -409,8 +411,7 @@ public class UserApi {
 
     user.get().setBanned(bannedTo);
     userRepo.save(user.get());
-    Logger.info("User " + bannedUser.getUsername() + " was banned by "
-        + claims.getSubject());
+    Logger.info("User " + bannedUser.getUsername() + " was banned by " + claims.getSubject());
     return new ResponseEntity<>(true, HttpStatus.OK);
   }
 
