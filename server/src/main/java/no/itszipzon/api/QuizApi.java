@@ -139,20 +139,20 @@ public class QuizApi {
     MediaType mediaType = null;
 
     switch (filetype) {
-      case "png":
-        mediaType = MediaType.IMAGE_PNG;
-        break;
-      case "jpg":
-        mediaType = MediaType.IMAGE_JPEG;
-        break;
-      case "jpeg":
-        mediaType = MediaType.IMAGE_JPEG;
-        break;
-      case "gif":
-        mediaType = MediaType.IMAGE_GIF;
-        break;
-      default:
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    case "png":
+      mediaType = MediaType.IMAGE_PNG;
+      break;
+    case "jpg":
+      mediaType = MediaType.IMAGE_JPEG;
+      break;
+    case "jpeg":
+      mediaType = MediaType.IMAGE_JPEG;
+      break;
+    case "gif":
+      mediaType = MediaType.IMAGE_GIF;
+      break;
+    default:
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     return ResponseEntity.ok().contentType(mediaType).body(resource);
@@ -597,12 +597,19 @@ public class QuizApi {
    * @return If the quiz was deleted.
    */
   @DeleteMapping("/{id}")
+  @Transactional
   public ResponseEntity<Boolean> deleteQuiz(@PathVariable Long id) {
-    if (quizRepo.existsById(id)) {
-      quizRepo.deleteById(id);
-      return new ResponseEntity<>(true, HttpStatus.CREATED);
+    Optional<Quiz> quiz = quizRepo.findById(id);
+    if (quiz.isPresent()) {
+      // Delete related records first
+      quiz.get().getQuizQuestions().forEach(question -> {
+        question.getQuizOptions().clear();
+        questionRepo.delete(question);
+      });
+      quizRepo.delete(quiz.get());
+      return new ResponseEntity<>(true, HttpStatus.OK);
     }
-    return new ResponseEntity<>(false, HttpStatus.CREATED);
+    return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
   }
 
   private QuizDto mapToQuizDto(Quiz quiz) {
