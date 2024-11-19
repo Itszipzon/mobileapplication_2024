@@ -1,6 +1,5 @@
 package no.itszipzon.tables;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,85 +18,85 @@ import java.time.LocalDateTime;
 @Table(name = "friend")
 public class Friend {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "friendId")
-    private Long friendId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "friendId")
+  private Long friendId;
 
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
+  @ManyToOne
+  @JoinColumn(name = "userId", nullable = false)
+  private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "friendUserId", nullable = false)
-    private User friendUser;
+  @ManyToOne
+  @JoinColumn(name = "friendUserId", nullable = false)
+  private User friendUser;
 
-    @Column(nullable = false, name = "status")
-    private String status = "PENDING"; // PENDING, ACCEPTED, BLOCKED
+  @Column(nullable = false, name = "status")
+  private String status = "PENDING"; // PENDING, ACCEPTED, BLOCKED
 
-    @Column(nullable = false, name = "createdAt")
-    private LocalDateTime createdAt;
+  @Column(nullable = false, name = "createdAt")
+  private LocalDateTime createdAt;
 
-    @Column(name = "acceptedAt")
-    private LocalDateTime acceptedAt;
+  @Column(name = "acceptedAt")
+  private LocalDateTime acceptedAt;
 
-    /**
-     * Constructor.
-     */
-    public Friend() {
-    }
+  /**
+   * Constructor.
+   */
+  public Friend() {
+  }
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+  @PrePersist
+  protected void onCreate() {
+    createdAt = LocalDateTime.now();
+  }
 
-    // Getters and Setters
-    public Long getFriendId() {
-        return friendId;
-    }
+  // Getters and Setters
+  public Long getFriendId() {
+    return friendId;
+  }
 
-    public void setFriendId(Long friendId) {
-        this.friendId = friendId;
-    }
+  public void setFriendId(Long friendId) {
+    this.friendId = friendId;
+  }
 
-    public User getUser() {
-        return user;
-    }
+  public User getUser() {
+    return user;
+  }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-    public User getFriendUser() {
-        return friendUser;
-    }
+  public User getFriendUser() {
+    return friendUser;
+  }
 
-    public void setFriendUser(User friendUser) {
-        this.friendUser = friendUser;
-    }
+  public void setFriendUser(User friendUser) {
+    this.friendUser = friendUser;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
 
-    public LocalDateTime getAcceptedAt() {
-        return acceptedAt;
-    }
+  public LocalDateTime getAcceptedAt() {
+    return acceptedAt;
+  }
 
-    public void setAcceptedAt(LocalDateTime acceptedAt) {
-        this.acceptedAt = acceptedAt;
-    }
+  public void setAcceptedAt(LocalDateTime acceptedAt) {
+    this.acceptedAt = acceptedAt;
+  }
 }
