@@ -348,7 +348,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
                           ),
                         },
                         child: Text(
-                          'Game Pin: $quizToken',
+                          'Game PIN: $quizToken',
                           style: const TextStyle(
                             fontSize: 16,
                           ),
