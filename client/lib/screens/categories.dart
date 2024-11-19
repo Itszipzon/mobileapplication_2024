@@ -65,7 +65,6 @@ class Categories extends ConsumerWidget {
                       hint: const Text("Select Category"),
                     ),
                     const SizedBox(height: 16.0),
-                    const Divider(),
                     const SizedBox(height: 16.0),
                   ],
                 );
