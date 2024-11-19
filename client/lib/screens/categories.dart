@@ -45,8 +45,12 @@ class Categories extends ConsumerWidget {
                     child: CategoryCard(
                         icon: Icons.history, title: "History", quizCount: 89),
                   ),
-                  CategoryCard(
-                      icon: Icons.science, title: "Science", quizCount: 69),
+                  GestureDetector(
+                    onTap: () => router.setPath(context, "category",
+                        values: {"category": "science"}),
+                    child: CategoryCard(
+                        icon: Icons.science, title: "Science", quizCount: 69),
+                  ),
                 ],
               ),
             ),
