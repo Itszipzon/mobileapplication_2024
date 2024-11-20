@@ -25,15 +25,16 @@ class CategoryCard extends StatelessWidget {
             Icon(icon, size: 60.0, color: Colors.white),
             const SizedBox(height: 16.0),
             Flexible(
-              child: Text(
+              child: FittedBox(
+                fit:BoxFit.scaleDown,
+                child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 20.0, // Default font size
+                  fontSize: 20.0, 
                   color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 2, // Allow up to 2 lines for long titles
-                overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+                ),
               ),
             ),
             const SizedBox(height: 8.0),
