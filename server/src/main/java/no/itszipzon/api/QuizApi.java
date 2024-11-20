@@ -182,6 +182,12 @@ public class QuizApi {
     return new ResponseEntity<>(quizzes.get(), HttpStatus.OK);
   }
 
+  @GetMapping("/category/count/{categoryName}")
+  public ResponseEntity<Long> getQuizCountByCategory(@PathVariable String categoryName) {
+    long count = categoryRepo.countQuizzesByCategory(categoryName);
+    return ResponseEntity.ok(count);
+  }
+
   /**
    * Get quizzes by search.
    *
@@ -313,18 +319,6 @@ public class QuizApi {
     }).collect(Collectors.toList());
 
     return new ResponseEntity<>(response, HttpStatus.OK);
-  }
-
-  @GetMapping("/categories/counts")
-  @Transactional(readOnly = true)
-  public ResponseEntity<Map<String, Integer>> getCategoryCounts() {
-    List<Category> categories = categoryRepo.findAll();
-    Map<String, Integer> categoryCounts = new HashMap<>();
-    for (Category category : categories) {
-      int count = quizRepo.countQuizzesInCategory(category.getName());
-      categoryCounts.put(category.getName(), count);
-    }
-    return ResponseEntity.ok(categoryCounts);
   }
 
   /**
