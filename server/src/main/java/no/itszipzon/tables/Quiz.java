@@ -16,6 +16,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Quiz.
@@ -23,7 +24,7 @@ import java.util.List;
 @Entity
 @Table(name = "quiz")
 public class Quiz {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "quizId")
@@ -47,7 +48,7 @@ public class Quiz {
   @Column(nullable = false, name = "timer")
   private Integer timer = 0;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "userId", referencedColumnName = "userId")
   @JsonBackReference
   private User user;
@@ -63,6 +64,10 @@ public class Quiz {
   @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<QuizAttempt> quizAttempts;
+
+  @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
+  private List<QuizSessionManagerTable> sessionManagers;
 
   @PrePersist
   protected void onCreate() {
@@ -154,6 +159,10 @@ public class Quiz {
 
   public void setCategories(List<QuizCategory> categories) {
     this.categories = categories;
+  }
+
+  public List<QuizAttempt> getQuizAttempts() {
+    return quizAttempts;
   }
 
 }
