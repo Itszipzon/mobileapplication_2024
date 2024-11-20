@@ -406,4 +406,24 @@ class ApiHandler {
     }
     throw Exception('Failed to get category quiz count');
   }
+
+  static Future<void> deleteQuiz(String token, int quizId) async {
+    final response = await http.delete(
+      Uri.parse('$_url/api/quiz/$quizId'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode != 200) {
+      switch (response.statusCode) {
+        case 401:
+          throw Exception("Unauthorized access");
+        case 403:
+          throw Exception("You don't have permission to delete this quiz");
+        case 404:
+          throw Exception("Quiz not found");
+        default:
+          throw Exception("Failed to delete quiz: ${response.body}");
+      }
+    }
+  }
 }
