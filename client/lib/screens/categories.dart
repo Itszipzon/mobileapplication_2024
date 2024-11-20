@@ -7,16 +7,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Categories extends ConsumerWidget {
   const Categories({super.key});
-  
-  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     late RouterNotifier router = ref.watch(routerProvider.notifier);
 
-  Future<List<String>> allCategories = ApiHandler.getQuizCategories();
+    final List<String> gridCategoryNames = [
+      "General Knowledge",
+      "Pop Culture",
+      "History",
+      "Science"
+    ];
 
-  String? selectedCategory;
+    String? selectedCategory;
 
     return Scaffold(
       body: Padding(
@@ -28,11 +31,12 @@ class Categories extends ConsumerWidget {
               style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16.0),
+
             FutureBuilder<List<String>>(
-              future: allCategories,
+              future: ApiHandler.getQuizCategories(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); 
+                  return const CircularProgressIndicator();
                 }
                 if (snapshot.hasError) {
                   return const Text("Error loading categories");
@@ -42,72 +46,77 @@ class Categories extends ConsumerWidget {
                   return const Text("No categories available");
                 }
 
-                List<String> categories = snapshot.data!;
-
-                return Column(
-                  children: [
-                    DropdownButton<String>(
-                      
-                      value: selectedCategory,
-                      onChanged: (newCategory) {
-                        if (newCategory != null) {
-                          selectedCategory = newCategory;
-                          router.setPath(context, "category", values: {"category": newCategory});
-                        }
-                      },
-                      items: [
-                        const DropdownMenuItem<String>(
-                          child: Text("Choose a Category"),
-                          ),
-                        ...categories.map<DropdownMenuItem<String>>((String category) {
+                final allCategories = snapshot.data!;
+                return DropdownButton<String>(
+                  value: selectedCategory,
+                  onChanged: (newCategory) {
+                    if (newCategory != null) {
+                      selectedCategory = newCategory;
+                      router.setPath(context, "category",
+                          values: {"category": newCategory});
+                    }
+                  },
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text("Choose a Category"),
+                    ),
+                    ...allCategories.map<DropdownMenuItem<String>>(
+                      (String category) {
                         return DropdownMenuItem<String>(
                           value: category,
                           child: Text(category),
                         );
-                      }).toList(),
-                      ],
-                      isExpanded: true,
-                      icon: const Icon(Icons.arrow_drop_down),
-                      hint: const Text("Select Category"),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const SizedBox(height: 16.0),
+                      },
+                    ).toList(),
                   ],
+                  isExpanded: true,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  hint: const Text("Select Category"),
                 );
               },
             ),
+            const SizedBox(height: 16.0),
 
-           Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-                children: [
-                  GestureDetector(
-                    onTap: () => router.setPath(context, "category",
-                        values: {"category": "general knowledge"}),
-                    child: CategoryCard(
-                        icon: Icons.star, title: "General", quizCount: 128),
+            // Dynamic Grid for predefined categories
+            Expanded(
+              child: FutureBuilder<List<int>>(
+                future: Future.wait(
+                  gridCategoryNames.map(
+                    (category) =>
+                        ApiHandler.getCategoryQuizCount(category),
                   ),
-                  GestureDetector(
-                    onTap: () => router.setPath(context, "category",
-                        values: {"category": "pop culture"}),
-                    child: CategoryCard(
-                        icon: Icons.movie, title: "Pop Cult", quizCount: 58),
-                  ),
-                  GestureDetector(
-                    onTap: () => router.setPath(context, "category",
-                        values: {"category": "history"}),
-                    child: CategoryCard(
-                        icon: Icons.history, title: "History", quizCount: 89),
-                  ),
-                  GestureDetector(
-                    onTap: () => router.setPath(context, "category",
-                        values: {"category": "science"}),
-                    child: CategoryCard(
-                        icon: Icons.science, title: "Science", quizCount: 69),
-                  ),
-                ],
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(
+                        child: Text("Error loading category quiz counts"));
+                  }
+                  final quizCounts = snapshot.data!;
+
+                  return GridView.builder(
+                    itemCount: gridCategoryNames.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                    ),
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () => router.setPath(context, "category",
+                            values: {"category": gridCategoryNames[index]}),
+                        child: CategoryCard(
+                          icon: _getCategoryIcon(gridCategoryNames[index]),
+                          title: gridCategoryNames[index],
+                          quizCount: quizCounts[index],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -115,5 +124,20 @@ class Categories extends ConsumerWidget {
       ),
       bottomNavigationBar: const BottomNavbar(path: "categories"),
     );
+  }
+
+  IconData _getCategoryIcon(String categoryName) {
+    switch (categoryName) {
+      case "General Knowledge":
+        return Icons.star;
+      case "Pop Culture":
+        return Icons.movie;
+      case "History":
+        return Icons.history;
+      case "Science":
+        return Icons.science;
+      default:
+        return Icons.category;
+    }
   }
 }
