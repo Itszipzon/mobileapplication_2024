@@ -13,13 +13,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 /**
  * Manages all the quizzes played by users against other users.
  */
 @Entity
 @Table(name = "quizSessionManager")
 public class QuizSessionManagerTable {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizSessionManagerId;
@@ -28,9 +31,10 @@ public class QuizSessionManagerTable {
   @JsonManagedReference
   private List<QuizSessionTable> quizSessions;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne
   @JoinColumn(name = "quizId", referencedColumnName = "quizId")
   @JsonBackReference
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Quiz quiz;
 
   public Long getQuizSessionManagerId() {
