@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// A small button with text.
 class SmallTextButton extends StatelessWidget {
-
   final String text;
   final VoidCallback onPressed;
   final bool loading;
@@ -12,15 +11,13 @@ class SmallTextButton extends StatelessWidget {
     required this.onPressed,
     this.loading = false,
     super.key,
-  }); 
+  });
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return ElevatedButton(
-      onPressed: loading
-          ? null
-          : onPressed, // Disable the button when loading
+      onPressed: loading ? null : onPressed, // Disable the button when loading
 
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color>(
@@ -77,7 +74,7 @@ class LargeImageButton extends StatelessWidget {
   }
 }
 
-class IconTextButton extends StatelessWidget {  
+class IconTextButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final String text;
@@ -109,8 +106,7 @@ class IconTextButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon,
-                  size: 24,
-                  color: active ? theme.primaryColor : Colors.black),
+                  size: 24, color: active ? theme.primaryColor : Colors.black),
               Text(text, style: const TextStyle(color: Colors.black)),
             ],
           ),
@@ -167,6 +163,7 @@ class SizedTextButton extends StatelessWidget {
   final double? width;
   final TextStyle textStyle;
   final bool inversed;
+  final Icon? icon;
 
   const SizedTextButton({
     required this.text,
@@ -176,6 +173,7 @@ class SizedTextButton extends StatelessWidget {
     this.width,
     required this.textStyle,
     this.inversed = false,
+    this.icon,
     super.key,
   });
 
@@ -187,7 +185,7 @@ class SizedTextButton extends StatelessWidget {
       onTap: loading ? null : onPressed,
       child: Container(
         height: height,
-        width: width ?? MediaQuery.of(context).size.width, // Use full screen width if width is not specified
+        width: width ?? MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: inversed ? Colors.white : theme.primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(6)),
@@ -205,9 +203,18 @@ class SizedTextButton extends StatelessWidget {
                     strokeWidth: 2.0,
                   ),
                 )
-              : Text(
-                  text,
-                  style: textStyle,
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      icon!,
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      text,
+                      style: textStyle,
+                    ),
+                  ],
                 ),
         ),
       ),

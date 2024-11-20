@@ -17,6 +17,8 @@ class CategoryState extends ConsumerState<Category> {
   bool loading = true;
 
   late List<Map<String, dynamic>> quizzes;
+  List<String> allCategories = [];
+  String? selectedCategory;
 
   @override
   void initState() {
@@ -24,44 +26,100 @@ class CategoryState extends ConsumerState<Category> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
 
-      _initiateQuizzes();
+      _fetchCategories();
     });
   }
 
+  Future<void> _fetchCategories() async {
+    try {
+      List<String> categories = await ApiHandler.getQuizCategories();
+      setState(() {
+        allCategories = categories;
+        selectedCategory = router.getValues?["category"] ?? categories.first;
+        _initiateQuizzes();
+      });
+    } catch (e) {
+      setState(() {
+        loading = false;
+      });
+      print("Error fetching categories: $e");
+    }
+  }
+
   Future<void> _initiateQuizzes() async {
-    ApiHandler.getQuizzesByCategory(router.getValues!["category"], 0)
-        .then((value) => {
-              setState(() {
-                quizzes = value;
-                loading = false;
-              }),
-              print(quizzes)
-            });
+    setState(() {
+      loading = true;
+    });
+    try {
+      List<Map<String, dynamic>> quizList =
+          await ApiHandler.getQuizzesByCategory(selectedCategory!, 0);
+      setState(() {
+        quizzes = quizList;
+        loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        loading = false;
+      });
+      print("Error fetching quizzes: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: loading
-          ? SizedBox(
-              height: 0,
-            )
-          : ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: quizzes.length,
-              itemBuilder: (context, index) {
-                final quiz = quizzes[index];
-
-                return QuizPost(
-                  id: quiz["id"],
-                  profilePicture: quiz["profilePicture"] ?? "",
-                  title: quiz["title"],
-                  username: quiz["username"],
-                  createdAt: quiz["createdAt"],
-                );
-              },
+      appBar: AppBar(
+        title: const Text("Quizzes by Category"),
+      ),
+      body: Column(
+        children: [
+          if (allCategories.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: DropdownButton<String>(
+                value: selectedCategory,
+                onChanged: (newCategory) {
+                  if (newCategory != null) {
+                    setState(() {
+                      selectedCategory = newCategory;
+                    });
+                    _initiateQuizzes();
+                  }
+                },
+                items: allCategories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                isExpanded: true,
+                hint: const Text("Select a Category"),
+              ),
             ),
-            bottomNavigationBar: BottomNavbar(path: "categories")
+          Expanded(
+            child: loading
+                ? const Center(child: CircularProgressIndicator())
+                : quizzes.isEmpty
+                    ? const Center(child: Text("No quizzes available"))
+                    : ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: quizzes.length,
+                        itemBuilder: (context, index) {
+                          final quiz = quizzes[index];
+
+                          return QuizPost(
+                            id: quiz["id"],
+                            profilePicture: quiz["profilePicture"] ?? "",
+                            title: quiz["title"],
+                            username: quiz["username"],
+                            createdAt: quiz["createdAt"],
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavbar(path: "categories"),
     );
   }
 }

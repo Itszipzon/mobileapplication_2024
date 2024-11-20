@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * When a user played a quiz against other users.
@@ -16,12 +18,12 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "quizSession")
 public class QuizSessionTable {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizSessionId;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne
   @JoinColumn(name = "userId", referencedColumnName = "userId")
   @JsonBackReference
   private User user;
@@ -31,9 +33,10 @@ public class QuizSessionTable {
   @JsonBackReference
   private QuizSessionManagerTable quizManager;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne
   @JoinColumn(name = "quizAttemptId", referencedColumnName = "quizAttemptId")
   @JsonBackReference
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private QuizAttempt quizAttempt;
 
   public Long getQuizSessionId() {
@@ -59,7 +62,7 @@ public class QuizSessionTable {
   public void setQuizManager(QuizSessionManagerTable quizManager) {
     this.quizManager = quizManager;
   }
-  
+
   public QuizAttempt getQuizAttempt() {
     return quizAttempt;
   }

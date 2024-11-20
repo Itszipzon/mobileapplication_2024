@@ -139,20 +139,20 @@ public class QuizApi {
     MediaType mediaType = null;
 
     switch (filetype) {
-      case "png":
-        mediaType = MediaType.IMAGE_PNG;
-        break;
-      case "jpg":
-        mediaType = MediaType.IMAGE_JPEG;
-        break;
-      case "jpeg":
-        mediaType = MediaType.IMAGE_JPEG;
-        break;
-      case "gif":
-        mediaType = MediaType.IMAGE_GIF;
-        break;
-      default:
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    case "png":
+      mediaType = MediaType.IMAGE_PNG;
+      break;
+    case "jpg":
+      mediaType = MediaType.IMAGE_JPEG;
+      break;
+    case "jpeg":
+      mediaType = MediaType.IMAGE_JPEG;
+      break;
+    case "gif":
+      mediaType = MediaType.IMAGE_GIF;
+      break;
+    default:
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     return ResponseEntity.ok().contentType(mediaType).body(resource);
@@ -180,6 +180,12 @@ public class QuizApi {
       return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
     return new ResponseEntity<>(quizzes.get(), HttpStatus.OK);
+  }
+
+  @GetMapping("/category/count/{categoryName}")
+  public ResponseEntity<Long> getQuizCountByCategory(@PathVariable String categoryName) {
+    long count = categoryRepo.countQuizzesByCategory(categoryName);
+    return ResponseEntity.ok(count);
   }
 
   /**
@@ -403,6 +409,7 @@ public class QuizApi {
     }
 
     List<?> answersList = (List<?>) answersObj;
+    @SuppressWarnings("unchecked")
     List<Map<String, Object>> answers = answersList.stream().filter(obj -> obj instanceof Map)
         .map(obj -> (Map<String, Object>) obj).collect(Collectors.toList());
 
@@ -501,6 +508,7 @@ public class QuizApi {
     }
 
     List<?> questionsList = (List<?>) questionsObj;
+    @SuppressWarnings("unchecked")
     List<Map<String, Object>> questions = questionsList.stream().filter(item -> item instanceof Map)
         .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
 
@@ -522,6 +530,7 @@ public class QuizApi {
       }
 
       List<?> optionsList = (List<?>) optionsObj;
+      @SuppressWarnings("unchecked")
       List<Map<String, Object>> options = optionsList.stream().filter(item -> item instanceof Map)
           .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
 
@@ -558,6 +567,7 @@ public class QuizApi {
     }
 
     List<?> categoryList = (List<?>) categoryObj;
+    @SuppressWarnings("null")
     List<String> categories = categoryList.stream().filter(String.class::isInstance)
         .map(String.class::cast).collect(Collectors.toList());
 
@@ -591,18 +601,56 @@ public class QuizApi {
   }
 
   /**
-   * Delete quiz.
+   * Deletes a quiz and its associated data (attempts, questions, options, etc) if the requesting
+   * user owns it.
    *
-   * @param id id.
-   * @return If the quiz was deleted.
+   * @param id                  Quiz ID to delete
+   * @param authorizationHeader JWT token containing user info
+   * @return ResponseEntity with result message and status: - 200 OK if deleted successfully - 401
+   *         UNAUTHORIZED if missing/invalid token - 403 FORBIDDEN if user doesn't own quiz - 404
+   *         NOT_FOUND if quiz doesn't exist - 500 INTERNAL_SERVER_ERROR if deletion fails
    */
+
   @DeleteMapping("/{id}")
-  public ResponseEntity<Boolean> deleteQuiz(@PathVariable Long id) {
-    if (quizRepo.existsById(id)) {
-      quizRepo.deleteById(id);
-      return new ResponseEntity<>(true, HttpStatus.CREATED);
+  @Transactional
+  public ResponseEntity<String> deleteQuiz(@PathVariable Long id,
+      @RequestHeader("Authorization") String authorizationHeader) {
+
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
-    return new ResponseEntity<>(false, HttpStatus.CREATED);
+
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+
+    if (claims == null) {
+      return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
+    }
+
+    Optional<Quiz> quizOptional = quizRepo.findById(id);
+    if (quizOptional.isEmpty()) {
+      return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
+    }
+
+    Quiz quiz = quizOptional.get();
+    String username = claims.getSubject();
+
+    if (!quiz.getUser().getUsername().equals(username)) {
+      return new ResponseEntity<>("Unauthorized: User does not own this quiz",
+          HttpStatus.FORBIDDEN);
+    }
+
+    try {
+
+      quizAttemptRepo.deleteAll(quiz.getQuizAttempts());
+
+      quizRepo.delete(quiz);
+      return new ResponseEntity<>("Quiz deleted successfully", HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>("Error deleting quiz: " + e.getMessage(),
+          HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   private QuizDto mapToQuizDto(Quiz quiz) {

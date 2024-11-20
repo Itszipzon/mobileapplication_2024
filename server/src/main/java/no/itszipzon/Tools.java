@@ -58,6 +58,7 @@ public class Tools {
    * @param image    image to add.
    * @return true if the image was added, false if not.
    */
+  @SuppressWarnings("null")
   public static String addImage(String username, MultipartFile image, String type) {
     String staticLocation = new Main().getResource("/static").getPath();
     if (!Files.exists(Path.of(Tools.getCorrectUrl(staticLocation + "/images")))) {

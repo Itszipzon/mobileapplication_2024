@@ -8,11 +8,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * QuizRepo.
  */
 public interface QuizRepo extends JpaRepository<Quiz, Long> {
+  @SuppressWarnings("null")
   @EntityGraph(attributePaths = { "quizQuestions" })
   List<Quiz> findAll();
 
@@ -39,6 +41,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       """)
   Optional<QuizDto> findQuizSummaryById(Long id);
 
+  @SuppressWarnings("null")
   @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions" })
   Optional<Quiz> findById(Long id);
 
@@ -77,5 +80,9 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
         ORDER BY q.createdAt DESC
       """)
   Optional<List<QuizDto>> findQuizzesByCategory(String category, Pageable pageable);
+
+  @Query("SELECT COUNT(q) FROM Quiz q WHERE :category MEMBER OF q.categories")
+  int countQuizzesInCategory(@Param("category") String category);
+
 
 }
