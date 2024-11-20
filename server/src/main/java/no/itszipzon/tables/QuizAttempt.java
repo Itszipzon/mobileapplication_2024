@@ -29,7 +29,7 @@ public class QuizAttempt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizAttemptId;
 
-  @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REMOVE })
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "userId", referencedColumnName = "userId")
   @JsonBackReference
   private User user;
@@ -39,6 +39,10 @@ public class QuizAttempt {
   @JsonBackReference
   @OnDelete(action = OnDeleteAction.CASCADE)
   private Quiz quiz;
+
+  @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
+  private List<QuizSessionTable> quizSessions;
 
   @Column(name = "takenAt")
   private LocalDateTime takenAt;
