@@ -173,22 +173,6 @@ class ApiHandler {
     }
   }
 
-  static Future<Map<String, int>> getQuizCount() async {
-    final response = await http.get(
-      Uri.parse('$_url/api/quiz/categories/counts'));
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        Map<String, int> categoryCounts = {};
-        data.forEach((key, value) {
-          categoryCounts[key] = value as int;
-        });
-        return categoryCounts;
-      } else {
-        throw Exception('Failed to load quiz count');
-      }
-  }
-
   static Future<http.Response> createQuiz(
       Map<String, dynamic> quizData, String token, File thumbnail) async {
     final uri = Uri.parse('$_url/api/quiz');
@@ -292,7 +276,8 @@ class ApiHandler {
   }
 
   /// Fetches the 10 most popular quizzes based on the number of attempts.
-  static Future<List<Map<String, dynamic>>> getMostPopularQuizzes(int page) async {
+  static Future<List<Map<String, dynamic>>> getMostPopularQuizzes(
+      int page) async {
     final uri = Uri.parse('$_url/api/quiz/popular/$page');
 
     final response = await http.get(uri, headers: {
@@ -306,7 +291,8 @@ class ApiHandler {
       throw Exception('Failed to fetch popular quizzes');
     }
   }
-   /// Get list of friends
+
+  /// Get list of friends
   static Future<List<Map<String, dynamic>>> getFriends(String token) async {
     final response = await http.get(
       Uri.parse('$_url/api/friends'),
@@ -322,7 +308,8 @@ class ApiHandler {
   }
 
   /// Get pending friend requests
-  static Future<List<Map<String, dynamic>>> getPendingFriendRequests(String token) async {
+  static Future<List<Map<String, dynamic>>> getPendingFriendRequests(
+      String token) async {
     final response = await http.get(
       Uri.parse('$_url/api/friends/pending'),
       headers: {"Authorization": "Bearer $token"},
@@ -364,7 +351,8 @@ class ApiHandler {
   }
 
   /// Accept friend request
-  static Future<void> acceptFriendRequest(String token, int friendRequestId) async {
+  static Future<void> acceptFriendRequest(
+      String token, int friendRequestId) async {
     final response = await http.post(
       Uri.parse('$_url/api/friends/accept/$friendRequestId'),
       headers: {"Authorization": "Bearer $token"},
@@ -409,5 +397,13 @@ class ApiHandler {
     };
   }
 
-
+  static Future<int> getCategoryQuizCount(String categoryName) async {
+    final response = await http.get(
+      Uri.parse('$_url/api/quiz/category/count/$categoryName'),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    throw Exception('Failed to get category quiz count');
+  }
 }
