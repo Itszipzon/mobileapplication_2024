@@ -420,6 +420,7 @@ public class UserApi {
    *
    * @return ResponseEntity
    */
+  @SuppressWarnings("null")
   @PostMapping("/pfp")
   public ResponseEntity<String> postProfilePicture(
       @RequestHeader("Authorization") String authorizationHeader,

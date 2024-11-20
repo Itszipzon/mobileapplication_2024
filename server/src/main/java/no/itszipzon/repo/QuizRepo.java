@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
  * QuizRepo.
  */
 public interface QuizRepo extends JpaRepository<Quiz, Long> {
+  @SuppressWarnings("null")
   @EntityGraph(attributePaths = { "quizQuestions" })
   List<Quiz> findAll();
 
@@ -40,6 +41,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       """)
   Optional<QuizDto> findQuizSummaryById(Long id);
 
+  @SuppressWarnings("null")
   @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions" })
   Optional<Quiz> findById(Long id);
 
