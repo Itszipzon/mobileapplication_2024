@@ -139,20 +139,20 @@ public class QuizApi {
     MediaType mediaType = null;
 
     switch (filetype) {
-    case "png":
-      mediaType = MediaType.IMAGE_PNG;
-      break;
-    case "jpg":
-      mediaType = MediaType.IMAGE_JPEG;
-      break;
-    case "jpeg":
-      mediaType = MediaType.IMAGE_JPEG;
-      break;
-    case "gif":
-      mediaType = MediaType.IMAGE_GIF;
-      break;
-    default:
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      case "png":
+        mediaType = MediaType.IMAGE_PNG;
+        break;
+      case "jpg":
+        mediaType = MediaType.IMAGE_JPEG;
+        break;
+      case "jpeg":
+        mediaType = MediaType.IMAGE_JPEG;
+        break;
+      case "gif":
+        mediaType = MediaType.IMAGE_GIF;
+        break;
+      default:
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     return ResponseEntity.ok().contentType(mediaType).body(resource);
