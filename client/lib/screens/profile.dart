@@ -104,6 +104,7 @@ class ProfileState extends ConsumerState<Profile> {
                   Expanded(
                     child: SizedTextButton(
                       text: "Settings",
+                      icon: const Icon(Icons.settings, color: Colors.white),
                       onPressed: () => {router.setPath(context, "settings")},
                       height: 40,
                       textStyle:
@@ -114,6 +115,7 @@ class ProfileState extends ConsumerState<Profile> {
                   Expanded(
                     child: SizedTextButton(
                       text: "Friends",
+                      icon: const Icon(Icons.people, color: Colors.white),
                       onPressed: () => router.setPath(context, "friends"),
                       height: 40,
                       textStyle:
@@ -124,6 +126,7 @@ class ProfileState extends ConsumerState<Profile> {
                   Expanded(
                     child: SizedTextButton(
                       text: "Sign out",
+                      icon: const Icon(Icons.logout, color: Colors.white),
                       onPressed: () => {user.logout(context, router)},
                       height: 40,
                       textStyle:
