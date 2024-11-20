@@ -192,14 +192,75 @@ class ProfileState extends ConsumerState<Profile> {
                                       child: PopupMenuButton<String>(
                                         icon: const Icon(Icons.more_vert),
                                         onSelected: (String result) {
-                                          // Handle menu options here
                                           switch (result) {
                                             case 'Edit':
                                               print("Edit quiz ${quiz['id']}");
                                               break;
                                             case 'Delete':
-                                              print(
-                                                  "Delete quiz ${quiz['id']}");
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: const Text(
+                                                        'Delete Quiz'),
+                                                    content: const Text(
+                                                        'Are you sure you want to delete this quiz?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        child: const Text(
+                                                            'Cancel'),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(),
+                                                      ),
+                                                      TextButton(
+                                                        child: const Text(
+                                                            'Delete'),
+                                                        onPressed: () async {
+                                                          try {
+                                                            await ApiHandler
+                                                                .deleteQuiz(
+                                                                    user.token!,
+                                                                    quiz['id']);
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+
+                                                            setState(() {
+                                                              quizzes.removeWhere(
+                                                                  (q) =>
+                                                                      q['id'] ==
+                                                                      quiz[
+                                                                          'id']);
+                                                            });
+
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                  content: Text(
+                                                                      'Quiz deleted successfully')),
+                                                            );
+                                                          } catch (e) {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                  content: Text(
+                                                                      e.toString())),
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
                                               break;
                                             case 'Share':
                                               print("Share quiz ${quiz['id']}");
