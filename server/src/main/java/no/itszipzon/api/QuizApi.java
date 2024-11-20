@@ -315,6 +315,18 @@ public class QuizApi {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
+  @GetMapping("/categories/counts")
+  @Transactional(readOnly = true)
+  public ResponseEntity<Map<String, Integer>> getCategoryCounts() {
+    List<Category> categories = categoryRepo.findAll();
+    Map<String, Integer> categoryCounts = new HashMap<>();
+    for (Category category : categories) {
+      int count = quizRepo.countQuizzesInCategory(category.getName());
+      categoryCounts.put(category.getName(), count);
+    }
+    return ResponseEntity.ok(categoryCounts);
+  }
+
   /**
    * Add a new quiz attempt.
    *

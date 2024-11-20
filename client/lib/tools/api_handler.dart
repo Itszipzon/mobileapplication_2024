@@ -173,6 +173,22 @@ class ApiHandler {
     }
   }
 
+  static Future<Map<String, int>> getQuizCount() async {
+    final response = await http.get(
+      Uri.parse('$_url/api/quiz/categories/counts'));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        Map<String, int> categoryCounts = {};
+        data.forEach((key, value) {
+          categoryCounts[key] = value as int;
+        });
+        return categoryCounts;
+      } else {
+        throw Exception('Failed to load quiz count');
+      }
+  }
+
   static Future<http.Response> createQuiz(
       Map<String, dynamic> quizData, String token, File thumbnail) async {
     final uri = Uri.parse('$_url/api/quiz');

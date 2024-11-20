@@ -16,6 +16,8 @@ class Categories extends ConsumerWidget {
 
   Future<List<String>> allCategories = ApiHandler.getQuizCategories();
 
+  String? selectedCategory;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -42,11 +44,10 @@ class Categories extends ConsumerWidget {
 
                 List<String> categories = snapshot.data!;
 
-                String selectedCategory = categories[0];
-
                 return Column(
                   children: [
                     DropdownButton<String>(
+                      
                       value: selectedCategory,
                       onChanged: (newCategory) {
                         if (newCategory != null) {
@@ -54,18 +55,22 @@ class Categories extends ConsumerWidget {
                           router.setPath(context, "category", values: {"category": newCategory});
                         }
                       },
-                      items: categories.map<DropdownMenuItem<String>>((String category) {
+                      items: [
+                        const DropdownMenuItem<String>(
+                          child: Text("Choose a Category"),
+                          ),
+                        ...categories.map<DropdownMenuItem<String>>((String category) {
                         return DropdownMenuItem<String>(
                           value: category,
                           child: Text(category),
                         );
                       }).toList(),
+                      ],
                       isExpanded: true,
                       icon: const Icon(Icons.arrow_drop_down),
                       hint: const Text("Select Category"),
                     ),
                     const SizedBox(height: 16.0),
-                    const Divider(),
                     const SizedBox(height: 16.0),
                   ],
                 );
