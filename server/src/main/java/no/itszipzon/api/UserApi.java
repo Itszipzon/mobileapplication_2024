@@ -547,4 +547,7 @@ public class UserApi {
 
     return new ResponseEntity<>(jwtUtil.generateToken(userToUpdate, 24 * 30), HttpStatus.OK);
   }
+
+  
+
 }
