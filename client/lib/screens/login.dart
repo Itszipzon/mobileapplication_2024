@@ -138,7 +138,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 24),
               InkWell(
-                onTap: () => router.setPath(context, 'login'), //TODO: Add forgot password screen
+                onTap: () => router.setPath(context, 'forgot-password'), //TODO: Add forgot password screen
                 child: Text(
                   'Forgot password?',
                   style: TextStyle(color: theme.primaryColor),
