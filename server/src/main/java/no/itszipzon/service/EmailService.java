@@ -9,7 +9,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -29,12 +28,9 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    public void sendHtmlEmail(String to, String subject, String name, String filePath, Map<String, String> replacements) throws MessagingException, IOException {
+    public void sendHtmlEmail(String to, String subject, String filePath, Map<String, String> replacements) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-        Context context = new Context();
-        context.setVariable("name", name);
 
         helper.setTo(to);
         helper.setSubject(subject);

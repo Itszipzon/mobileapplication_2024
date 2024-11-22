@@ -1,15 +1,19 @@
 package no.itszipzon.api;
 
 import io.jsonwebtoken.Claims;
+import jakarta.mail.MessagingException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import no.itszipzon.Logger;
+import no.itszipzon.Main;
 import no.itszipzon.Tools;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.repo.UserRepo;
+import no.itszipzon.service.EmailService;
 import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -40,6 +44,9 @@ public class UserApi {
 
   @Autowired
   private JwtUtil jwtUtil;
+
+  @Autowired
+  private EmailService emailService;
 
   /**
    * Get user.
@@ -472,6 +479,29 @@ public class UserApi {
       Logger.error(e.getMessage());
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @PostMapping("/resetpassword")
+  public ResponseEntity<String> postMethodName(@RequestBody String entity) throws MessagingException, IOException {
+
+    Optional<User> user = userRepo.findUserByUsernameOrEmail(entity);
+    
+    if (user.isEmpty()) {
+      return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    }
+
+    User userToUpdate = user.get();
+
+    Map<String, String> map = new HashMap<>();
+    map.put("EMAIL", userToUpdate.getEmail());
+    map.put("NAME", userToUpdate.getUsername());
+    map.put("TOKEN", "RANDOM TOKEN");
+    map.put("LINK", "Questionairy.com/resetpassword?token=RANDOM TOKEN");
+
+    String path = new Main().getResource("/static/email_html/forgot_password.html").getPath();
+
+    emailService.sendHtmlEmail("rmolande00@gmail.com", "TEST", path, map);
+    return new ResponseEntity<>("Email sent", HttpStatus.OK);
   }
 
   /**
