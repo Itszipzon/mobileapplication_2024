@@ -238,6 +238,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);	
     if (state == "end" && !scoreAnimationController.isAnimating) {
       scoreAnimationController.forward();
     }
@@ -332,7 +333,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.orange.withOpacity(0.5),
+                                color: theme.primaryColor.withOpacity(0.5),
                                 spreadRadius: 5,
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
