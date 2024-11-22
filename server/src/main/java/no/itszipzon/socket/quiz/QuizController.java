@@ -258,11 +258,13 @@ public class QuizController {
       default:
         break;
     }
+    quizSession.initQuestionStartTime();
   }
 
   private void handleFirstCountDown(QuizSession quizSession, String token) {
     quizSession.setState("quiz");
     sendQuizUpdate(quizSession, token);
+    System.out.println("First countdown");
   }
 
   private void handleNext(QuizSession quizSession, QuizMessage message) throws Exception {
@@ -296,10 +298,21 @@ public class QuizController {
     Long answerId = Long.parseLong(message.getMessage().get("answerId").toString());
 
     quizSession.getPlayers().forEach(player -> {
-      if (player.getUsername().equals(username)
-          && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
-        player.getAnswers().add(quizSession.getCurrentQuestionIndex(),
-            new QuizAnswerSocket(answer, answerId));
+      if (player.getUsername().equals(username) && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
+        int maxScore = 1000;
+        double seconds = quizSession.getQuestionTime();
+        int score = 0;
+
+        if (seconds < 0.5) {
+          score = maxScore;
+        } else {
+          double reductionFactor = 1 - ((seconds / quizSession.getQuiz().getTimer()) / 2);
+          score = (int) Math.round(maxScore * reductionFactor);
+        }
+
+        QuizAnswerSocket quizAnswerSocket = new QuizAnswerSocket(answer, answerId);
+        quizAnswerSocket.setScore(score);
+        player.getAnswers().add(quizSession.getCurrentQuestionIndex(), quizAnswerSocket);
       }
     });
 
@@ -313,6 +326,7 @@ public class QuizController {
   private void handleQuizState(QuizSession quizSession, QuizMessage message) throws Exception {
     int current = quizSession.getCurrentQuestionIndex();
     int amount = quizSession.getAmountOfQuestions() - 1;
+
     if (message.getMessage().containsKey("quizState")
         && message.getMessage().get("quizState").equals("showAnswer")) {
 
@@ -410,7 +424,7 @@ public class QuizController {
         }
         Long optionId = qp.getAnswers().get(i).getId();
         if (quizQuestionRepo.checkIfCorrectAnswer(questionId, optionId).get()) {
-          score++;
+          score += qp.getAnswers().get(i).getScore();
         }
       }
       qp.setScore(score);

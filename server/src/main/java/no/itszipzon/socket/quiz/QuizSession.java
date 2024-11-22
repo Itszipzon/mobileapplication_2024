@@ -1,5 +1,7 @@
 package no.itszipzon.socket.quiz;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +24,7 @@ public class QuizSession {
   private int amountOfQuestions;
   private String state;
   private List<Long> lastCorrectAnswers;
+  private LocalDateTime questionStartTime;
 
   public QuizSession() {
 
@@ -187,6 +190,16 @@ public class QuizSession {
 
   public void setLastCorrectAnswers(List<Long> lastCorrectAnswers) {
     this.lastCorrectAnswers = lastCorrectAnswers;
+  }
+
+  public void initQuestionStartTime() {
+    System.out.println("Init question start time");
+    this.questionStartTime = LocalDateTime.now();
+  }
+
+  public double getQuestionTime() {
+    Duration duration = Duration.between(questionStartTime, LocalDateTime.now());
+    return duration.toMillis()/1000;
   }
 
 }

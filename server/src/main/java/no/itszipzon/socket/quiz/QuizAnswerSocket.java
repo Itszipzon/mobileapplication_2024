@@ -7,6 +7,7 @@ public class QuizAnswerSocket {
   
   private Long id;
   private String answer;
+  private int score;
 
   public QuizAnswerSocket() {
   }
@@ -36,6 +37,14 @@ public class QuizAnswerSocket {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public int getScore() {
+    return score;
+  }
+
+  public void setScore(int score) {
+    this.score = score;
   }
 
 }
