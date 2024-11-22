@@ -500,7 +500,7 @@ public class UserApi {
 
     String path = new Main().getResource("/static/email_html/forgot_password.html").getPath();
 
-    emailService.sendHtmlEmail("rmolande00@gmail.com", "TEST", path, map);
+    emailService.sendHtmlEmail(userToUpdate.getEmail(), "TEST", path, map);
     return new ResponseEntity<>("Email sent", HttpStatus.OK);
   }
 
