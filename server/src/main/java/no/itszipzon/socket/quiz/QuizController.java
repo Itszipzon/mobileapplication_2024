@@ -433,6 +433,8 @@ public class QuizController {
   }
 
   private void handleEnd(QuizSession session) {
+    //TODO: Implement a way to save score as xp.
+    //Either by using total score or by average score.
     QuizSessionManagerTable quizSessionManagerTable = new QuizSessionManagerTable();
     Quiz quiz = quizRepo.findById(session.getQuiz().getId())
         .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
