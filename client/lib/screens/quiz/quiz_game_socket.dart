@@ -20,7 +20,8 @@ class QuizGameSocket extends ConsumerStatefulWidget {
   QuizGameSocketState createState() => QuizGameSocketState();
 }
 
-class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
+class QuizGameSocketState extends ConsumerState<QuizGameSocket>
+    with TickerProviderStateMixin {
   late RouterNotifier router;
   late UserNotifier user;
   StompClient? stompClient;
@@ -33,6 +34,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
   int questionNumber = 0;
   bool isLoading = true;
   String message = "";
+  late final AnimationController scoreAnimationController;
 
   Map<String, dynamic> values = {};
 
@@ -49,6 +51,14 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
       _initUsername();
       _initStates();
       _connectToSocket();
+      scoreAnimationController = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 2, milliseconds: 500),
+      );
+
+      if (state == "end") {
+        scoreAnimationController.forward();
+      }
     });
   }
 
@@ -214,9 +224,23 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
     }
   }
 
+  Animation<int> getScoreAnimationController(AnimationController controller) {
+    final finalScore = values['players']
+        .firstWhere((element) => element['username'] == username)['score'];
+
+    return IntTween(begin: 0, end: finalScore).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    if (state == "end" && !scoreAnimationController.isAnimating) {
+      scoreAnimationController.forward();
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -300,13 +324,55 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                         ),
                     ] else if (state == "end") ...[
                       Positioned(
-                          bottom: 10,
-                          child: Container(
-                            color: theme.primaryColor,
-                            height: 70,
-                            width: 70,
-                            child: const Text("Implement score"),
-                          )),
+                        bottom: 10,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.orangeAccent,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              const Text(
+                                "Your Total Score",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              AnimatedBuilder(
+                                animation: scoreAnimationController,
+                                builder: (context, child) {
+                                  return Text(
+                                    "${getScoreAnimationController(scoreAnimationController).value}",
+                                    style: const TextStyle(
+                                      fontSize: 48,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              const Icon(
+                                Icons.star,
+                                color: Colors.white,
+                                size: 36,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ],
                 ),
