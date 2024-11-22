@@ -66,6 +66,7 @@ class ScoreState extends ConsumerState<ScoreScreen> {
               return Container(
                 width: 50,
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   border: Border.all(color: theme.primaryColor),
                   borderRadius: BorderRadius.circular(8),
                 ),

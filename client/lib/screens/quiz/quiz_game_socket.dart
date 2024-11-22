@@ -216,6 +216,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -270,7 +271,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
-                    if (state == "quiz")
+                    if (state == "quiz") ...[
                       if (message == "showAnswer")
                         Positioned(
                           bottom: 10,
@@ -297,6 +298,16 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket> {
                             marginTop: 16,
                           ),
                         ),
+                    ] else if (state == "end") ...[
+                      Positioned(
+                          bottom: 10,
+                          child: Container(
+                            color: theme.primaryColor,
+                            height: 70,
+                            width: 70,
+                            child: const Text("Implement score"),
+                          )),
+                    ],
                   ],
                 ),
           _displaySelectedScene(),
