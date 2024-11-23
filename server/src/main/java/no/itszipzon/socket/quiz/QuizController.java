@@ -441,7 +441,7 @@ public class QuizController {
       int xp = Tools.calculateXp(player.getScore(), session.getAmountOfQuestions(),
           player.getAmountOfCorrectAnswers(), amountOfTries);
       
-      userService.addXp(user.getId(), xp);
+      userService.addXp(user, xp);
     }
     quizSessionManagerTable.setQuizSessions(quizSessionTables);
     quizSessionRepo.save(quizSessionManagerTable);

@@ -23,15 +23,10 @@ public class UserService {
   /**
    * Method to get the level of a user.
    *
-   * @param userId id of the user
+   * @param user the user
    * @return the level of the user
    */
-  public User addXp(Long userId, int xpGained) {
-    Optional<User> userOptional = userRepo.findById(userId);
-    if (userOptional.isEmpty()) {
-      throw new RuntimeException("User not found");
-    }
-    User user = userOptional.get();
+  public User addXp(User user, int xpGained) {
     int newXp = user.getXp() + xpGained;
     int currentLevel = user.getLevel();
     while (true) {
