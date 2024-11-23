@@ -36,8 +36,10 @@ public class UserService {
     int currentLevel = user.getLevel();
     while (true) {
       Optional<Level> nextLevel = levelRepo.getLevel(currentLevel + 1);
-      if (nextLevel.isEmpty() || newXp < nextLevel.get().getXp()) {
-        user.setXp(0);
+      if (nextLevel.isEmpty()) {
+        newXp = 0;
+        break;
+      } else if (newXp < nextLevel.get().getXp()) {
         break;
       }
       newXp -= nextLevel.get().getXp();
