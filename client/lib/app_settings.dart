@@ -15,7 +15,6 @@ import 'package:client/screens/quiz/quiz_solo/quizGameSoloResults.dart';
 import 'package:client/screens/quiz/quiz_solo/quiz_game_solo.dart';
 import 'package:client/screens/quiz/quiz_lobby.dart';
 import 'package:client/screens/register.dart';
-import 'package:client/screens/settings.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +31,6 @@ class AppSettings {
     router.addScreen("join", const Join());
     router.addScreen('path_search', const PathSearch());
     router.addScreen("profile", const Profile());
-    router.addScreen("settings", const Settings());
     router.addScreen("create", const CreateQuiz());
     router.addScreen("quiz", const QuizScreen());
     router.addScreen("quiz/lobby", const QuizLobby());
