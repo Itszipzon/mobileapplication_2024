@@ -59,6 +59,12 @@ public class User {
   @Column(name = "ban")
   private LocalDateTime banned;
 
+  @Column(name = "level")
+  private int level = 0;
+
+  @Column(name = "xp")
+  private int xp = 0;
+
   @Transient
   private LocalDateTime lastLoggedInOriginal;
 
@@ -182,6 +188,22 @@ public class User {
 
   public void setProfilePicture(String profilePicture) {
     this.profilePicture = profilePicture;
+  }
+
+  public int getLevel() {
+    return level;
+  }
+
+  public void setLevel(int level) {
+    this.level = level;
+  }
+
+  public int getXp() {
+    return xp;
+  }
+
+  public void setXp(int xp) {
+    this.xp = xp;
   }
 
 }

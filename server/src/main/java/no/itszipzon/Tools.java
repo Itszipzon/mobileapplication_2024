@@ -168,4 +168,9 @@ public class Tools {
     return encoder.encode(password);
   }
 
+  public static int calculateXp(int score, int amountOfQuestions, int correctAnswers) {
+    int avg = (int) Math.round((double) (score / amountOfQuestions));
+    return avg + 50 * correctAnswers;
+  }
+
 }
