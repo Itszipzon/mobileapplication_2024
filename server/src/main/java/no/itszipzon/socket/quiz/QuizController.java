@@ -447,7 +447,7 @@ public class QuizController {
           + "\nAmount of correct answers: " + player.getAmountOfCorrectAnswers()
           + "\nAmount of tries: " + amountOfTries
           + "\nXP: " + xp);
-      userService.addXp(user.getId(), player.getScore());
+      userService.addXp(user.getId(), xp);
     }
     quizSessionManagerTable.setQuizSessions(quizSessionTables);
     quizSessionRepo.save(quizSessionManagerTable);
