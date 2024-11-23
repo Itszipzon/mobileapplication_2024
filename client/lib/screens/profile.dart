@@ -43,7 +43,6 @@ class ProfileState extends ConsumerState<Profile> {
 
   void _getProfile() async {
     user.getProfile().then((value) {
-      print(value);
       setState(() {
         profile = value;
       });
