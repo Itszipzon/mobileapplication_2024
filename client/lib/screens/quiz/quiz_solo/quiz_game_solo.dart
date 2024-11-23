@@ -293,46 +293,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo> {
                       ),
                     ),
                   );
-                  /* return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(
-                          color: isSelected
-                              ? Colors.green
-                              : Theme.of(context).primaryColor,
-                          width: 1,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          selectedAnswer = optionText;
-                        });
-                      },
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Text(
-                            optionText,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isSelected ? Colors.black : Colors.black,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }, */
                 },
               ),
             ),
