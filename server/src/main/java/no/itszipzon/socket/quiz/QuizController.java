@@ -440,13 +440,7 @@ public class QuizController {
       
       int xp = Tools.calculateXp(player.getScore(), session.getAmountOfQuestions(),
           player.getAmountOfCorrectAnswers(), amountOfTries);
-
-      System.out.println("\nUsername: " + user.getUsername()
-          + "\nScore: " + player.getScore()
-          + "\nAmount of questions: " + session.getAmountOfQuestions()
-          + "\nAmount of correct answers: " + player.getAmountOfCorrectAnswers()
-          + "\nAmount of tries: " + amountOfTries
-          + "\nXP: " + xp);
+      
       userService.addXp(user.getId(), xp);
     }
     quizSessionManagerTable.setQuizSessions(quizSessionTables);
