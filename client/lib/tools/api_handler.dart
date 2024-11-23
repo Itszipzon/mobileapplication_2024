@@ -96,6 +96,7 @@ class ApiHandler {
   static Future<Map<String, dynamic>> getProfile(String token) async {
     final response = await http.get(Uri.parse('$_url/api/user'),
         headers: {"Authorization": "Bearer $token"});
+    print("body: ${response.statusCode}");
     return jsonDecode(response.body);
   }
 

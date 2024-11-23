@@ -12,6 +12,7 @@ public class QuizPlayer {
   private Long id;
   private List<QuizAnswerSocket> answers;
   private int score;
+  private int amountOfCorrectAnswers;
 
   public QuizPlayer() {
   }
@@ -26,6 +27,7 @@ public class QuizPlayer {
     this.score = 0;
     this.id = id;
     this.answers = new ArrayList<>();
+    this.amountOfCorrectAnswers = 0;
   }
 
   public String getUsername() {
@@ -58,6 +60,14 @@ public class QuizPlayer {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public int getAmountOfCorrectAnswers() {
+    return amountOfCorrectAnswers;
+  }
+
+  public void setAmountOfCorrectAnswers(int amountOfCorrectAnswers) {
+    this.amountOfCorrectAnswers = amountOfCorrectAnswers;
   }
 
 }

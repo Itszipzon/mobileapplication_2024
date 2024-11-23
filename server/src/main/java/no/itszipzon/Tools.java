@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
  * Class for tools that are used in the backend.
  */
 public class Tools {
-
   private Tools() {
   }
 
@@ -70,30 +69,23 @@ public class Tools {
     }
     String path = new Main().getResource("/static/images").getPath();
     String pathBefore = new Main().getResource("/static").getPath();
-
     if (image.isEmpty()) {
       return "";
     }
-
     path += "/";
     pathBefore += "/../../../src/main/resources/static/images/";
-
     username = username.toLowerCase();
-
     try {
       byte[] bytes = image.getBytes();
       if (type.equalsIgnoreCase("pfp")) {
         if (!Files.exists(Path.of(Tools.getCorrectUrl(path + username + "/pfp")))) {
           Files.createDirectories((Path.of(Tools.getCorrectUrl(path + username + "/pfp"))));
         }
-  
         if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + username + "/pfp")))) {
           Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + username + "/pfp")));
         }
-  
         UUID uid = UUID.randomUUID();
         String filename = uid.toString();
-
         if (image.getContentType().equals("image/png")) {
           filename += ".png";
         } else if (image.getContentType().equals("image/jpeg")) {
@@ -103,16 +95,9 @@ public class Tools {
         } else {
           return "";
         }
-
-        Path filePath = Path
-            .of(Tools
-                .getCorrectUrl(path + username + "/pfp/" + filename));
-  
+        Path filePath = Path.of(Tools.getCorrectUrl(path + username + "/pfp/" + filename));
         Path filePathBefore = Path
-            .of(Tools
-                .getCorrectUrl(pathBefore
-                + username + "/pfp/" + filename));
-  
+            .of(Tools.getCorrectUrl(pathBefore + username + "/pfp/" + filename));
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
         return filename;
@@ -120,14 +105,11 @@ public class Tools {
         if (!Files.exists(Path.of(Tools.getCorrectUrl(path + username + "/quiz")))) {
           Files.createDirectories((Path.of(Tools.getCorrectUrl(path + username + "/quiz"))));
         }
-  
         if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + username + "/quiz")))) {
           Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + username + "/quiz")));
         }
-  
         UUID uid = UUID.randomUUID();
         String filename = uid.toString();
-
         if (image.getContentType().equals("image/png")) {
           filename += ".png";
         } else if (image.getContentType().equals("image/jpeg")) {
@@ -137,16 +119,9 @@ public class Tools {
         } else {
           return "";
         }
-
-        Path filePath = Path
-            .of(Tools
-                .getCorrectUrl(path + username + "/quiz/" + filename));
-  
+        Path filePath = Path.of(Tools.getCorrectUrl(path + username + "/quiz/" + filename));
         Path filePathBefore = Path
-            .of(Tools
-                .getCorrectUrl(pathBefore
-                + username + "/quiz/" + filename));
-  
+            .of(Tools.getCorrectUrl(pathBefore + username + "/quiz/" + filename));
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
         return filename;
@@ -168,9 +143,21 @@ public class Tools {
     return encoder.encode(password);
   }
 
-  public static int calculateXp(int score, int amountOfQuestions, int correctAnswers) {
-    int avg = (int) Math.round((double) (score / amountOfQuestions));
-    return avg + 50 * correctAnswers;
-  }
+  /**
+   * Method to calculate the XP.
+   *
+   * @param score          The score of the user
+   * @param amountOfQuestions The amount of questions
+   * @param correctAnswers The amount of correct answers
+   * @param reduction     The reduction
+   * @return The XP
+   */
+  public static int calculateXp(int score, int amountOfQuestions, int correctAnswers,
+      int reduction) {
 
+    int avg = (int) Math.round((double) (score / amountOfQuestions));
+    int result = reduction == 0 ? (int) Math.round((double) ((avg + 50 * correctAnswers)))
+        : (int) Math.round((double) ((avg + 50 * correctAnswers) / reduction));
+    return result;
+  }
 }

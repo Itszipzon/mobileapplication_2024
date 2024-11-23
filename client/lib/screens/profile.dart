@@ -22,6 +22,9 @@ class ProfileState extends ConsumerState<Profile> {
   Map<String, dynamic> profile = {
     "username": "",
     "pfp": DummyData.profilePicture,
+    "lvl": 0,
+    "exp": 0,
+    "xpToNextLevel": 1,
   };
   late List<Map<String, dynamic>> quizzes = [];
   late List<Map<String, dynamic>> history = [];
@@ -40,6 +43,7 @@ class ProfileState extends ConsumerState<Profile> {
 
   void _getProfile() async {
     user.getProfile().then((value) {
+      print(value);
       setState(() {
         profile = value;
       });
@@ -64,6 +68,7 @@ class ProfileState extends ConsumerState<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         margin: const EdgeInsets.all(10),
@@ -93,7 +98,38 @@ class ProfileState extends ConsumerState<Profile> {
               ],
             ),
             const SizedBox(height: 10),
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text("Level ${profile["xpToNextLevel"] == -1 ? "Max" : profile["lvl"]}"),
+                const SizedBox(width: 10),
+                Container(
+                  width: 100,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    color: Colors.grey,
+                  ),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: profile["xpToNextLevel"] == -1
+                            ? 100
+                            : (profile["exp"] / profile["xpToNextLevel"]) * 100,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text("${profile["exp"]} / ${profile["xpToNextLevel"]} XP"),
+              ],
+            ),
+            const SizedBox(height: 10),
             // Button row
             Container(
               width: MediaQuery.of(context).size.width,

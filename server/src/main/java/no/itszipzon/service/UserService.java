@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
  * Service for the Level table.
  */
 @Service
-public class LevelService {
+public class UserService {
   private LevelRepo levelRepo;
   private UserRepo userRepo;
 
-  public LevelService(UserRepo userRepo, LevelRepo levelRepo) {
+  public UserService(UserRepo userRepo, LevelRepo levelRepo) {
     this.userRepo = userRepo;
     this.levelRepo = levelRepo;
   }

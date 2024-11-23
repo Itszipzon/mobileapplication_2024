@@ -26,4 +26,12 @@ public interface UserRepo extends JpaRepository<User, Long> {
       """)
   Optional<List<UserDto>> searchUsersByUsernameOrDisplayname(String value);
 
+  @Query("""
+      SELECT new no.itszipzon.dto.UserDto(u.userId, u.username, u.level, u.xp)
+      FROM User u
+      WHERE
+        u.username = :username
+      """)
+  Optional<UserDto> getUserLevelAndXp(String username);
+
 }

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface LevelRepo extends JpaRepository<Level, Integer> {
   
-  @Query("SELECT l FROM Level l WHERE l = :level")
+  @Query("SELECT l FROM Level l WHERE l.level = :level")
   Optional<Level> getLevel(int level);
 
 }

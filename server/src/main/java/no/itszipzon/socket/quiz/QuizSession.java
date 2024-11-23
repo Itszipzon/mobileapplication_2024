@@ -13,7 +13,7 @@ import no.itszipzon.dto.QuizWithQuestionsDto;
  */
 public class QuizSession {
 
-  private int quizId;
+  private long quizId;
   private String leaderUsername;
   private List<QuizPlayer> players;
   private QuizWithQuestionsDto quiz;
@@ -47,11 +47,11 @@ public class QuizSession {
     this.lastCorrectAnswers = new ArrayList<>();
   }
 
-  public int getQuizId() {
+  public long getQuizId() {
     return quizId;
   }
 
-  public void setQuizId(int quizId) {
+  public void setQuizId(long quizId) {
     this.quizId = quizId;
   }
 
@@ -199,7 +199,7 @@ public class QuizSession {
 
   public double getQuestionTime() {
     Duration duration = Duration.between(questionStartTime, LocalDateTime.now());
-    return duration.toMillis()/1000;
+    return duration.toMillis() / 1000;
   }
 
 }

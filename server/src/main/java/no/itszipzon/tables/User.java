@@ -59,11 +59,11 @@ public class User {
   @Column(name = "ban")
   private LocalDateTime banned;
 
-  @Column(name = "level")
-  private int level = 0;
+  @Column(name = "level", nullable = false)
+  private Integer level = 0;
 
-  @Column(name = "xp")
-  private int xp = 0;
+  @Column(name = "xp", nullable = false)
+  private Integer xp = 0;
 
   @Transient
   private LocalDateTime lastLoggedInOriginal;

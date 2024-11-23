@@ -2,11 +2,13 @@ package no.itszipzon.socket.quiz;
 
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import no.itszipzon.Tools;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.repo.QuizAttemptRepo;
@@ -15,6 +17,7 @@ import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.repo.QuizSessionRepo;
 import no.itszipzon.repo.UserRepo;
+import no.itszipzon.service.UserService;
 import no.itszipzon.tables.Quiz;
 import no.itszipzon.tables.QuizAnswer;
 import no.itszipzon.tables.QuizAttempt;
@@ -33,33 +36,26 @@ import org.springframework.stereotype.Controller;
  */
 @Controller
 public class QuizController {
-
   @Autowired
   private SimpMessagingTemplate messagingTemplate;
-
   @Autowired
   private QuizSessionManager quizSessionManager;
-
   @Autowired
   private JwtUtil jwtUtil;
-
   @Autowired
   private QuizQuestionRepo quizQuestionRepo;
-
   @Autowired
   private QuizSessionRepo quizSessionRepo;
-
   @Autowired
   private QuizRepo quizRepo;
-
   @Autowired
   private QuizOptionRepo quizOptionRepo;
-
   @Autowired
   private UserRepo userRepo;
-
   @Autowired
   private QuizAttemptRepo quizAttemptRepo;
+  @Autowired
+  private UserService userService;
 
   /**
    * Sends a message to the client that a quiz has been created.
@@ -70,24 +66,19 @@ public class QuizController {
   @MessageMapping("/quiz/create")
   public void createQuiz(QuizMessage message) throws Exception {
     String token = quizSessionManager.createQuizSession(message);
-
     Claims claims = jwtUtil.extractClaims(message.getUserToken());
-
     if (claims == null) {
       messagingTemplate.convertAndSend("/topic/quiz/create/" + message.getUserToken(),
           "error: User not found");
       return;
     }
-
     String username = claims.getSubject();
-
     if (token == null) {
       messagingTemplate.convertAndSend("/topic/quiz/create/" + username, "error: Quiz not found");
     } else {
       QuizSession quizSession = quizSessionManager.getQuizSession(token);
       quizSession.setMessage("create");
       quizSession.setToken(token);
-
       messagingTemplate.convertAndSend("/topic/quiz/create/" + username,
           getQuizDetailsFromSessionNoQuestions(quizSession));
     }
@@ -101,7 +92,6 @@ public class QuizController {
    */
   @MessageMapping("/quiz/join")
   public void joinQuiz(QuizMessage message) throws Exception {
-
     if (!quizSessionManager.quizSessionExists(message.getToken())) {
       QuizSession quizSession = new QuizSession();
       quizSession.setMessage("error: Quiz not found");
@@ -119,7 +109,6 @@ public class QuizController {
         quizSession.addPlayer(quizSessionManager.getPlayer(message.getUserToken()));
         quizSession.setMessage("join");
         quizSession.setToken(message.getToken());
-
         messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
             getQuizDetailsFromSessionNoQuestions(quizSession));
       }
@@ -139,23 +128,19 @@ public class QuizController {
     if (quizSession.getLeaderUsername().equals(claims.getSubject())) {
       quizSession.setMessage("settings");
       Map<String, Object> socketMessage = message.getMessage();
-
       if (socketMessage.containsKey("setNewQuiz") && (boolean) socketMessage.get("setNewQuiz")) {
-        QuizSession newQuizSession =
-            new QuizSession(quizSession.getLeaderUsername(), (int) socketMessage.get("quizId"));
+        QuizSession newQuizSession = new QuizSession(quizSession.getLeaderUsername(),
+            (int) socketMessage.get("quizId"));
         newQuizSession.setPlayers(quizSession.getPlayers());
         newQuizSession.setToken(quizSession.getToken());
         newQuizSession.setMessage("update");
-
         ;
-
         if (quizSessionManager.setNewQuiz(newQuizSession)) {
           quizSession = newQuizSession;
         } else {
           quizSession.setMessage("error:onlyleader: Quiz not found");
         }
       }
-
       if (socketMessage.containsKey("changeTimer") && (boolean) socketMessage.get("changeTimer")) {
         int timer = (int) socketMessage.get("timer");
         if (timer >= 5) {
@@ -165,7 +150,6 @@ public class QuizController {
           quizSession.setMessage("error:onlyleader: Timer must be at least 5 seconds");
         }
       }
-
       messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
           getQuizDetailsFromSessionNoQuestions(quizSession));
     }
@@ -179,22 +163,16 @@ public class QuizController {
    */
   @MessageMapping("/quiz/start")
   public void startQuiz(QuizMessage message) throws Exception {
-
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
-
     Claims claims = jwtUtil.extractClaims(message.getUserToken());
-
     if (quizSession.getPlayers().size() < 2) {
       quizSession.setMessage("error: Not enough players");
-
     } else if (!quizSession.getLeaderUsername().equals(claims.getSubject())) {
       quizSession.setMessage("error: Not the leader");
-
     } else {
       quizSession.setStarted(true);
       quizSession.setMessage("start");
       quizSession.setState("start");
-
     }
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
         getQuizDetailsFromSessionNoQuestions(quizSession));
@@ -209,7 +187,6 @@ public class QuizController {
   @MessageMapping("/quiz/leave")
   public void leaveQuiz(QuizMessage message) throws Exception {
     QuizSession quizSession = quizSessionManager.getQuizSession(message.getToken());
-
     Claims claims = jwtUtil.extractClaims(message.getUserToken());
     String leaveMessage = "";
     if (claims.getSubject().equalsIgnoreCase(quizSession.getLeaderUsername())) {
@@ -218,11 +195,9 @@ public class QuizController {
     } else {
       leaveMessage = "leave: leader:false, user:" + claims.getSubject();
     }
-
     quizSession.removePlayer(claims.getSubject());
     quizSession.setMessage(leaveMessage);
     quizSession.setToken(message.getToken());
-
     messagingTemplate.convertAndSend("/topic/quiz/session/" + message.getToken(),
         getQuizDetailsFromSessionNoQuestions(quizSession));
   }
@@ -240,18 +215,14 @@ public class QuizController {
       return;
     }
     quizSession.setToken(message.getToken());
-
     String messageType = message.getMessage().get("message").toString();
-
     switch (messageType) {
       case "firstCountDown":
         handleFirstCountDown(quizSession, message.getToken());
         break;
-
       case "next":
         handleNext(quizSession, message);
         break;
-
       case "answer":
         handleAnswer(quizSession, message);
         break;
@@ -274,14 +245,12 @@ public class QuizController {
         case "quiz":
           handleQuizState(quizSession, message);
           break;
-
         case "score":
           fillUnansweredWithNull(quizSession);
           quizSession.setState("quiz");
           quizSession.setMessage("next");
           quizSession.setCurrentQuestionIndex(quizSession.getCurrentQuestionIndex() + 1);
           break;
-
         default:
           quizSession.setState("quiz");
           quizSession.setMessage("next");
@@ -296,26 +265,23 @@ public class QuizController {
     String username = claims.getSubject();
     String answer = message.getMessage().get("answer").toString();
     Long answerId = Long.parseLong(message.getMessage().get("answerId").toString());
-
     quizSession.getPlayers().forEach(player -> {
-      if (player.getUsername().equals(username) && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
+      if (player.getUsername().equals(username)
+          && player.getAnswers().size() == quizSession.getCurrentQuestionIndex()) {
         int maxScore = 1000;
         double seconds = quizSession.getQuestionTime();
         int score = 0;
-
         if (seconds < 0.5) {
           score = maxScore;
         } else {
           double reductionFactor = 1 - ((seconds / quizSession.getQuiz().getTimer()) / 2);
           score = (int) Math.round(maxScore * reductionFactor);
         }
-
         QuizAnswerSocket quizAnswerSocket = new QuizAnswerSocket(answer, answerId);
         quizAnswerSocket.setScore(score);
         player.getAnswers().add(quizSession.getCurrentQuestionIndex(), quizAnswerSocket);
       }
     });
-
     if (isAllPlayersAnswered(quizSession)) {
       calculateScore(quizSession);
       quizSession.setMessage("showAnswer");
@@ -326,10 +292,8 @@ public class QuizController {
   private void handleQuizState(QuizSession quizSession, QuizMessage message) throws Exception {
     int current = quizSession.getCurrentQuestionIndex();
     int amount = quizSession.getAmountOfQuestions() - 1;
-
     if (message.getMessage().containsKey("quizState")
         && message.getMessage().get("quizState").equals("showAnswer")) {
-
       quizSession.setMessage("showAnswer");
     } else {
       if (current == amount) {
@@ -367,7 +331,6 @@ public class QuizController {
     quizDetails.put("amountOfQuestions", quizSession.getAmountOfQuestions());
     quizDetails.put("state", quizSession.getState());
     quizDetails.put("lastCorrectAnswers", quizSession.getLastCorrectAnswers());
-
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
     quiz.put("title", quizSession.getQuiz().getTitle());
@@ -375,7 +338,6 @@ public class QuizController {
     quiz.put("thumbnail", quizSession.getQuiz().getThumbnail());
     quiz.put("timer", quizSession.getQuiz().getTimer());
     quiz.put("username", quizSession.getQuiz().getUsername());
-
     quizDetails.put("quiz", quiz);
     return quizDetails;
   }
@@ -393,7 +355,6 @@ public class QuizController {
     quizDetails.put("state", quizSession.getState());
     quizDetails.put("lastCorrectAnswers", quizSession.getLastCorrectAnswers());
     quizDetails.put("currentQuestionIndex", quizSession.getCurrentQuestionIndex());
-
     Map<String, Object> quiz = new HashMap<>();
     quiz.put("id", quizSession.getQuiz().getId());
     quiz.put("title", quizSession.getQuiz().getTitle());
@@ -401,20 +362,15 @@ public class QuizController {
     quiz.put("thumbnail", quizSession.getQuiz().getThumbnail());
     quiz.put("timer", quizSession.getQuiz().getTimer());
     quiz.put("username", quizSession.getQuiz().getUsername());
-
     quizDetails.put("quiz", quiz);
-
     QuizQuestionDto quizQuestion = quizSession.getQuiz().getQuizQuestions().get(questionIndex);
-
     Map<String, Object> quizQuestions = new HashMap<>();
     quizQuestions.put("questions", quizQuestion);
-
     quizDetails.put("quizQuestions", quizQuestions);
     return quizDetails;
   }
 
   private void calculateScore(QuizSession session) {
-
     for (QuizPlayer qp : session.getPlayers()) {
       int score = 0;
       for (int i = 0; i < qp.getAnswers().size(); i++) {
@@ -425,44 +381,38 @@ public class QuizController {
         Long optionId = qp.getAnswers().get(i).getId();
         if (quizQuestionRepo.checkIfCorrectAnswer(questionId, optionId).get()) {
           score += qp.getAnswers().get(i).getScore();
+          qp.setAmountOfCorrectAnswers(qp.getAmountOfCorrectAnswers() + 1);
         }
       }
       qp.setScore(score);
     }
-
   }
 
   private void handleEnd(QuizSession session) {
-    //TODO: Implement a way to save score as xp.
-    //Either by using total score or by average score.
+    // TODO: Implement a way to save score as xp.
+    // Either by using total score or by average score.
     QuizSessionManagerTable quizSessionManagerTable = new QuizSessionManagerTable();
     Quiz quiz = quizRepo.findById(session.getQuiz().getId())
         .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
     quizSessionManagerTable.setQuiz(quiz);
-
     List<QuizSessionTable> quizSessionTables = new ArrayList<>();
     for (QuizPlayer player : session.getPlayers()) {
       QuizSessionTable quizSessionTable = new QuizSessionTable();
-
       User user = userRepo.findById(player.getId())
           .orElseThrow(() -> new EntityNotFoundException("User not found"));
       quizSessionTable.setUser(user);
       quizSessionTable.setQuizManager(quizSessionManagerTable);
-
       QuizAttempt quizAttempt = new QuizAttempt();
       quizAttempt.setQuiz(quiz);
       quizAttempt.setUser(user);
-
       List<QuizAnswer> quizAnswers = new ArrayList<>();
       for (int i = 0; i < session.getQuiz().getQuizQuestions().size(); i++) {
         QuizAnswer quizAnswer = new QuizAnswer();
         quizAnswer.setQuizAttempt(quizAttempt);
-
-        QuizQuestion quizQuestion =
-            quizQuestionRepo.findById(session.getQuiz().getQuizQuestions().get(i).getId())
-                .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
+        QuizQuestion quizQuestion = quizQuestionRepo
+            .findById(session.getQuiz().getQuizQuestions().get(i).getId())
+            .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
         quizAnswer.setQuizQuestion(quizQuestion);
-
         if (player.getAnswers().get(i).getId() == null) {
           quizAnswer.setQuizOption(null);
         } else {
@@ -470,28 +420,43 @@ public class QuizController {
               .orElseThrow(() -> new EntityNotFoundException("QuizOption not found"));
           quizAnswer.setQuizOption(quizOption);
         }
-
         quizAnswers.add(quizAnswer);
       }
       quizAttempt.setQuizAnswers(quizAnswers);
-
       quizAttempt = quizAttemptRepo.save(quizAttempt);
-
       quizSessionTable.setQuizAttempt(quizAttempt);
       quizSessionTables.add(quizSessionTable);
+
+      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime startOfThisMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)
+          .withNano(0);
+      LocalDateTime startOfLastMonth = startOfThisMonth.minusMonths(1);
+
+      int amountOfTries = quizAttemptRepo.amountPreviousMonth(
+          user.getUsername(),
+          session.getQuizId(),
+          startOfLastMonth,
+          startOfThisMonth);
+      
+      int xp = Tools.calculateXp(player.getScore(), session.getAmountOfQuestions(),
+          player.getAmountOfCorrectAnswers(), amountOfTries);
+
+      System.out.println("\nUsername: " + user.getUsername()
+          + "\nScore: " + player.getScore()
+          + "\nAmount of questions: " + session.getAmountOfQuestions()
+          + "\nAmount of correct answers: " + player.getAmountOfCorrectAnswers()
+          + "\nAmount of tries: " + amountOfTries
+          + "\nXP: " + xp);
+      userService.addXp(user.getId(), player.getScore());
     }
-
     quizSessionManagerTable.setQuizSessions(quizSessionTables);
-
     quizSessionRepo.save(quizSessionManagerTable);
-
     quizSessionManager.deleteQuizSession(session.getToken());
   }
 
   private void getCorrectAnswers(QuizSession session) {
     Optional<List<Long>> correctAnswers = quizQuestionRepo.findCorrectAnswers(
         session.getQuiz().getQuizQuestions().get(session.getCurrentQuestionIndex()).getId());
-
     if (correctAnswers.isPresent()) {
       session.setLastCorrectAnswers(correctAnswers.get());
     }
