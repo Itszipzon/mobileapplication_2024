@@ -389,43 +389,50 @@ public class QuizController {
   }
 
   private void handleEnd(QuizSession session) {
-    // TODO: Implement a way to save score as xp.
-    // Either by using total score or by average score.
+
     QuizSessionManagerTable quizSessionManagerTable = new QuizSessionManagerTable();
+
     Quiz quiz = quizRepo.findById(session.getQuiz().getId())
         .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
+
     quizSessionManagerTable.setQuiz(quiz);
+    User quizOwner = userRepo.findUserByUsername(session.getQuiz().getUsername()).get();
     List<QuizSessionTable> quizSessionTables = new ArrayList<>();
+
     for (QuizPlayer player : session.getPlayers()) {
       QuizSessionTable quizSessionTable = new QuizSessionTable();
+
       User user = userRepo.findById(player.getId())
           .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
       quizSessionTable.setUser(user);
       quizSessionTable.setQuizManager(quizSessionManagerTable);
       QuizAttempt quizAttempt = new QuizAttempt();
       quizAttempt.setQuiz(quiz);
       quizAttempt.setUser(user);
       List<QuizAnswer> quizAnswers = new ArrayList<>();
+
       for (int i = 0; i < session.getQuiz().getQuizQuestions().size(); i++) {
         QuizAnswer quizAnswer = new QuizAnswer();
         quizAnswer.setQuizAttempt(quizAttempt);
+
         QuizQuestion quizQuestion = quizQuestionRepo
             .findById(session.getQuiz().getQuizQuestions().get(i).getId())
             .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
+
         quizAnswer.setQuizQuestion(quizQuestion);
+
         if (player.getAnswers().get(i).getId() == null) {
           quizAnswer.setQuizOption(null);
         } else {
+
           QuizOption quizOption = quizOptionRepo.findById(player.getAnswers().get(i).getId())
               .orElseThrow(() -> new EntityNotFoundException("QuizOption not found"));
+
           quizAnswer.setQuizOption(quizOption);
         }
         quizAnswers.add(quizAnswer);
       }
-      quizAttempt.setQuizAnswers(quizAnswers);
-      quizAttempt = quizAttemptRepo.save(quizAttempt);
-      quizSessionTable.setQuizAttempt(quizAttempt);
-      quizSessionTables.add(quizSessionTable);
 
       LocalDateTime now = LocalDateTime.now();
       LocalDateTime startOfThisMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)
@@ -438,10 +445,21 @@ public class QuizController {
           startOfLastMonth,
           startOfThisMonth);
       
-      int xp = Tools.calculateXp(player.getScore(), session.getAmountOfQuestions(),
-          player.getAmountOfCorrectAnswers(), amountOfTries);
+      int xp = Tools.calculateXp(
+          player.getScore(),
+          session.getAmountOfQuestions(),
+          player.getAmountOfCorrectAnswers(),
+          amountOfTries
+        );
+
+      quizAttempt.setQuizAnswers(quizAnswers);
+      quizAttempt.setExpEarned(xp);
+      quizAttempt = quizAttemptRepo.save(quizAttempt);
+      quizSessionTable.setQuizAttempt(quizAttempt);
+      quizSessionTables.add(quizSessionTable);
       
       userService.addXp(user, xp);
+      userService.addXp(quizOwner, 250);
     }
     quizSessionManagerTable.setQuizSessions(quizSessionTables);
     quizSessionRepo.save(quizSessionManagerTable);

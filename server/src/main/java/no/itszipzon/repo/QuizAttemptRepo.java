@@ -15,14 +15,14 @@ import org.springframework.data.repository.query.Param;
 public interface QuizAttemptRepo extends JpaRepository<QuizAttempt, Long> {
   @Query("""
         SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
-                                           u.username, u.profilePicture, q.createdAt)
+                                           u.username, u.profilePicture, q.createdAt, qa.expEarned)
           FROM QuizAttempt qa
           JOIN qa.user qau
           JOIN qa.quiz q
           JOIN q.user u
           WHERE qau.username = :username
       """)
-  Optional<List<QuizDto>> findQuizzedFromUserHistory(String username, Pageable pageable);
+  Optional<List<QuizDto>> findQuizzesFromUserHistory(String username, Pageable pageable);
 
   @Query("""
         SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,

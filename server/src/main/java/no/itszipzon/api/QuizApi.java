@@ -257,7 +257,7 @@ public class QuizApi {
     String username = claims.getSubject();
     Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "takenAt"));
 
-    Optional<List<QuizDto>> optQuizzes = quizAttemptRepo.findQuizzedFromUserHistory(username,
+    Optional<List<QuizDto>> optQuizzes = quizAttemptRepo.findQuizzesFromUserHistory(username,
         pageable);
 
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());

@@ -7,31 +7,28 @@ import java.time.LocalDateTime;
  * QuizDto.
  */
 public class QuizDto {
-
   private long id;
   private String title;
   private String description;
   private String thumbnail;
   private Integer timer;
-
+  private int expEarned;
   private String username;
-
   @JsonProperty("profile_picture")
   private String profilePicture;
-
   private LocalDateTime createdAt;
 
   /**
    * Constructor.
    *
-   * @param id id.
-   * @param title title.
-   * @param description description.
-   * @param thumbnail thumbnail.
-   * @param timer timer.
-   * @param username username.
+   * @param id             id.
+   * @param title          title.
+   * @param description    description.
+   * @param thumbnail      thumbnail.
+   * @param timer          timer.
+   * @param username       username.
    * @param profilePicture profilePicture.
-   * @param createdAt createdAt.
+   * @param createdAt      createdAt.
    */
   public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
       String username, String profilePicture, LocalDateTime createdAt) {
@@ -42,10 +39,38 @@ public class QuizDto {
     this.timer = timer;
     this.username = username;
     this.profilePicture = profilePicture;
-    this.createdAt = createdAt; // Initialize createdAt
+    this.createdAt = createdAt;
   }
 
-  // Getter and setter for createdAt
+  /**
+   * Constructor.
+   *
+   * @param id             id.
+   * @param title          title.
+   * @param description    description.
+   * @param thumbnail      thumbnail.
+   * @param timer          timer.
+   * @param username       username.
+   * @param profilePicture profilePicture.
+   * @param createdAt      createdAt.
+   * @param expEarned       xpGained.
+   */
+  public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
+      String username, String profilePicture, LocalDateTime createdAt, int expEarned) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.thumbnail = thumbnail;
+    this.timer = timer;
+    this.username = username;
+    this.profilePicture = profilePicture;
+    this.createdAt = createdAt;
+    this.expEarned = expEarned;
+  }
+
+  public QuizDto() {
+  }
+
   public LocalDateTime getCreatedAt() {
     return createdAt;
   }
@@ -53,8 +78,6 @@ public class QuizDto {
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
-
-  // Existing getters and setters
 
   public String getProfilePicture() {
     return profilePicture;
@@ -110,5 +133,13 @@ public class QuizDto {
 
   public void setTimer(Integer timer) {
     this.timer = timer;
+  }
+
+  public int getXpEarned() {
+    return expEarned;
+  }
+
+  public void setXpEarned(int xpGained) {
+    this.expEarned = xpGained;
   }
 }

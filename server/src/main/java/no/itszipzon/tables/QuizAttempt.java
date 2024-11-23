@@ -29,6 +29,9 @@ public class QuizAttempt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long quizAttemptId;
 
+  @Column(name = "expEarned", nullable = false)
+  private int expEarned = 0;
+
   @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "userId", referencedColumnName = "userId")
   @JsonBackReference
@@ -95,6 +98,22 @@ public class QuizAttempt {
 
   public void setQuizAnswers(List<QuizAnswer> quizAnswers) {
     this.quizAnswers = quizAnswers;
+  }
+
+  public List<QuizSessionTable> getQuizSessions() {
+    return quizSessions;
+  }
+
+  public void setQuizSessions(List<QuizSessionTable> quizSessions) {
+    this.quizSessions = quizSessions;
+  }
+
+  public int getExpEarned() {
+    return expEarned;
+  }
+
+  public void setExpEarned(int expEarned) {
+    this.expEarned = expEarned;
   }
 
 }
