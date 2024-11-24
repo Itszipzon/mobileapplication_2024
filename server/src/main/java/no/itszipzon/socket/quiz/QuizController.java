@@ -456,7 +456,7 @@ public class QuizController {
       quizSessionTable.setQuizAttempt(quizAttempt);
       quizSessionTables.add(quizSessionTable);
 
-      if (!user.getUsername().equals(quizOwner.getUsername())) {
+      if (!user.getUsername().equalsIgnoreCase(quizOwner.getUsername())) {
         userService.addXp(user, xp);
         userService.addXp(quizOwner, 250);
       }
