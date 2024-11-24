@@ -70,7 +70,7 @@ public class Tools {
     String path = new Main().getResource("/static/images").getPath();
     String pathBefore = new Main().getResource("/static").getPath();
     if (image.isEmpty()) {
-      return "";
+      throw new IllegalArgumentException("Image is empty");
     }
     path += "/";
     pathBefore += "/../../../src/main/resources/static/images/";
@@ -93,7 +93,7 @@ public class Tools {
         } else if (image.getContentType().equals("image/gif")) {
           filename += ".gif";
         } else {
-          return "";
+          throw new IOException("Invalid file type");
         }
         Path filePath = Path.of(Tools.getCorrectUrl(path + username + "/pfp/" + filename));
         Path filePathBefore = Path
@@ -117,7 +117,7 @@ public class Tools {
         } else if (image.getContentType().equals("image/gif")) {
           filename += ".gif";
         } else {
-          return "";
+          throw new IOException("Invalid file type");
         }
         Path filePath = Path.of(Tools.getCorrectUrl(path + username + "/quiz/" + filename));
         Path filePathBefore = Path
@@ -126,7 +126,7 @@ public class Tools {
         Files.write(filePathBefore, bytes);
         return filename;
       } else {
-        return "";
+        throw new IOException("Invalid type");
       }
     } catch (IOException e) {
       e.printStackTrace();
