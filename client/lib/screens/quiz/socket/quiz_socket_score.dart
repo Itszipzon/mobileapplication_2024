@@ -1,3 +1,4 @@
+import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -28,11 +29,20 @@ class ScoreState extends ConsumerState<ScoreScreen> {
   List<Map<String, dynamic>> players = [
     {"username": "Loading...", "id": -1, "answers": [], "score": -1}
   ];
+  AudioManager? audioManager;
 
   @override
   void initState() {
     super.initState();
+    audioManager = AudioManager();
     _initializeValues();
+    audioManager!.playSoundEffect("countup.mp3");
+  }
+
+  @override
+  void dispose() {
+    audioManager?.dispose();
+    super.dispose();
   }
 
   void _initializeValues() {

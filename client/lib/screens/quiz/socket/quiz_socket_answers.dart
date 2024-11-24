@@ -1,3 +1,4 @@
+import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
   late final UserNotifier user;
   bool isLoading = true;
   bool isAnswered = false;
+  AudioManager? audioManager;
 
   bool showAnswer = false;
 
@@ -47,11 +49,10 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
   }
 
   void _initStates() {
+    audioManager = AudioManager();
     setState(() {
       title = widget.values['quiz']['title'];
       questionData = widget.values['quizQuestions']["questions"];
-    });
-    setState(() {
       isLoading = false;
     });
   }
@@ -71,6 +72,12 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
         answer = player["answers"].last;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    audioManager!.dispose();
+    super.dispose();
   }
 
 @override
@@ -118,6 +125,11 @@ Widget build(BuildContext context) {
                     .contains(option['id']);
                 final isSelected = answer["id"] == option['id'];
 
+                if (isCorrect) {
+                  audioManager!.playSoundEffect("finish.mp3");
+                } else if (isSelected) {
+                  audioManager!.playSoundEffect("error.mp3");
+                }
                 return Container(
                   width: 50,
                   decoration: BoxDecoration(

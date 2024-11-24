@@ -1,3 +1,4 @@
+import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   bool isLoading = true;
   bool isAnswered = false;
   Map<String, dynamic> answer = {"option": "", "id": -1};
+  AudioManager? audioManager;
 
   bool showAnswer = false;
 
@@ -43,7 +45,16 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   @override
   void initState() {
     super.initState();
+    audioManager = AudioManager();
+    List<String> sounds = ["audio.mp3", "audio1.mp3", "audio2.mp3", "audio3.mp3"];
+    audioManager!.playBackgroundAudio(sounds);
     _initStates();
+  }
+
+  @override
+  void dispose() {
+    audioManager?.dispose();
+    super.dispose();
   }
 
   void _initStates() {
