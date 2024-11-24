@@ -7,14 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QuizResultSolo extends ConsumerStatefulWidget {
-  const QuizResultSolo({
-    super.key,
-    required this.token,
-    required this.quizTaken,
-    required this.quizData,
-    required this.totalQuestions,
-    required this.setScore
-  });
+  const QuizResultSolo(
+      {super.key,
+      required this.token,
+      required this.quizTaken,
+      required this.quizData,
+      required this.totalQuestions,
+      required this.setScore});
 
   final Map<String, dynamic> quizTaken;
   final Map<String, dynamic> quizData;
@@ -36,17 +35,25 @@ class QuizResultSoloState extends ConsumerState<QuizResultSolo> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
-      _initChecks();
+      _initCheck();
     });
   }
 
-  Future<void> _initChecks() async {
-    final response = await ApiHandler.playQuiz(widget.token, widget.quizTaken);
+  Future<void> _initCheck() async {
+    final response = await ApiHandler.checkQuiz(widget.token, widget.quizTaken);
     setState(() {
+      widget.setScore(response["score"]);
       quizScore = response;
       loading = false;
     });
-    widget.setScore(quizScore["score"]);
+    final quiz = widget.quizTaken;
+    quiz["score"] = response["score"];
+    quiz["amountOfCorrect"] = response["amountOfCorrect"];
+    _initPost(quiz);
+  }
+
+  Future<void> _initPost(Map<String, dynamic> quiz) async {
+    await ApiHandler.playQuiz(widget.token, quiz);
   }
 
   String fixEncoding(String text) {
@@ -71,96 +78,99 @@ class QuizResultSoloState extends ConsumerState<QuizResultSolo> {
         ? Center(
             child: LogoLoading(),
           )
-        : Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 3,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  "${performanceComment()} Scoring ${quizScore["score"]} out of ${widget.totalQuestions * 1000} shows your knowledge of ${fixEncoding(widget.quizData["title"] ?? "Unknown Title")}.",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Column(
-                children: quizScore["checks"].map<Widget>((check) {
-                  final questionId = check["questionId"];
-                  final answerCorrect = check["correct"] ?? false;
-                  final questionData = widget.quizData["quizQuestions"]
-                      ?.firstWhere((q) => q["id"] == questionId,
-                          orElse: () => {});
-
-                  final questionText =
-                      fixEncoding(questionData?["question"] ?? "No Question");
-
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: answerCorrect ? Colors.green : Colors.red,
-                        width: 2,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "${quizScore["checks"].indexOf(check) + 1}. $questionText",
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        Icon(
-                          answerCorrect ? Icons.check_circle : Icons.cancel,
-                          color: answerCorrect ? Colors.green : Colors.red,
-                          size: 28,
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  minimumSize: const Size.fromHeight(50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                ),
-                onPressed: () {
-                  final router = ref.read(routerProvider.notifier);
-                  router.setPath(context, "home");
-                },
-                child: const Text(
-                  "Leave Quiz",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+        : Container(
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 3,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    "${performanceComment()} Scoring ${quizScore["score"]} out of ${widget.totalQuestions * 1000} shows your knowledge of ${fixEncoding(widget.quizData["title"] ?? "Unknown Title")}.",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Column(
+                  children: quizScore["checks"].map<Widget>((check) {
+                    final questionId = check["questionId"];
+                    final answerCorrect = check["correct"] ?? false;
+                    final questionData = widget.quizData["quizQuestions"]
+                        ?.firstWhere((q) => q["id"] == questionId,
+                            orElse: () => {});
+
+                    final questionText =
+                        fixEncoding(questionData?["question"] ?? "No Question");
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: answerCorrect ? Colors.green : Colors.red,
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${quizScore["checks"].indexOf(check) + 1}. $questionText",
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          Icon(
+                            answerCorrect ? Icons.check_circle : Icons.cancel,
+                            color: answerCorrect ? Colors.green : Colors.red,
+                            size: 28,
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  onPressed: () {
+                    final router = ref.read(routerProvider.notifier);
+                    router.setPath(context, "home");
+                  },
+                  child: const Text(
+                    "Leave Quiz",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
   }
 }

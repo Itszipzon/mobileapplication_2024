@@ -239,7 +239,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
                             const SizedBox(height: 10),
                             scoreAnimationController == null
                                 ? Text(
-                                    "Loading Score...",
+                                    "0",
                                     style: const TextStyle(
                                       fontSize: 48,
                                       fontWeight: FontWeight.bold,

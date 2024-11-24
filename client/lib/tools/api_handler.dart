@@ -229,11 +229,8 @@ class ApiHandler {
     return jsonDecode(response.body);
   }
 
-  // Modify ApiHandler.playQuiz
-  static Future<Map<String, dynamic>> playQuiz(
-      String token, Map<String, dynamic> quiz) async {
-    final uri = Uri.parse('$_url/api/quiz/game/solo');
-    final payload = quiz;
+  static Future<Map<String, dynamic>> checkQuiz(String token, Map<String, dynamic> quiz) async {
+    final uri = Uri.parse('$_url/api/quiz/game/solo/check');
 
     final response = await http.post(
       uri,
@@ -241,7 +238,28 @@ class ApiHandler {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json'
       },
-      body: jsonEncode(payload),
+      body: jsonEncode(quiz),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to check quiz answers');
+    }
+  }
+
+  // Modify ApiHandler.playQuiz
+  static Future<Map<String, dynamic>> playQuiz(
+      String token, Map<String, dynamic> quiz) async {
+    final uri = Uri.parse('$_url/api/quiz/game/solo');
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(quiz),
     );
 
     if (response.statusCode == 200) {
