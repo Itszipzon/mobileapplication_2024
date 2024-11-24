@@ -479,6 +479,16 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       return;
     }
 
+    if (titleController.text.length > 30) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Title must be less than 50 chars");
+      return;
+    }
+
+
+
     if (descriptionController.text.isEmpty) {
       setState(() {
         loading = false;
@@ -494,15 +504,32 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       ErrorHandler.showOverlayError(context, "Time cannot be empty");
       return;
     }
-
+    int? timer;
     try {
-      int.parse(timeController.text);
+      timer = int.parse(timeController.text);
     } catch (e) {
       setState(() {
         loading = false;
       });
       ErrorHandler.showOverlayError(
           context, "Please enter a valid integer for time");
+    }
+
+    if (timer! > 0 && timer < 5) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(
+          context, "Time must be greater than 5 seconds or 0");
+      return;
+    }
+
+    if (timer > 120) {
+      setState(() {
+        loading = false;
+      });
+      ErrorHandler.showOverlayError(context, "Time must be less than 120 seconds");
+      return;
     }
 
     if (quizCategories.isEmpty) {

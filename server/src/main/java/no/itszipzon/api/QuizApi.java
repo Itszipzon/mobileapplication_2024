@@ -300,6 +300,139 @@ public class QuizApi {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
+  
+
+  /**
+   * Create quiz.
+   *
+   * @param quiz quiz.
+   * @return If the quiz was created.
+   */
+  @PostMapping
+  @Transactional
+  public ResponseEntity<Boolean> createQuiz(@RequestPart("quiz") Map<String, Object> quiz,
+      @RequestPart("thumbnail") MultipartFile thumbnail,
+      @RequestHeader("Authorization") String authorizationHeader) {
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+    if (claims == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+    User quizUser = new User();
+    quizUser.setId(claims.get("id", Long.class));
+    quizUser.setUsername(claims.getSubject());
+    String title = quiz.get("title").toString();
+    String description = quiz.get("description").toString();
+
+    if (title.isBlank() || description.isBlank()) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    if (title.length() > 30) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    int timer = (int) quiz.get("timer");
+    if (timer < 0) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+    
+    if (timer > 120) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    if (timer > 0 && timer < 10) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+
+    Quiz newQuiz = new Quiz();
+    newQuiz.setTitle(title);
+    newQuiz.setDescription(description);
+    newQuiz.setTimer(timer);
+    newQuiz.setQuizQuestions(new ArrayList<>());
+    newQuiz.setUser(quizUser);
+    Object questionsObj = quiz.get("quizQuestions");
+    if (!(questionsObj instanceof List)) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+    List<?> questionsList = (List<?>) questionsObj;
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> questions = questionsList.stream().filter(item -> item instanceof Map)
+        .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
+    for (Map<String, Object> question : questions) {
+      String questionText = (String) question.get("question");
+      if (questionText.isBlank()) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+      QuizQuestion quizQuestion = new QuizQuestion();
+      quizQuestion.setQuestion(questionText);
+      quizQuestion.setQuiz(newQuiz);
+      quizQuestion.setQuizOptions(new ArrayList<>());
+      Object optionsObj = question.get("quizOptions");
+      if (!(optionsObj instanceof List)) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+      List<?> optionsList = (List<?>) optionsObj;
+      @SuppressWarnings("unchecked")
+      List<Map<String, Object>> options = optionsList.stream().filter(item -> item instanceof Map)
+          .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
+      if (options.size() < 2) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+      boolean hasCorrect = false;
+      for (Map<String, Object> option : options) {
+        String optionText = (String) option.get("optionText");
+        boolean isCorrect = (boolean) option.get("correct");
+        QuizOption quizOption = new QuizOption();
+        quizOption.setQuizQuestion(quizQuestion);
+        quizOption.setCorrect(isCorrect);
+        quizOption.setOptionText(optionText);
+        if (isCorrect) {
+          hasCorrect = true;
+        }
+        quizQuestion.getQuizOptions().add(quizOption);
+      }
+      if (!hasCorrect) {
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+      newQuiz.getQuizQuestions().add(quizQuestion);
+    }
+    Object categoryObj = quiz.get("categories");
+    if (categoryObj != null && !(categoryObj instanceof List<?>)) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+    List<?> categoryList = (List<?>) categoryObj;
+    @SuppressWarnings("null")
+    List<String> categories = categoryList.stream().filter(String.class::isInstance)
+        .map(String.class::cast).collect(Collectors.toList());
+    if (categories.size() > 0) {
+      List<Category> quizCategories = categoryRepo.findAll();
+      List<QuizCategory> quizCategoryList = new ArrayList<>();
+      for (String category : categories) {
+        if (!category.isBlank()) {
+          QuizCategory newCategory = new QuizCategory();
+          if (quizCategories.stream().anyMatch(c -> c.getName().equals(category))) {
+            newCategory.setCategory(quizCategories.stream()
+                .filter(c -> c.getName().equals(category)).findFirst().get());
+            newCategory.setQuiz(newQuiz);
+            quizCategoryList.add(newCategory);
+          }
+        }
+      }
+      newQuiz.setCategories(quizCategoryList);
+    }
+    String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");
+    if (thumbnailString.isBlank()) {
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    }
+    newQuiz.setThumbnail(thumbnailString);
+    quizRepo.save(newQuiz);
+    return new ResponseEntity<>(true, HttpStatus.CREATED);
+  }
+
   /**
    * Get check solo game questions.
    *
@@ -500,122 +633,6 @@ public class QuizApi {
     quizAttempt.setQuizAnswers(quizAnswers);
     quizAttemptRepo.save(quizAttempt);
     return new ResponseEntity<>(response, HttpStatus.OK);
-  }
-
-  /**
-   * Create quiz.
-   *
-   * @param quiz quiz.
-   * @return If the quiz was created.
-   */
-  @PostMapping
-  @Transactional
-  public ResponseEntity<Boolean> createQuiz(@RequestPart("quiz") Map<String, Object> quiz,
-      @RequestPart("thumbnail") MultipartFile thumbnail,
-      @RequestHeader("Authorization") String authorizationHeader) {
-    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-    String token = authorizationHeader.substring(7);
-    Claims claims = jwtUtil.extractClaims(token);
-    if (claims == null) {
-      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-    User quizUser = new User();
-    quizUser.setId(claims.get("id", Long.class));
-    quizUser.setUsername(claims.getSubject());
-    String title = quiz.get("title").toString();
-    String description = quiz.get("description").toString();
-    if (title.isBlank() || description.isBlank()) {
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
-    int timer = (int) quiz.get("timer");
-    if (timer < 0) {
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
-    Quiz newQuiz = new Quiz();
-    newQuiz.setTitle(title);
-    newQuiz.setDescription(description);
-    newQuiz.setTimer(timer);
-    newQuiz.setQuizQuestions(new ArrayList<>());
-    newQuiz.setUser(quizUser);
-    Object questionsObj = quiz.get("quizQuestions");
-    if (!(questionsObj instanceof List)) {
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
-    List<?> questionsList = (List<?>) questionsObj;
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> questions = questionsList.stream().filter(item -> item instanceof Map)
-        .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
-    for (Map<String, Object> question : questions) {
-      String questionText = (String) question.get("question");
-      if (questionText.isBlank()) {
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-      }
-      QuizQuestion quizQuestion = new QuizQuestion();
-      quizQuestion.setQuestion(questionText);
-      quizQuestion.setQuiz(newQuiz);
-      quizQuestion.setQuizOptions(new ArrayList<>());
-      Object optionsObj = question.get("quizOptions");
-      if (!(optionsObj instanceof List)) {
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-      }
-      List<?> optionsList = (List<?>) optionsObj;
-      @SuppressWarnings("unchecked")
-      List<Map<String, Object>> options = optionsList.stream().filter(item -> item instanceof Map)
-          .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
-      if (options.size() < 2) {
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-      }
-      boolean hasCorrect = false;
-      for (Map<String, Object> option : options) {
-        String optionText = (String) option.get("optionText");
-        boolean isCorrect = (boolean) option.get("correct");
-        QuizOption quizOption = new QuizOption();
-        quizOption.setQuizQuestion(quizQuestion);
-        quizOption.setCorrect(isCorrect);
-        quizOption.setOptionText(optionText);
-        if (isCorrect) {
-          hasCorrect = true;
-        }
-        quizQuestion.getQuizOptions().add(quizOption);
-      }
-      if (!hasCorrect) {
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-      }
-      newQuiz.getQuizQuestions().add(quizQuestion);
-    }
-    Object categoryObj = quiz.get("categories");
-    if (categoryObj != null && !(categoryObj instanceof List<?>)) {
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
-    List<?> categoryList = (List<?>) categoryObj;
-    @SuppressWarnings("null")
-    List<String> categories = categoryList.stream().filter(String.class::isInstance)
-        .map(String.class::cast).collect(Collectors.toList());
-    if (categories.size() > 0) {
-      List<Category> quizCategories = categoryRepo.findAll();
-      List<QuizCategory> quizCategoryList = new ArrayList<>();
-      for (String category : categories) {
-        if (!category.isBlank()) {
-          QuizCategory newCategory = new QuizCategory();
-          if (quizCategories.stream().anyMatch(c -> c.getName().equals(category))) {
-            newCategory.setCategory(quizCategories.stream()
-                .filter(c -> c.getName().equals(category)).findFirst().get());
-            newCategory.setQuiz(newQuiz);
-            quizCategoryList.add(newCategory);
-          }
-        }
-      }
-      newQuiz.setCategories(quizCategoryList);
-    }
-    String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");
-    if (thumbnailString.isBlank()) {
-      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
-    newQuiz.setThumbnail(thumbnailString);
-    quizRepo.save(newQuiz);
-    return new ResponseEntity<>(true, HttpStatus.CREATED);
   }
 
   /**
