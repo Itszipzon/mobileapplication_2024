@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -669,9 +670,19 @@ public class QuizApi {
   private QuizWithQuestionsDto mapToQuizWithQuestionsDto(Quiz quiz) {
     List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream()
         .map(this::mapToQuestionDto).collect(Collectors.toList());
-    return new QuizWithQuestionsDto(quiz.getQuizId(), quiz.getTitle(), quiz.getDescription(),
-        quiz.getThumbnail(), quiz.getTimer(), quiz.getCreatedAt(), questionsDto,
+    
+    QuizWithQuestionsDto response = new QuizWithQuestionsDto(
+        quiz.getQuizId(),
+        quiz.getTitle(),
+        quiz.getDescription(),
+        quiz.getThumbnail(),
+        quiz.getTimer(),
+        quiz.getCreatedAt(),
+        questionsDto,
         quizRepo.findUsernameFromQuizId(quiz.getQuizId()).get());
+
+    Collections.shuffle(response.getQuizQuestions());
+    return response;
   }
 
   private QuizQuestionDto mapToQuestionDto(QuizQuestion question) {
