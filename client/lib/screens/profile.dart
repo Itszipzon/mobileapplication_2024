@@ -4,7 +4,7 @@ import 'package:client/elements/button.dart';
 import 'package:client/elements/loading.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/screens/profile/main_profile.dart';
-import 'package:client/screens/settings.dart';
+import 'package:client/screens/profile/settings.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
@@ -163,8 +163,8 @@ class ProfileState extends ConsumerState<Profile> {
                 children: [
                   Expanded(
                     child: SizedTextButton(
-                      text: "Settings",
-                      icon: const Icon(Icons.settings, color: Colors.white),
+                      text: page == "settings" ? "Profile" : "Settings",
+                      icon: Icon(page == "settings" ? Icons.person : Icons.settings, color: Colors.white),
                       onPressed: () => {
                         setState(
                           () {
