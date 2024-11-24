@@ -1,6 +1,7 @@
 package no.itszipzon.api;
 
 import io.jsonwebtoken.Claims;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -411,12 +412,16 @@ public class QuizApi {
     }
     QuizAttempt quizAttempt = new QuizAttempt();
     Optional<Quiz> quizOptional = quizRepo.findById(quizId);
+
     if (quizOptional.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-    quizAttempt.setQuiz(quizOptional.get());
+
     User user = userRepo.findUserByUsername(claims.getSubject()).get();
+
+    quizAttempt.setQuiz(quizOptional.get());
     quizAttempt.setUser(user);
+
     Map<String, Object> response = new HashMap<>();
     response.put("username", claims.getSubject());
     response.put("userId", claims.get("id"));
@@ -431,46 +436,62 @@ public class QuizApi {
         .map(obj -> (Map<String, Object>) obj).collect(Collectors.toList());
     List<Map<String, Object>> answerCheck = new ArrayList<>();
     List<QuizAnswer> quizAnswers = new ArrayList<>();
+
     for (Map<String, Object> answer : answers) {
       long questionId;
+
       try {
         questionId = Long.parseLong(answer.get("questionId").toString());
       } catch (NumberFormatException e) {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
-      Long answerId = answer.get("optionId") == null ? null
-          : Long.parseLong(answer.get("optionId").toString());
 
-      if (answerId == null) {
-        answerId = optionRepo.findWrongOptionFromQuestion(questionId).get(0);
+      QuizAnswer quizAnswer = new QuizAnswer();
+      quizAnswer.setQuizAttempt(quizAttempt);
+
+      QuizQuestion question = questionRepo
+            .findById(questionId)
+            .orElseThrow(() -> new EntityNotFoundException("QuizQuestion not found"));
+      quizAnswer.setQuizQuestion(question);
+      Long answerId = null;
+
+      if (answer.get("optionId") == null) {
+        quizAnswer.setQuizOption(null);
+      } else {
+        QuizOption quizOption = optionRepo
+            .findById(Long.parseLong(answer.get("optionId").toString()))
+            .orElseThrow(() -> new EntityNotFoundException("QuizOption not found"));
+        answerId = Long.parseLong(answer.get("optionId").toString());
+        quizAnswer.setQuizOption(quizOption);
       }
       
       Map<String, Object> check = new HashMap<>();
       check.put("questionId", questionId);
       check.put("optionId", answerId);
-      QuizAnswer quizAnswer = new QuizAnswer();
-      quizAnswer.setQuizAttempt(quizAttempt);
-      QuizOption quizOption = new QuizOption();
-      quizOption.setQuizOptionId(answerId);
-      QuizQuestion question = new QuizQuestion();
-      quizAnswer.setQuizQuestion(question);
-      quizAnswer.setQuizOption(quizOption);
-      question.setQuizQuestionId(questionId);
-      quizAnswer.setQuizQuestion(question);
       answerCheck.add(check);
       quizAnswers.add(quizAnswer);
     }
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime oneMonthAgo = now.minusMonths(1);
+
     int reduction = quizAttemptRepo.countAttemptLastMonth(claims.getSubject(), quizId, oneMonthAgo,
         now);
+
     int score = gameData.get("score") == null ? 0
         : Integer.parseInt(gameData.get("score").toString());
+
     int xp = Tools.calculateXp(score, quizOptional.get().getQuizQuestions().size(),
         Integer.parseInt(gameData.get("amountOfCorrect").toString()), reduction);
+
     User quizOwner = userRepo.findUserByUsername(quizOptional.get().getUser().getUsername()).get();
-    userService.addXp(user, xp);
-    userService.addXp(quizOwner, 250);
+
+    if (user.getUsername().equalsIgnoreCase(quizOptional.get().getUser().getUsername())) {
+      userService.addXp(user, 0);
+    } else {
+      userService.addXp(user, xp);
+      userService.addXp(quizOwner, 250);
+    }
+
     response.put("checks", answerCheck);
     response.put("score", score);
     quizAttempt.setExpEarned(xp);

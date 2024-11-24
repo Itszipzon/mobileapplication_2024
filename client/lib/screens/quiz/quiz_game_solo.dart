@@ -77,6 +77,12 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
         ['audio.mp3', 'audio1.mp3', 'audio2.mp3', 'audio3.mp3']);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    audioManager.dispose();
+  }
+
   void setScore(int score) {
     setState(() {
       scoreAnimationController = AnimationController(
@@ -105,6 +111,13 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   }
 
   void _handleNextClick() {
+
+    if (quizTaken["answers"][currentQuestionIndex]["optionId"] == null) {
+      audioManager.playSoundEffect("error.mp3");
+    } else {
+      audioManager.playSoundEffect("next.mp3");
+    }
+
     setState(() {
       quizTaken["answers"][currentQuestionIndex]["responseTime"] =
           DateTime.now().difference(questionStartTime!).inMilliseconds / 1000;
@@ -128,6 +141,8 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
           color: Colors.white,
         );
       } else {
+        audioManager.stopAudio();
+        audioManager.playSoundEffect("finish.mp3");
         page = "result";
       }
     });
