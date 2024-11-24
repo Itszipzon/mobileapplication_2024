@@ -405,7 +405,6 @@ public class QuizApi {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
     List<?> categoryList = (List<?>) categoryObj;
-    @SuppressWarnings("null")
     List<String> categories = categoryList.stream().filter(String.class::isInstance)
         .map(String.class::cast).collect(Collectors.toList());
     if (categories.size() > 0) {
