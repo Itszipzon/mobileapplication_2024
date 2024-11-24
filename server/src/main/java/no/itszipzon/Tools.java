@@ -113,7 +113,6 @@ public class Tools {
         if (image.getContentType().equals("image/png")) {
           filename += ".png";
         } else if (image.getContentType().equals("image/jpeg")) {
-          System.out.println("\n\n" + image.getContentType() + "\n\n");
           filename += ".jpeg";
         } else if (image.getContentType().equals("image/gif")) {
           filename += ".gif";
@@ -125,6 +124,11 @@ public class Tools {
             .of(Tools.getCorrectUrl(pathBefore + username + "/quiz/" + filename));
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
+        System.out.println("\n\n"
+            + "FilePath: " + filePath
+            + "FilePathBefore: " + filePathBefore
+            + "FileName: " + filename
+            + "\n\n");
         return filename;
       } else {
         throw new IOException("Invalid type");
