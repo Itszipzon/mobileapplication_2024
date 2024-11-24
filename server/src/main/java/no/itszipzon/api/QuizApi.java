@@ -16,6 +16,7 @@ import no.itszipzon.dto.QuizQuestionDto;
 import no.itszipzon.dto.QuizWithQuestionsDto;
 import no.itszipzon.repo.CategoryRepo;
 import no.itszipzon.repo.QuizAttemptRepo;
+import no.itszipzon.repo.QuizOptionRepo;
 import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
 import no.itszipzon.repo.UserRepo;
@@ -69,6 +70,8 @@ public class QuizApi {
   private UserService userService;
   @Autowired
   private UserRepo userRepo;
+  @Autowired
+  private QuizOptionRepo optionRepo;
 
   /**
    * Get all quizzes.
@@ -437,19 +440,23 @@ public class QuizApi {
       }
       Long answerId = answer.get("optionId") == null ? null
           : Long.parseLong(answer.get("optionId").toString());
+
+      if (answerId == null) {
+        answerId = optionRepo.findWrongOptionFromQuestion(questionId).get(0);
+      }
+      
       Map<String, Object> check = new HashMap<>();
       check.put("questionId", questionId);
       check.put("optionId", answerId);
       QuizAnswer quizAnswer = new QuizAnswer();
       quizAnswer.setQuizAttempt(quizAttempt);
-      QuizQuestion question = new QuizQuestion();
       QuizOption quizOption = new QuizOption();
       quizOption.setQuizOptionId(answerId);
+      QuizQuestion question = new QuizQuestion();
       quizAnswer.setQuizQuestion(question);
       quizAnswer.setQuizOption(quizOption);
       question.setQuizQuestionId(questionId);
       quizAnswer.setQuizQuestion(question);
-      quizAnswer.setQuizAnswerId(null);
       answerCheck.add(check);
       quizAnswers.add(quizAnswer);
     }
