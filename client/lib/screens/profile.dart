@@ -1,6 +1,7 @@
 import 'package:client/dummy_data.dart';
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/button.dart';
+import 'package:client/elements/loading.dart';
 import 'package:client/elements/profile_picture.dart';
 import 'package:client/screens/profile/main_profile.dart';
 import 'package:client/screens/settings.dart';
@@ -30,6 +31,8 @@ class ProfileState extends ConsumerState<Profile> {
   late List<Map<String, dynamic>> quizzes = [];
   late List<Map<String, dynamic>> history = [];
 
+  bool loading = true;
+
   String page = "main";
 
   @override
@@ -41,6 +44,9 @@ class ProfileState extends ConsumerState<Profile> {
       _getProfile();
       _getQuizzes(user.token!);
       _getHistory(user.token!);
+      setState(() {
+        loading = false;
+      });
     });
   }
 
@@ -53,17 +59,22 @@ class ProfileState extends ConsumerState<Profile> {
   }
 
   Widget profileScreen() {
-    if (page == "main") {
-      return MainProfile(quizzes: quizzes, history: history);
-    } else if (page == "settings") {
-      return Settings();
+    if (!loading) {
+      if (page == "main") {
+        return MainProfile(quizzes: quizzes, history: history);
+      } else if (page == "settings") {
+        return Settings();
+      } else {
+        return Container();
+      }
     } else {
-      return Container();
+      return const Center(child: LogoLoading());
     }
   }
 
   void _getQuizzes(String token) async {
     ApiHandler.getUserQuizzesByToken(token, 0, 5).then((value) {
+      print(value);
       setState(() {
         quizzes = value;
       });

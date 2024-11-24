@@ -1,6 +1,7 @@
 package no.itszipzon.api;
 
 import io.jsonwebtoken.Claims;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +18,11 @@ import no.itszipzon.repo.CategoryRepo;
 import no.itszipzon.repo.QuizAttemptRepo;
 import no.itszipzon.repo.QuizQuestionRepo;
 import no.itszipzon.repo.QuizRepo;
+import no.itszipzon.repo.UserRepo;
+import no.itszipzon.service.UserService;
 import no.itszipzon.tables.Category;
 import no.itszipzon.tables.Quiz;
+import no.itszipzon.tables.QuizAnswer;
 import no.itszipzon.tables.QuizAttempt;
 import no.itszipzon.tables.QuizCategory;
 import no.itszipzon.tables.QuizOption;
@@ -51,21 +55,20 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("api/quiz")
 public class QuizApi {
-
   @Autowired
   private QuizRepo quizRepo;
-
   @Autowired
   private CategoryRepo categoryRepo;
-
   @Autowired
   private JwtUtil jwtUtil;
-
   @Autowired
   private QuizQuestionRepo questionRepo;
-
   @Autowired
   private QuizAttemptRepo quizAttemptRepo;
+  @Autowired
+  private UserService userService;
+  @Autowired
+  private UserRepo userRepo;
 
   /**
    * Get all quizzes.
@@ -90,16 +93,12 @@ public class QuizApi {
   @GetMapping("/all/filter/{page}/{size}/{by}/{orientation}")
   public ResponseEntity<List<QuizDto>> getFilteredQuizzes(@PathVariable int page,
       @PathVariable int size, @PathVariable String by, @PathVariable String orientation) {
-
     Pageable pageable = PageRequest.of(page, size,
         Sort.by(Sort.Direction.fromString(orientation), by));
-
     List<QuizDto> quizzes = quizRepo.findAllByFilter(pageable).orElse(new ArrayList<>());
-
     if (quizzes.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
     return new ResponseEntity<>(quizzes, HttpStatus.OK);
   }
 
@@ -112,7 +111,6 @@ public class QuizApi {
   @GetMapping("/{id}")
   public ResponseEntity<QuizWithQuestionsDto> getQuizById(@PathVariable Long id) {
     Optional<Quiz> quiz = quizRepo.findById(id);
-
     return quiz.map(value -> ResponseEntity.ok(mapToQuizWithQuestionsDto(value)))
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
@@ -128,16 +126,12 @@ public class QuizApi {
     Optional<QuizDto> quiz = quizRepo.findQuizSummaryById(id);
     String username = quiz.get().getUsername();
     String thumbnail = quiz.get().getThumbnail();
-
     String imageFolder = "static/images/" + username + "/quiz/";
     Resource resource;
     String filetype;
-
     resource = new ClassPathResource(imageFolder + thumbnail);
     filetype = thumbnail.substring(thumbnail.lastIndexOf(".") + 1);
-
     MediaType mediaType = null;
-
     switch (filetype) {
       case "png":
         mediaType = MediaType.IMAGE_PNG;
@@ -154,7 +148,6 @@ public class QuizApi {
       default:
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
     return ResponseEntity.ok().contentType(mediaType).body(resource);
   }
 
@@ -201,10 +194,8 @@ public class QuizApi {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
     String token = authorizationHeader.substring(7);
     Claims claims = jwtUtil.extractClaims(token);
-
     if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -229,7 +220,6 @@ public class QuizApi {
     Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "createdAt"));
     Optional<List<QuizDto>> optQuizzes = quizRepo.findUsersQuizzes(username, pageable);
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
-
     return new ResponseEntity<>(quizzes, HttpStatus.OK);
   }
 
@@ -246,22 +236,16 @@ public class QuizApi {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
     String token = authorizationHeader.substring(7);
     Claims claims = jwtUtil.extractClaims(token);
-
     if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
     String username = claims.getSubject();
     Pageable pageable = PageRequest.of(page, amount, Sort.by(Sort.Direction.DESC, "takenAt"));
-
     Optional<List<QuizDto>> optQuizzes = quizAttemptRepo.findQuizzesFromUserHistory(username,
         pageable);
-
     List<QuizDto> quizzes = optQuizzes.orElse(new ArrayList<>());
-
     return new ResponseEntity<>(quizzes, HttpStatus.OK);
   }
 
@@ -274,15 +258,12 @@ public class QuizApi {
   @GetMapping("/questions/{quizId}")
   public ResponseEntity<List<QuizQuestionDto>> getQuestionsByQuizId(@PathVariable Long quizId) {
     Optional<Quiz> quizOptional = quizRepo.findById(quizId);
-
     if (quizOptional.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
     // Map quiz questions to DTOs
     List<QuizQuestionDto> questionsDto = quizOptional.get().getQuizQuestions().stream()
         .map(this::mapToQuestionDto).collect(Collectors.toList());
-
     return new ResponseEntity<>(questionsDto, HttpStatus.OK);
   }
 
@@ -294,16 +275,12 @@ public class QuizApi {
   @GetMapping("/popular/{page}")
   @Transactional(readOnly = true)
   public ResponseEntity<List<Map<String, Object>>> getMostPopularQuizzes(@PathVariable int page) {
-
     // Create a pageable object
     Pageable pageable = PageRequest.of(page, 5);
-
     Optional<List<QuizDto>> popularQuizzesPage = quizAttemptRepo.findTopPopularQuizzes(pageable);
-
     if (popularQuizzesPage.isEmpty()) {
       return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
-
     // Map the results to the desired response format
     List<Map<String, Object>> response = popularQuizzesPage.get().stream().map(record -> {
       Map<String, Object> quizMap = new HashMap<>();
@@ -317,93 +294,58 @@ public class QuizApi {
       quizMap.put("profile_picture", record.getProfilePicture());
       return quizMap;
     }).collect(Collectors.toList());
-
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   /**
-   * Add a new quiz attempt.
+   * Post a solo game.
    *
-   * @param authorizationHeader Authorization token (Bearer token).
-   * @param quizId              The ID of the quiz to attempt.
-   * @return ResponseEntity indicating success or failure.
+   * @param gameData            The game data.
+   * @param authorizationHeader The JWT token.
+   * @return                    The game data.
    */
-  @PostMapping("/attempt/{quizId}")
-  @Transactional
-  public ResponseEntity<String> addQuizAttempt(
-      @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long quizId) {
-
+  @PostMapping("/game/solo")
+  public ResponseEntity<Map<String, Object>> soloGame(
+      @RequestBody Map<String, Object> gameData,
+      @RequestHeader("Authorization") String authorizationHeader
+  ) {
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-      return new ResponseEntity<>("Unauthorized: Missing or invalid token.",
-          HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     String token = authorizationHeader.substring(7);
+
     Claims claims = jwtUtil.extractClaims(token);
-
-    if (claims == null) {
-      return new ResponseEntity<>("Unauthorized: Invalid token.", HttpStatus.UNAUTHORIZED);
-    }
-
-    Long userId = claims.get("id", Long.class);
-    String username = claims.getSubject();
-
-    if (userId == null || username == null) {
-      return new ResponseEntity<>("Unauthorized: Invalid user data in token.",
-          HttpStatus.UNAUTHORIZED);
-    }
-
-    Optional<Quiz> quizOptional = quizRepo.findById(quizId);
-    if (quizOptional.isEmpty()) {
-      return new ResponseEntity<>("Quiz not found.", HttpStatus.NOT_FOUND);
-    }
-
-    QuizAttempt quizAttempt = new QuizAttempt();
-    User user = new User();
-    user.setId(userId);
-    user.setUsername(username);
-    quizAttempt.setUser(user);
-    Quiz quiz = quizOptional.get();
-    quizAttempt.setQuiz(quiz);
-
-    quizAttemptRepo.save(quizAttempt);
-
-    return new ResponseEntity<>("Quiz attempt added successfully.", HttpStatus.CREATED);
-  }
-
-  /**
-   * Check if the user's selected options are correct.
-   *
-   * @return A list of correct option IDs.
-   */
-  @PostMapping("/check-answers")
-  public ResponseEntity<Map<String, Object>> checkAnswers(
-      @RequestBody Map<String, Object> userAnswer) {
-
-    Claims claims = jwtUtil.extractClaims(userAnswer.get("token").toString());
     if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+    System.out.println("\n\n" + gameData.toString() + "\n\n");
+
     long quizId;
     try {
-      quizId = Long.parseLong(userAnswer.get("quizId").toString());
+      quizId = Long.parseLong(gameData.get("quizId").toString());
     } catch (NumberFormatException e) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    // Retrieve the quiz by ID
+    QuizAttempt quizAttempt = new QuizAttempt();
+
     Optional<Quiz> quizOptional = quizRepo.findById(quizId);
     if (quizOptional.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    Map<String, Object> userCorrectAnswers = new HashMap<>();
-    userCorrectAnswers.put("username", claims.getSubject());
-    userCorrectAnswers.put("userId", claims.get("id"));
-    userCorrectAnswers.put("quizId", quizId);
+    quizAttempt.setQuiz(quizOptional.get());
+    User user = userRepo.findUserByUsername(claims.getSubject()).get();
+    quizAttempt.setUser(user);
 
-    Object answersObj = userAnswer.get("quizAnswers");
+    Map<String, Object> response = new HashMap<>();
+    response.put("username", claims.getSubject());
+    response.put("userId", claims.get("id"));
+    response.put("quizId", quizId);
+
+    Object answersObj = gameData.get("answers");
     if (!(answersObj instanceof List)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -414,6 +356,10 @@ public class QuizApi {
         .map(obj -> (Map<String, Object>) obj).collect(Collectors.toList());
 
     List<Map<String, Object>> answerCheck = new ArrayList<>();
+    List<QuizAnswer> quizAnswers = new ArrayList<>();
+
+    int amountOfCorrect = 0;
+
     for (Map<String, Object> answer : answers) {
       long questionId;
       try {
@@ -422,37 +368,92 @@ public class QuizApi {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
       }
 
-      // Check if answerId is null
-      Object answerIdObj = answer.get("answerId");
+      Long answerId = answer.get("optionId") == null
+          ? null
+          : Long.parseLong(answer.get("optionId").toString());
+
       Map<String, Object> check = new HashMap<>();
       check.put("questionId", questionId);
-      check.put("answerId", answerIdObj);
+      check.put("optionId", answerId);
 
-      if (answerIdObj == null) {
-        // If answerId is null, mark as incorrect
+      QuizAnswer quizAnswer = new QuizAnswer();
+      quizAnswer.setQuizAttempt(quizAttempt);
+
+      QuizQuestion question = new QuizQuestion();
+      QuizOption quizOption = new QuizOption();
+
+      quizOption.setQuizOptionId(answerId);
+      quizAnswer.setQuizQuestion(question);
+      quizAnswer.setQuizOption(quizOption);
+      question.setQuizQuestionId(questionId);
+      quizAnswer.setQuizQuestion(question);
+      quizAnswer.setQuizAnswerId(null);
+
+      if (answerId == null) {
+        check.put("score", 0);
         check.put("correct", false);
       } else {
-        long answerId;
-        try {
-          answerId = Long.parseLong(answerIdObj.toString());
-        } catch (NumberFormatException e) {
-          return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
 
-        // Check if the provided answerId is correct
         Optional<Boolean> correctOptional = questionRepo.checkIfCorrectAnswer(questionId, answerId);
         if (correctOptional.isEmpty()) {
           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        check.put("correct", correctOptional.get());
+        if (correctOptional.get()) {
+          int maxScore = 1000;
+          double seconds = Double.parseDouble(answer.get("responseTime").toString());
+          int score = 0;
+          if (seconds < 0.5) {
+            score = maxScore;
+          } else {
+            double reductionFactor = 1
+                - ((seconds / Integer.parseInt(gameData.get("timer").toString())) / 2);
+            score = (int) Math.round(maxScore * reductionFactor);
+          }
+          check.put("score", score);
+          check.put("correct", true);
+          amountOfCorrect++;
+        } else {
+          check.put("score", 0);
+          check.put("correct", false);
+        }
       }
 
       answerCheck.add(check);
+      quizAnswers.add(quizAnswer);
     }
 
-    userCorrectAnswers.put("checks", answerCheck);
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime oneMonthAgo = now.minusMonths(1);
 
-    return ResponseEntity.ok(userCorrectAnswers);
+    int reduction = quizAttemptRepo.countAttemptLastMonth(
+        claims.getSubject(),
+        quizId,
+        oneMonthAgo,
+        now
+    );
+
+    int score = answerCheck.stream().mapToInt(check -> (int) check.get("score")).sum();
+
+    int xp = Tools.calculateXp(
+        score,
+        quizOptional.get().getQuizQuestions().size(),
+        amountOfCorrect,
+        reduction
+    );
+
+    User quizOwner = userRepo.findUserByUsername(quizOptional.get().getUser().getUsername()).get();
+    userService.addXp(user, xp);
+    userService.addXp(quizOwner, 250);
+
+    response.put("checks", answerCheck);
+    response.put("score", score);
+
+    quizAttempt.setExpEarned(xp);
+    quizAttempt.setTakenAt(now);
+    quizAttempt.setQuizAnswers(quizAnswers);
+    quizAttemptRepo.save(quizAttempt);
+
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   /**
@@ -466,78 +467,60 @@ public class QuizApi {
   public ResponseEntity<Boolean> createQuiz(@RequestPart("quiz") Map<String, Object> quiz,
       @RequestPart("thumbnail") MultipartFile thumbnail,
       @RequestHeader("Authorization") String authorizationHeader) {
-
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
     String token = authorizationHeader.substring(7);
     Claims claims = jwtUtil.extractClaims(token);
-
     if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-
     User quizUser = new User();
     quizUser.setId(claims.get("id", Long.class));
     quizUser.setUsername(claims.getSubject());
-
     String title = quiz.get("title").toString();
     String description = quiz.get("description").toString();
-
     if (title.isBlank() || description.isBlank()) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
-
     int timer = (int) quiz.get("timer");
-
     if (timer < 0) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
-
     Quiz newQuiz = new Quiz();
     newQuiz.setTitle(title);
     newQuiz.setDescription(description);
     newQuiz.setTimer(timer);
     newQuiz.setQuizQuestions(new ArrayList<>());
     newQuiz.setUser(quizUser);
-
     Object questionsObj = quiz.get("quizQuestions");
     if (!(questionsObj instanceof List)) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
-
     List<?> questionsList = (List<?>) questionsObj;
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> questions = questionsList.stream().filter(item -> item instanceof Map)
         .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
-
     for (Map<String, Object> question : questions) {
       String questionText = (String) question.get("question");
-
       if (questionText.isBlank()) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
-
       QuizQuestion quizQuestion = new QuizQuestion();
       quizQuestion.setQuestion(questionText);
       quizQuestion.setQuiz(newQuiz);
       quizQuestion.setQuizOptions(new ArrayList<>());
-
       Object optionsObj = question.get("quizOptions");
       if (!(optionsObj instanceof List)) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
-
       List<?> optionsList = (List<?>) optionsObj;
       @SuppressWarnings("unchecked")
       List<Map<String, Object>> options = optionsList.stream().filter(item -> item instanceof Map)
           .map(item -> (Map<String, Object>) item).collect(Collectors.toList());
-
       if (options.size() < 2) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
-
       boolean hasCorrect = false;
       for (Map<String, Object> option : options) {
         String optionText = (String) option.get("optionText");
@@ -546,38 +529,30 @@ public class QuizApi {
         quizOption.setQuizQuestion(quizQuestion);
         quizOption.setCorrect(isCorrect);
         quizOption.setOptionText(optionText);
-
         if (isCorrect) {
           hasCorrect = true;
         }
-
         quizQuestion.getQuizOptions().add(quizOption);
       }
-
       if (!hasCorrect) {
         return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
       }
-
       newQuiz.getQuizQuestions().add(quizQuestion);
     }
-
     Object categoryObj = quiz.get("categories");
     if (categoryObj != null && !(categoryObj instanceof List<?>)) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
-
     List<?> categoryList = (List<?>) categoryObj;
     @SuppressWarnings("null")
     List<String> categories = categoryList.stream().filter(String.class::isInstance)
         .map(String.class::cast).collect(Collectors.toList());
-
     if (categories.size() > 0) {
       List<Category> quizCategories = categoryRepo.findAll();
       List<QuizCategory> quizCategoryList = new ArrayList<>();
       for (String category : categories) {
         if (!category.isBlank()) {
           QuizCategory newCategory = new QuizCategory();
-
           if (quizCategories.stream().anyMatch(c -> c.getName().equals(category))) {
             newCategory.setCategory(quizCategories.stream()
                 .filter(c -> c.getName().equals(category)).findFirst().get());
@@ -588,13 +563,10 @@ public class QuizApi {
       }
       newQuiz.setCategories(quizCategoryList);
     }
-
     String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");
-
     if (thumbnailString.isBlank()) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
-
     newQuiz.setThumbnail(thumbnailString);
     quizRepo.save(newQuiz);
     return new ResponseEntity<>(true, HttpStatus.CREATED);
@@ -610,52 +582,40 @@ public class QuizApi {
    *         UNAUTHORIZED if missing/invalid token - 403 FORBIDDEN if user doesn't own quiz - 404
    *         NOT_FOUND if quiz doesn't exist - 500 INTERNAL_SERVER_ERROR if deletion fails
    */
-
   @DeleteMapping("/{id}")
   @Transactional
   public ResponseEntity<String> deleteQuiz(@PathVariable Long id,
       @RequestHeader("Authorization") String authorizationHeader) {
-
     if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
       return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
-
     String token = authorizationHeader.substring(7);
     Claims claims = jwtUtil.extractClaims(token);
-
     if (claims == null) {
       return new ResponseEntity<>("Invalid token", HttpStatus.UNAUTHORIZED);
     }
-
     Optional<Quiz> quizOptional = quizRepo.findById(id);
     if (quizOptional.isEmpty()) {
       return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
     }
-
     Quiz quiz = quizOptional.get();
     String username = claims.getSubject();
-
     if (!quiz.getUser().getUsername().equals(username)) {
       return new ResponseEntity<>("Unauthorized: User does not own this quiz",
           HttpStatus.FORBIDDEN);
     }
-
     try {
-
       quizAttemptRepo.deleteAll(quiz.getQuizAttempts());
-
       quizRepo.delete(quiz);
       return new ResponseEntity<>("Quiz deleted successfully", HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity<>("Error deleting quiz: " + e.getMessage(),
           HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 
   private QuizDto mapToQuizDto(Quiz quiz) {
     User user = quiz.getUser();
-
     return new QuizDto(quiz.getQuizId(), quiz.getTitle(), quiz.getDescription(),
         quiz.getThumbnail(), quiz.getTimer(), user.getUsername(), user.getProfilePicture(),
         quiz.getCreatedAt());
@@ -664,19 +624,16 @@ public class QuizApi {
   private QuizWithQuestionsDto mapToQuizWithQuestionsDto(Quiz quiz) {
     List<QuizQuestionDto> questionsDto = quiz.getQuizQuestions().stream()
         .map(this::mapToQuestionDto).collect(Collectors.toList());
-
     return new QuizWithQuestionsDto(quiz.getQuizId(), quiz.getTitle(), quiz.getDescription(),
         quiz.getThumbnail(), quiz.getTimer(), quiz.getCreatedAt(), questionsDto,
         quizRepo.findUsernameFromQuizId(quiz.getQuizId()).get());
   }
 
   private QuizQuestionDto mapToQuestionDto(QuizQuestion question) {
-
     List<QuizOptionDto> optionsDto = question.getQuizOptions().stream()
         .map(option -> new QuizOptionDto(option.getQuizOptionId(), option.getOptionText(),
             option.isCorrect()))
         .collect(Collectors.toList());
-
     return new QuizQuestionDto(question.getQuizQuestionId(), question.getQuestion(), optionsDto);
   }
 }

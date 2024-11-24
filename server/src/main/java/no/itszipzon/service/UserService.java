@@ -42,6 +42,10 @@ public class UserService {
     }
     user.setXp(newXp);
     user.setLevel(currentLevel);
+    System.out.println("\n\nAdding: " + xpGained
+        + " to user: " + user.getUsername()
+        + " new xp: " + newXp
+        + " new level: " + currentLevel + "\n\n");
     return userRepo.save(user);
   }
 }

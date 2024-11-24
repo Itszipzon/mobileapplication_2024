@@ -231,17 +231,16 @@ class ApiHandler {
 
   // Modify ApiHandler.playQuiz
   static Future<Map<String, dynamic>> playQuiz(
-      String token, int quizId, List<Map<String, int?>> quizAnswers) async {
-    final uri = Uri.parse('$_url/api/quiz/check-answers');
-    final payload = {
-      "token": token,
-      "quizId": quizId,
-      "quizAnswers": quizAnswers,
-    };
+      String token, Map<String, dynamic> quiz) async {
+    final uri = Uri.parse('$_url/api/quiz/game/solo');
+    final payload = quiz;
 
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
       body: jsonEncode(payload),
     );
 
@@ -249,29 +248,6 @@ class ApiHandler {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to check quiz answers');
-    }
-  }
-
-  /// Adds a quiz attempt.
-  static Future<http.Response> addQuizAttempt(String token, int quizId) async {
-    final uri = Uri.parse('$_url/api/quiz/attempt/$quizId');
-
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 201) {
-      return response;
-    } else if (response.statusCode == 404) {
-      throw Exception('Quiz not found');
-    } else if (response.statusCode == 401) {
-      throw Exception('Unauthorized access');
-    } else {
-      throw Exception('Failed to add quiz attempt');
     }
   }
 

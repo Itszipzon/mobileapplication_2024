@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import no.itszipzon.Logger;
@@ -17,7 +16,6 @@ import no.itszipzon.dto.UserDto;
 import no.itszipzon.repo.LevelRepo;
 import no.itszipzon.repo.UserRepo;
 import no.itszipzon.service.EmailService;
-import no.itszipzon.service.UserService;
 import no.itszipzon.tables.Level;
 import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +47,6 @@ public class UserApi {
   private JwtUtil jwtUtil;
   @Autowired
   private EmailService emailService;
-  @Autowired
-  private UserService userService;
   @Autowired
   private LevelRepo levelRepo;
 

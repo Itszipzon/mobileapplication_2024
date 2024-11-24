@@ -18,14 +18,10 @@ class MainProfile extends ConsumerStatefulWidget {
 class MainProfileState extends ConsumerState<MainProfile> {
   late final RouterNotifier router;
   late final UserNotifier user;
-  late List<Map<String, dynamic>> quizzes;
-  late List<Map<String, dynamic>> history;
 
   @override
   void initState() {
     super.initState();
-    quizzes = widget.quizzes;
-    history = widget.history;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
@@ -63,14 +59,14 @@ class MainProfileState extends ConsumerState<MainProfile> {
               ],
             ),
             const SizedBox(height: 16),
-            quizzes.isNotEmpty
+            widget.quizzes.isNotEmpty
                 ? SizedBox(
                     height: 200,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: quizzes.length,
+                      itemCount: widget.quizzes.length,
                       itemBuilder: (context, index) {
-                        final quiz = quizzes[index];
+                        final quiz = widget.quizzes[index];
                         return Stack(
                           children: [
                             // Quiz post content
@@ -117,7 +113,7 @@ class MainProfileState extends ConsumerState<MainProfile> {
                                                     Navigator.of(context).pop();
 
                                                     setState(() {
-                                                      quizzes.removeWhere((q) =>
+                                                      widget.quizzes.removeWhere((q) =>
                                                           q['id'] ==
                                                           quiz['id']);
                                                     });
@@ -202,14 +198,14 @@ class MainProfileState extends ConsumerState<MainProfile> {
               ],
             ),
             const SizedBox(height: 16),
-            history.isNotEmpty
+            widget.history.isNotEmpty
                 ? SizedBox(
                     height: 200,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: history.length,
+                      itemCount: widget.history.length,
                       itemBuilder: (context, index) {
-                        final quiz = history[index];
+                        final quiz = widget.history[index];
                         return QuizPost(
                           id: quiz['id'] ?? '',
                           profilePicture: quiz['profile_picture'] ?? '',

@@ -87,7 +87,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
                       '${ApiHandler.url}/api/quiz/thumbnail/${router.getValues!['id']}',
                       height: 250,
                       alignment: Alignment.center,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                     ),
                   ),
             const SizedBox(height: 4),
@@ -136,7 +136,7 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
             SizedTextButton(
               text: "Play",
               onPressed: () => router.setPath(context, "quiz/solo", values: {
-                'quizData': quiz, // Pass the entire quiz data
+                'quizData': quiz,
               }),
               width: double.infinity,
               height: 50,

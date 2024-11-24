@@ -435,15 +435,13 @@ public class QuizController {
       }
 
       LocalDateTime now = LocalDateTime.now();
-      LocalDateTime startOfThisMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0)
-          .withNano(0);
-      LocalDateTime startOfLastMonth = startOfThisMonth.minusMonths(1);
+      LocalDateTime oneMonth = now.minusMonths(1);
 
-      int amountOfTries = quizAttemptRepo.amountPreviousMonth(
+      int amountOfTries = quizAttemptRepo.countAttemptLastMonth(
           user.getUsername(),
           session.getQuizId(),
-          startOfLastMonth,
-          startOfThisMonth);
+          oneMonth,
+          now);
       
       int xp = Tools.calculateXp(
           player.getScore(),
