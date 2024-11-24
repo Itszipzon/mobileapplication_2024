@@ -21,7 +21,7 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   QuizGameSoloState();
   late final RouterNotifier router;
   late final UserNotifier user;
-  late final AudioManager audioManager = AudioManager();
+  late final AudioManager audioManager;
   Map<String, dynamic>? quizData;
   Map<String, dynamic> quizTaken = {};
 
@@ -39,16 +39,23 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
   @override
   void initState() {
     super.initState();
+    audioManager = AudioManager();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       user = ref.read(userProvider.notifier);
+
 
       quizData = router.getValues!["quizData"];
 
       quizTaken = {
         "quizId": quizData!["id"],
         "timer": quizData!["timer"],
-        "answers": [],
+        "answers": [{
+          "questionId": quizData!["quizQuestions"][0]["id"],
+          "optionId": null,
+          "optionText": null,
+          "responseTime": 0,
+        }],
       };
 
       setState(() {
@@ -88,12 +95,6 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   void _handleOptionTap(String optionText, int optionId) {
     setState(() {
-      quizTaken["answers"] ??= [];
-
-      while (quizTaken["answers"].length <= currentQuestionIndex) {
-        quizTaken["answers"].add({});
-      }
-
       quizTaken["answers"][currentQuestionIndex] = {
         "questionId": quizData!["quizQuestions"][currentQuestionIndex]["id"],
         "optionId": optionId,
@@ -105,16 +106,17 @@ class QuizGameSoloState extends ConsumerState<QuizGameSolo>
 
   void _handleNextClick() {
     setState(() {
-      quizTaken["answers"] ??= [];
-
-      while (quizTaken["answers"].length <= currentQuestionIndex) {
-        quizTaken["answers"].add({"responseTime": 0});
-      }
-
       quizTaken["answers"][currentQuestionIndex]["responseTime"] =
           DateTime.now().difference(questionStartTime!).inMilliseconds / 1000;
 
       if (currentQuestionIndex < quizData!["quizQuestions"].length - 1) {
+        quizTaken["answers"].add({
+          "questionId": quizData!["quizQuestions"][currentQuestionIndex + 1]
+              ["id"],
+          "optionId": null,
+          "optionText": null,
+          "responseTime": 0,
+        });
         currentQuestionIndex++;
         questionStartTime = DateTime.now();
         counter = Counter(

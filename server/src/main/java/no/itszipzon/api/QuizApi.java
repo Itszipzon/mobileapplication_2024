@@ -373,7 +373,9 @@ public class QuizApi {
     }
     Map<String, Object> response = new HashMap<>();
     response.put("checks", answerCheck);
-    int score = answerCheck.stream().mapToInt(answerCheckItem -> (int) answerCheckItem.get("score"))
+    int score = answerCheck.stream()
+        .mapToInt(answerCheckItem -> (Integer) answerCheckItem.get("score") == null ? 0
+            : (Integer) answerCheckItem.get("score"))
         .sum();
     response.put("score", score);
     response.put("amountOfCorrect", amountOfCorrect);
@@ -453,18 +455,12 @@ public class QuizApi {
     }
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime oneMonthAgo = now.minusMonths(1);
-
     int reduction = quizAttemptRepo.countAttemptLastMonth(claims.getSubject(), quizId, oneMonthAgo,
         now);
-
     int score = gameData.get("score") == null ? 0
         : Integer.parseInt(gameData.get("score").toString());
-
-    int xp = Tools.calculateXp(
-        score,
-        quizOptional.get().getQuizQuestions().size(),
-        Integer.parseInt(gameData.get("amountOfCorrect").toString()),
-        reduction);
+    int xp = Tools.calculateXp(score, quizOptional.get().getQuizQuestions().size(),
+        Integer.parseInt(gameData.get("amountOfCorrect").toString()), reduction);
     User quizOwner = userRepo.findUserByUsername(quizOptional.get().getUser().getUsername()).get();
     userService.addXp(user, xp);
     userService.addXp(quizOwner, 250);

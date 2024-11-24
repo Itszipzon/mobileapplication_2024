@@ -41,8 +41,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
       """)
   Optional<QuizDto> findQuizSummaryById(Long id);
 
-  @SuppressWarnings("null")
-  @EntityGraph(attributePaths = { "quizQuestions", "quizQuestions.quizOptions", "user" })
+  @EntityGraph(attributePaths = {"quizQuestions.quizOptions", "user"})
   Optional<Quiz> findById(Long id);
 
   @Query("""
