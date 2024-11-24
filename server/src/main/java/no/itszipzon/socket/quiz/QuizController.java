@@ -455,9 +455,12 @@ public class QuizController {
       quizAttempt = quizAttemptRepo.save(quizAttempt);
       quizSessionTable.setQuizAttempt(quizAttempt);
       quizSessionTables.add(quizSessionTable);
+
+      if (!user.getUsername().equals(quizOwner.getUsername())) {
+        userService.addXp(user, xp);
+        userService.addXp(quizOwner, 250);
+      }
       
-      userService.addXp(user, xp);
-      userService.addXp(quizOwner, 250);
     }
     quizSessionManagerTable.setQuizSessions(quizSessionTables);
     quizSessionRepo.save(quizSessionManagerTable);
