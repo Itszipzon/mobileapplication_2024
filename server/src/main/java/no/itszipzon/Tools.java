@@ -113,6 +113,7 @@ public class Tools {
         if (image.getContentType().equals("image/png")) {
           filename += ".png";
         } else if (image.getContentType().equals("image/jpeg")) {
+          System.out.println("\n\n" + image.getContentType() + "\n\n");
           filename += ".jpeg";
         } else if (image.getContentType().equals("image/gif")) {
           filename += ".gif";
