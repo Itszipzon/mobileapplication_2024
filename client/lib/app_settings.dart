@@ -44,12 +44,13 @@ class AppSettings {
 
   /// Returns the theme for the application.
   static ThemeData getTheme() {
+    Color primaryColor = const Color.fromARGB(255, 255, 87, 34);
     return ThemeData(
       primaryColor: Colors.orange,
-      canvasColor: const Color.fromARGB(255, 241, 241, 241),
-      scaffoldBackgroundColor: const Color.fromARGB(255, 241, 241, 241),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color.fromARGB(255, 241, 241, 241),
+      canvasColor: primaryColor,
+      scaffoldBackgroundColor: primaryColor,
+      appBarTheme: AppBarTheme(
+        backgroundColor: primaryColor,
       ),
       textTheme: GoogleFonts.robotoTextTheme(),
     );
