@@ -109,12 +109,12 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main
+      - deploy
 
 env:
   EC2_HOST: ubuntu@18.171.203.123          # Replace with your EC2 public IP or hostname
   EC2_KEY: ${{ secrets.EC2_SSH_KEY }}      # Add your private key in GitHub Secrets
-  TARGET_DIR: /home/ubuntu                 # Path on the EC2 server to place the `server` folder
+  TARGET_DIR: /home/ubuntu/server          # Path on the EC2 server to place the `server` folder
 
 permissions:
   contents: read
