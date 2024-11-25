@@ -44,7 +44,7 @@ class AppSettings {
 
   /// Returns the theme for the application.
   static ThemeData getTheme() {
-    Color primaryColor = const Color.fromARGB(255, 255, 87, 34);
+    Color primaryColor = const Color.fromARGB(255, 241, 241, 241);
     return ThemeData(
       primaryColor: Colors.orange,
       canvasColor: primaryColor,
