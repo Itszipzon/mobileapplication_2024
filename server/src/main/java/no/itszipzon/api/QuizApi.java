@@ -697,7 +697,7 @@ public class QuizApi {
         questionsDto,
         quizRepo.findUsernameFromQuizId(quiz.getQuizId()).get());
 
-    Collections.shuffle(response.getQuizQuestions());
+    response.getQuizQuestions().forEach(question -> Collections.shuffle(question.getQuizOptions()));
     return response;
   }
 
