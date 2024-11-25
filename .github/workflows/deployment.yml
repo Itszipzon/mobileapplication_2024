@@ -23,16 +23,19 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install rsync
-      run: sudo apt-get update && sudo apt-get install openjdk-17-jre && sudo apt-get install rsync && sudo apt-get install maven && sudo apt-get install mysql-server
+      run: sudo apt-get update && sudo apt-get install rsync 
+
+    - name: Install Java, Maven and MySql
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo apt-get update && sudo apt-get install -y openjdk-17-jre maven mysql-server"
 
     - name: Copy server folder to EC2
       env:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
       run: |
-        echo "$SSH_PRIVATE_KEY" > ec2_key.pem
-        chmod 600 ec2_key.pem
-        rsync -avz -e "ssh -i ec2_key.pem -o StrictHostKeyChecking=no" ./server/ ${{ env.EC2_HOST }}:${{ env.TARGET_DIR }}
-
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo chown -R ubuntu:ubuntu ${{ env.TARGET_DIR }} && sudo chmod -R 755 ${{ env.TARGET_DIR }}"
     - name: Set permissions on EC2
       env:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
