@@ -1,105 +1,146 @@
-name: Deploy to Amazon ECS
+#name: Deploy to Amazon ECS
+#
+#on:
+#  push:
+#    branches: [ "main" ]
+#
+#env:
+#  AWS_REGION: eu-west-2                         # set this to your preferred AWS region, e.g. us-west-1
+#  ECR_REPOSITORY: pipeline_skytjenester         # set this to your Amazon ECR repository name
+#  ECS_SERVICE: pipeline-service                 # set this to your Amazon ECS service name
+#  ECS_CLUSTER: pipeline-cluster                 # set this to your Amazon ECS cluster name
+#  ECS_TASK_DEFINITION: pipeline-definition.json # set this to the path to your Amazon ECS task definition
+#  IMAGE_TAG: ${{ github.sha }}                  # file, e.g. .aws/task-definition.json
+#  CONTAINER_NAME: pipeline-container            # set this to the name of the container in the
+#                                                # containerDefinitions section of your task definition
+#
+#permissions:
+#  contents: read
+#
+#jobs:
+#  build-and-push:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Checkout Code
+#      uses: actions/checkout@v4
+#
+#    - name: Set up Docker Buildx
+#      uses: docker/setup-buildx-action@v1
+# 
+#    - name: Configure AWS credentials
+#      uses: aws-actions/configure-aws-credentials@v1
+#      with:
+#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        aws-region: ${{ env.AWS_REGION }}
+#
+#    - name: Log in to Amazon ECR
+#      id: login-ecr
+#      uses: aws-actions/amazon-ecr-login@v1
+#
+#    - name: Build and Push Docker Image to Amazon ECR
+#      env:
+#        ECR_URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+#      run: |
+#        echo "Building Docker image..."
+#        docker build -t $ECR_URI:${{ env.IMAGE_TAG }} ./server
+#        echo "Pushing Docker image to ECR..."
+#        docker push $ECR_URI:${{ env.IMAGE_TAG }}
+#    
+#  deploy:
+#    name: Deploy
+#    needs: build-and-push
+#    runs-on: ubuntu-latest
+#    environment: production
+#
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v4
+# 
+#    - name: Configure AWS credentials
+#      uses: aws-actions/configure-aws-credentials@v1
+#      with:
+#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        aws-region: ${{ env.AWS_REGION }}
+#
+#    - name: Login to Amazon ECR
+#      id: login-ecr
+#      uses: aws-actions/amazon-ecr-login@v1
+#
+#    - name: Build, tag, and push image to Amazon ECR
+#      id: build-image
+#      env:
+#        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#        IMAGE_TAG: ${{ github.sha }}
+#      run: |
+#        cd server
+#        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+#        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+#        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#
+#    - name: List files
+#      run: ls -R
+#
+#    - name: Debug the Image Tag
+#      run: | 
+#        echo "Built image: ${{ steps.build-image.outputs.image }}"
+#
+#
+#    - name: Fill in the new image ID in the Amazon ECS task definition
+#      id: task-def
+#      uses: aws-actions/amazon-ecs-render-task-definition@v1
+#      with:
+#        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+#        container-name: ${{ env.CONTAINER_NAME }}
+#        image: ${{ steps.build-image.outputs.image }}
+#
+#    - name: Deploy Amazon ECS task definition
+#      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#      with:
+#        task-definition: ${{ steps.task-def.outputs.task-definition }}
+#        service: ${{ env.ECS_SERVICE }}
+#        cluster: ${{ env.ECS_CLUSTER }}
+#        wait-for-service-stability: false
+
+name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 env:
-  AWS_REGION: eu-west-2                         # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: pipeline_skytjenester         # set this to your Amazon ECR repository name
-  ECS_SERVICE: pipeline-service                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: pipeline-cluster                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: pipeline-definition.json # set this to the path to your Amazon ECS task definition
-  IMAGE_TAG: ${{ github.sha }}                  # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: pipeline-container            # set this to the name of the container in the
-                                                # containerDefinitions section of your task definition
+  EC2_HOST: ubuntu@<your-ec2-instance-ip>  # Replace with your EC2 public IP or hostname
+  EC2_KEY: ${{ secrets.EC2_SSH_KEY }}      # Add your private key in GitHub Secrets
+  TARGET_DIR: /var/www/server              # Path on the EC2 server to place the `server` folder
 
 permissions:
   contents: read
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
- 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-
-    - name: Log in to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build and Push Docker Image to Amazon ECR
-      env:
-        ECR_URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
-      run: |
-        echo "Building Docker image..."
-        docker build -t $ECR_URI:${{ env.IMAGE_TAG }} ./server
-        echo "Pushing Docker image to ECR..."
-        docker push $ECR_URI:${{ env.IMAGE_TAG }}
-    
   deploy:
-    name: Deploy
-    needs: build-and-push
+    name: Deploy to EC2
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
- 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+    - name: Install rsync
+      run: sudo apt-get update && sudo apt-get install -y rsync
 
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
+    - name: Copy server folder to EC2
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
       run: |
-        cd server
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        echo "$SSH_PRIVATE_KEY" > ec2_key.pem
+        chmod 600 ec2_key.pem
+        rsync -avz -e "ssh -i ec2_key.pem -o StrictHostKeyChecking=no" ./server/ ${{ env.EC2_HOST }}:${{ env.TARGET_DIR }}
 
-    - name: List files
-      run: ls -R
-
-    - name: Debug the Image Tag
-      run: | 
-        echo "Built image: ${{ steps.build-image.outputs.image }}"
-
-
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
-        container-name: ${{ env.CONTAINER_NAME }}
-        image: ${{ steps.build-image.outputs.image }}
-
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
-        wait-for-service-stability: false
+    - name: Set permissions on EC2
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo chown -R ubuntu:ubuntu ${{ env.TARGET_DIR }} && sudo chmod -R 755 ${{ env.TARGET_DIR }}"
