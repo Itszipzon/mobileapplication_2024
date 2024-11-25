@@ -6,7 +6,7 @@ on:
       - deploy
 
 env:
-  EC2_HOST: ubuntu@35.177.179.221          # Replace with your EC2 public IP or hostname
+  EC2_HOST: ubuntu@18.171.203.123          # Replace with your EC2 public IP or hostname
   EC2_KEY: ${{ secrets.EC2_SSH_KEY }}      # Add your private key in GitHub Secrets
   TARGET_DIR: /home/ubuntu/server          # Path on the EC2 server to place the `server` folder
 
@@ -25,17 +25,21 @@ jobs:
     - name: Install rsync
       run: sudo apt-get update && sudo apt-get install rsync 
 
-    - name: Install Java, Maven and MySql
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-      run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo apt-get update && sudo apt-get install -y openjdk-17-jre maven mysql-server"
-
     - name: Copy server folder to EC2
       env:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
       run: |
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo chown -R ubuntu:ubuntu ${{ env.TARGET_DIR }} && sudo chmod -R 755 ${{ env.TARGET_DIR }}"
+        echo "$SSH_PRIVATE_KEY" > ec2_key.pem
+        chmod 600 ec2_key.pem
+        rsync -avz -e "ssh -i ec2_key.pem -o StrictHostKeyChecking=no" ./server/ ${{ env.EC2_HOST }}:${{ env.TARGET_DIR }}
+
+
+    - name: Install Java, Maven and MySql
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo apt-get update && sudo apt-get install -y openjdk-8-jdk maven mysql-server"
+
     - name: Set permissions on EC2
       env:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
