@@ -25,6 +25,8 @@ class ApiHandler {
 
   static String get wsUrl => _wsUrl;
 
+  static const String baseUrl = "http://localhost:8080/api";
+
   ///////////////////////////////////////////////////////////////////////
 
   /// Checks if the user is in session.
@@ -418,6 +420,18 @@ class ApiHandler {
         default:
           throw Exception("Failed to delete quiz: ${response.body}");
       }
+    }
+  }
+
+  static Future<void> requestPasswordReset(String email) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/user/resetpassword"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(email),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to request password reset");
     }
   }
 }
