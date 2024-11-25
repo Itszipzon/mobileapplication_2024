@@ -47,10 +47,13 @@ class SettingsState extends ConsumerState<Settings> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Change Username", style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),),
+          const Text(
+            "Change Username",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -72,16 +75,20 @@ class SettingsState extends ConsumerState<Settings> {
             ],
           ),
           const SizedBox(height: 10),
-          SizedBox(height: 15,
-          child: Text("Username availability text will come here!"),
+          const SizedBox(
+            height: 15,
+            child: Text("Username availability text will come here!"),
           ),
           const SizedBox(height: 10),
           const Divider(),
           const SizedBox(height: 10),
-          const Text("Change Password", style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),),
+          const Text(
+            "Change Password",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -139,6 +146,36 @@ class SettingsState extends ConsumerState<Settings> {
               SizedTextButton(
                 text: "Show",
                 onPressed: () => print(""),
+                height: 50,
+                width: 75,
+                textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Divider(),
+          const SizedBox(height: 10),
+          const Text(
+            "Change Email",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Flexible(
+                child: Input(
+                  labelText: "Email",
+                  icon: Icons.email,
+                  onChanged: (value) {},
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedTextButton(
+                text: "Update",
+                onPressed: () => print("Update Email"),
                 height: 50,
                 width: 75,
                 textStyle: const TextStyle(fontSize: 16, color: Colors.white),

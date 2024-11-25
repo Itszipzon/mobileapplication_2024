@@ -49,7 +49,7 @@ class AppSettings {
     return ThemeData(
       primaryColor: Colors.orange,
       canvasColor: backgroundColor,
-      scaffoldBackgroundColor: backgroundColor,
+      scaffoldBackgroundColor: backgroundColor, 
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColor,
       ),
