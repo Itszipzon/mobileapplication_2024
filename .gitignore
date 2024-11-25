@@ -57,3 +57,4 @@ gradle_server/src/main/resources/static/images/*
 !gradle_server/src/main/resources/static/images/default_pfp.png
 
 test.json
+mobileappMac.pem
