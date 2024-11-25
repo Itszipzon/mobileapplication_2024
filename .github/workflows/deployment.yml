@@ -112,7 +112,7 @@ on:
       - main
 
 env:
-  EC2_HOST: ubuntu@<your-ec2-instance-ip>  # Replace with your EC2 public IP or hostname
+  EC2_HOST: ubuntu@18.171.203.123          # Replace with your EC2 public IP or hostname
   EC2_KEY: ${{ secrets.EC2_SSH_KEY }}      # Add your private key in GitHub Secrets
   TARGET_DIR: /var/www/server              # Path on the EC2 server to place the `server` folder
 
