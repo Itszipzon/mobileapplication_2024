@@ -28,7 +28,7 @@ class ForgotPasswordScreenState extends ConsumerState<ForgotPassword> {
     errorMessage = null;
 
     try {
-      //await ApiHandler.requestPasswordReset(emailController.text);
+      await ApiHandler.requestPasswordReset(emailController.text);
       setState(() {
         successMessage = "A password reset link has been sent to your email.";
       });
