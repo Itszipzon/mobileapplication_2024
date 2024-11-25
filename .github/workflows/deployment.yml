@@ -45,7 +45,7 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
       run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ env.EC2_HOST }} "sudo chown -R ubuntu:ubuntu ${{ env.TARGET_DIR }} && sudo chmod -R 755 ${{ env.TARGET_DIR }}"
-
+ 
     - name: Restart EC2 server
       env:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
