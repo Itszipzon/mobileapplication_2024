@@ -51,8 +51,9 @@ class HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 241, 241, 241),
+      backgroundColor: theme.canvasColor,
       body: loading
           ? const Center(
               child: LogoLoading(),
