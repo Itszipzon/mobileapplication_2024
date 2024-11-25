@@ -15,7 +15,6 @@ RUN mvn dependency:go-offline -B
 
 # Copy source code and build
 COPY src/ src/
-COPY .env .
 RUN mvn clean package -DskipTests -B
 
 # Run stage
@@ -28,7 +27,6 @@ WORKDIR /app
 
 # Copy the built artifact and .env file from builder stage
 COPY --from=builder /app/target/*.jar app.jar
-COPY .env .
 
 # Set permissions
 RUN chown -R springuser:root /app && \
