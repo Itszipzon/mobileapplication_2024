@@ -133,7 +133,8 @@ resource "aws_instance" "main" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.main.id
   security_groups = [aws_security_group.main.name]
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+
+  iam_instance_profile = "pipeline_user " # Replace with your IAM Instance Profile name
 
   tags = {
     Name = "eu-west-2-instance"
