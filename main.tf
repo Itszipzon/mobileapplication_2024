@@ -35,8 +35,10 @@ data "aws_subnets" "existing" {
   }
 }
 
-# Create a subnet (ensure no conflict)
+# Create a new subnet only if no existing subnets are found
 resource "aws_subnet" "main" {
+  count = length(data.aws_subnets.existing.ids) > 0 ? 0 : 1
+
   vpc_id                  = local.vpc_id
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true
@@ -44,6 +46,11 @@ resource "aws_subnet" "main" {
   tags = {
     Name = "eu-west-2-subnet"
   }
+}
+
+# Use the existing subnet ID or the newly created subnet ID
+locals {
+  subnet_id = length(data.aws_subnets.existing.ids) > 0 ? data.aws_subnets.existing.ids[0] : aws_subnet.main[0].id
 }
 
 # Data source to check for existing Internet Gateway
@@ -85,7 +92,7 @@ resource "aws_route_table" "main" {
 
 # Associate route table with the subnet
 resource "aws_route_table_association" "main" {
-  subnet_id      = aws_subnet.main.id
+  subnet_id      = local.subnet_id
   route_table_id = aws_route_table.main.id
 }
 
@@ -130,8 +137,8 @@ resource "aws_security_group" "main" {
 resource "aws_instance" "main" {
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
-  subnet_id     = aws_subnet.main.id
-  security_groups = [aws_security_group.main.id]
+  subnet_id     = local.subnet_id
+  security_group_ids = [aws_security_group.main.id]
 
   tags = {
     Name = "eu-west-2-instance"
