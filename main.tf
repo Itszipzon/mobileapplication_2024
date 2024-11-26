@@ -134,7 +134,7 @@ resource "aws_instance" "main" {
   subnet_id     = aws_subnet.main.id
   security_groups = [aws_security_group.main.name]
 
-  iam_instance_profile = "pipeline_user "
+  iam_instance_profile = "pipeline_user"
 
   tags = {
     Name = "eu-west-2-instance"
