@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 # Data source to check for existing VPC
-data "aws_vpc" "existing" {
+data "aws_vpcs" "existing" {
   filter {
     name   = "cidr-block"
     values = ["10.0.0.0/16"]
@@ -12,7 +12,8 @@ data "aws_vpc" "existing" {
 
 # Create a new VPC if it does not exist
 resource "aws_vpc" "main" {
-  count                 = length(data.aws_vpc.existing.id) > 0 ? 0 : 1
+  count = length(data.aws_vpcs.existing.ids) > 0 ? 0 : 1
+
   cidr_block            = "10.0.0.0/16"
   enable_dns_support    = true
   enable_dns_hostnames  = true
@@ -23,7 +24,7 @@ resource "aws_vpc" "main" {
 
 # Use the existing VPC ID or the newly created VPC ID
 locals {
-  vpc_id = length(data.aws_vpc.existing.id) > 0 ? data.aws_vpc.existing.id : aws_vpc.main[0].id
+  vpc_id = length(data.aws_vpcs.existing.ids) > 0 ? data.aws_vpcs.existing.ids[0] : aws_vpc.main[0].id
 }
 
 # Create a subnet
