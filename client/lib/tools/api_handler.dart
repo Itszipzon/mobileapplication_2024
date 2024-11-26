@@ -472,6 +472,21 @@ class ApiHandler {
   }
 }
 
+static Future<void> resetPassword(String token, String newPassword) async {
+    final response = await http.post(
+      Uri.parse("$_url/api/user/newpassword"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "token": token,
+        "newPassword": newPassword,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(response.body);
+    }
+  }
+
 
 static Future<void> updateUser(
   String token, {
