@@ -453,7 +453,6 @@ public class UserApi {
         return new ResponseEntity<>("Token is missing", HttpStatus.BAD_REQUEST);
     }
 
-    // Find user by the token
     Optional<User> user = userRepo.findUserByResetToken(token);
     if (user.isEmpty()) {
         return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
@@ -461,7 +460,6 @@ public class UserApi {
 
     User userToVerify = user.get();
 
-    // Check if token is expired
     if (userToVerify.getResetTokenExpiration() == null || 
         userToVerify.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
         return new ResponseEntity<>("Token has expired", HttpStatus.BAD_REQUEST);
@@ -470,7 +468,42 @@ public class UserApi {
     return new ResponseEntity<>("Token is valid", HttpStatus.OK);
   }
 
+  @PostMapping("/newpassword")
+  public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) {
+    String token = payload.get("token");
+    String newPassword = payload.get("newPassword");
 
+    if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+        return new ResponseEntity<>("Token and new password are required", HttpStatus.BAD_REQUEST);
+    }
+
+    Optional<User> user = userRepo.findUserByResetToken(token);
+
+    if (user.isEmpty()) {
+        return new ResponseEntity<>("Invalid or expired token", HttpStatus.NOT_FOUND);
+    }
+
+    User userToUpdate = user.get();
+
+    // Check token expiration
+    if (userToUpdate.getResetTokenExpiration() == null ||
+        userToUpdate.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
+        return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+    }
+
+    // Validate password
+    if (newPassword.length() < 8) {
+        return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
+    }
+
+    // Update password and clear reset token
+    userToUpdate.setPassword(Tools.hashPassword(newPassword));
+    userToUpdate.setResetToken(null);
+    userToUpdate.setResetTokenExpiration(null);
+    userRepo.save(userToUpdate);
+
+    return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
+}
 
   /**
    * Update user.
