@@ -65,25 +65,18 @@ public class UserApi {
     String token = authorizationHeader.substring(7);
     try {
       Claims claims = jwtUtil.extractClaims(token);
-
       if (claims == null) {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
       }
-
       Optional<UserDto> user = userRepo.getUserLevelAndXp(claims.getSubject());
-      
       if (user.isEmpty()) {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
-
       Optional<Level> level = levelRepo.getLevel(user.get().getLevel() + 1);
-
       int xpToNextLevel = -1;
-
       if (level.isPresent()) {
         xpToNextLevel = level.get().getXp();
       }
-
       Map<String, Object> map = new HashMap<>();
       map.put("username", claims.getSubject());
       map.put("email", claims.get("email", String.class));
@@ -94,7 +87,6 @@ public class UserApi {
       map.put("lvl", user.get().getLevel());
       map.put("exp", user.get().getXp());
       map.put("xpToNextLevel", xpToNextLevel);
-
       Logger.log("User " + claims.getSubject() + " requested their own information");
       return new ResponseEntity<>(map, HttpStatus.OK);
     } catch (Exception e) {
@@ -286,7 +278,7 @@ public class UserApi {
       Logger.log("User " + loggedInUser.get().getUsername() + " logged in");
       boolean rememberMe = values.get("rememberMe") == null ? false
           : Boolean.parseBoolean(values.get("rememberMe"));
-      String token = jwtUtil.generateToken(loggedInUser.get(), (rememberMe ? (24 * 30) : 24));
+      String token = jwtUtil.generateToken(loggedInUser.get(), rememberMe);
       return new ResponseEntity<>(token, HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Username or password is not correct", HttpStatus.UNAUTHORIZED);
@@ -411,7 +403,9 @@ public class UserApi {
       User userFromDb = userRepo.findUserByUsername(username).get();
       userFromDb.setProfilePicture(pfpName);
       userRepo.save(userFromDb);
-      return new ResponseEntity<>(jwtUtil.generateToken(userFromDb, 24 * 30), HttpStatus.OK);
+      return new ResponseEntity<>(
+          jwtUtil.generateToken(userFromDb, claims.get("rememberMe", Boolean.class)),
+          HttpStatus.OK);
     } catch (Exception e) {
       e.printStackTrace();
       Logger.error(e.getMessage());
@@ -449,115 +443,96 @@ public class UserApi {
   /**
    * Update user.
    *
-   * @param user User.
+   * @param requestBody User.
    * @return Response.
    */
   @PutMapping("/update")
-public ResponseEntity<String> updateUser(
-    @RequestBody Map<String, String> requestBody,
-    @RequestHeader("Authorization") String authorizationHeader) {
-
-  // Validate the token
-  if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-    return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-  }
-  String token = authorizationHeader.substring(7);
-  Claims claims = jwtUtil.extractClaims(token);
-  if (claims == null) {
-    return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-  }
-
-  String currentUsername = claims.getSubject();
-
-  // Extract fields from the request body
-  String newEmail = requestBody.getOrDefault("email", null);
-  String newUsername = requestBody.getOrDefault("username", null);
-  String oldPassword = requestBody.getOrDefault("oldPassword", null);
-  String newPassword = requestBody.getOrDefault("newPassword", null);
-
-  // Find the user in the database
-  Optional<User> userFromDb = userRepo.findUserByUsername(currentUsername);
-  if (userFromDb.isEmpty()) {
-    return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-  }
-
-  User userToUpdate = userFromDb.get();
-
-  // Update email if provided
-  if (newEmail != null && !newEmail.isEmpty()) {
-    if (!newEmail.matches(".*@.*\\..*")) {
-      return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
+  public ResponseEntity<String> updateUser(@RequestBody Map<String, String> requestBody,
+      @RequestHeader("Authorization") String authorizationHeader) {
+    // Validate the token
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
-    userToUpdate.setEmail(newEmail);
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+    if (claims == null) {
+      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+    String currentUsername = claims.getSubject();
+
+    String newEmail = requestBody.getOrDefault("email", null);
+    String newUsername = requestBody.getOrDefault("username", null);
+    
+    Optional<User> userFromDb = userRepo.findUserByUsername(currentUsername);
+    if (userFromDb.isEmpty()) {
+      return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    }
+    User userToUpdate = userFromDb.get();
+    
+    if (newEmail != null && !newEmail.isEmpty()) {
+      if (!newEmail.matches(".*@.*\\..*")) {
+        return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
+      }
+      userToUpdate.setEmail(newEmail);
+    }
+    
+    if (newUsername != null && !newUsername.isEmpty()) {
+      if (!newUsername.matches("^(?!.*\\.{2})(?!.*\\.$)[a-zA-Z0-9._]{1,30}$")
+          || newUsername.contains(" ")) {
+        return new ResponseEntity<>("Invalid username", HttpStatus.BAD_REQUEST);
+      }
+      if (userRepo.findUserByUsername(newUsername).isPresent()) {
+        return new ResponseEntity<>("Username already exists", HttpStatus.BAD_REQUEST);
+      }
+      userToUpdate.setUsername(newUsername);
+    }
+
+    String oldPassword = requestBody.getOrDefault("oldPassword", null);
+    String newPassword = requestBody.getOrDefault("newPassword", null);
+    if (oldPassword != null && newPassword != null && !oldPassword.isEmpty()
+        && !newPassword.isEmpty()) {
+      if (!Tools.matchPasswords(oldPassword, userToUpdate.getPassword())) {
+        return new ResponseEntity<>("Current password is incorrect", HttpStatus.BAD_REQUEST);
+      }
+      if (newPassword.length() < 8) {
+        return new ResponseEntity<>("New password must be at least 8 characters long",
+            HttpStatus.BAD_REQUEST);
+      }
+      userToUpdate.setPassword(Tools.hashPassword(newPassword));
+    }
+    
+    userRepo.save(userToUpdate);
+    Logger.info("User " + currentUsername + " updated their profile");
+    return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
   }
-
-  // Update username if provided
-  if (newUsername != null && !newUsername.isEmpty()) {
-    if (!newUsername.matches("^(?!.*\\.{2})(?!.*\\.$)[a-zA-Z0-9._]{1,30}$")
-        || newUsername.contains(" ")) {
-      return new ResponseEntity<>("Invalid username", HttpStatus.BAD_REQUEST);
-    }
-    if (userRepo.findUserByUsername(newUsername).isPresent()) {
-      return new ResponseEntity<>("Username already exists", HttpStatus.BAD_REQUEST);
-    }
-    userToUpdate.setUsername(newUsername);
-  }
-
-  // Update password if provided
-  if (oldPassword != null && newPassword != null && !oldPassword.isEmpty() && !newPassword.isEmpty()) {
-    if (!Tools.matchPasswords(oldPassword, userToUpdate.getPassword())) {
-      return new ResponseEntity<>("Current password is incorrect", HttpStatus.BAD_REQUEST);
-    }
-    if (newPassword.length() < 8) {
-      return new ResponseEntity<>("New password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
-    }
-    userToUpdate.setPassword(Tools.hashPassword(newPassword));
-  }
-
-  // Save the updated user to the database
-  userRepo.save(userToUpdate);
-  Logger.info("User " + currentUsername + " updated their profile");
-  return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
-}
-
-
 
   @PutMapping("/update-email")
-public ResponseEntity<String> updateEmail(
-    @RequestBody Map<String, String> requestBody,
-    @RequestHeader("Authorization") String authorizationHeader) {
-
-  if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-    return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+  public ResponseEntity<String> updateEmail(@RequestBody Map<String, String> requestBody,
+      @RequestHeader("Authorization") String authorizationHeader) {
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+    String token = authorizationHeader.substring(7);
+    Claims claims = jwtUtil.extractClaims(token);
+    if (claims == null) {
+      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+    String currentUsername = claims.getSubject();
+    // Validate request body
+    String newEmail = requestBody.get("newEmail");
+    if (newEmail == null || newEmail.isEmpty() || !newEmail.matches(".*@.*\\..*")) {
+      return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
+    }
+    // Find user in the database
+    Optional<User> userFromDb = userRepo.findUserByUsername(currentUsername);
+    if (userFromDb.isEmpty()) {
+      return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    }
+    // Update the email
+    User userToUpdate = userFromDb.get();
+    userToUpdate.setEmail(newEmail);
+    userRepo.save(userToUpdate);
+    Logger.info("User " + currentUsername + " updated their email to " + newEmail);
+    return new ResponseEntity<>("Email updated successfully", HttpStatus.OK);
   }
-
-  String token = authorizationHeader.substring(7);
-  Claims claims = jwtUtil.extractClaims(token);
-  if (claims == null) {
-    return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-  }
-
-  String currentUsername = claims.getSubject();
-
-  // Validate request body
-  String newEmail = requestBody.get("newEmail");
-  if (newEmail == null || newEmail.isEmpty() || !newEmail.matches(".*@.*\\..*")) {
-    return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
-  }
-
-  // Find user in the database
-  Optional<User> userFromDb = userRepo.findUserByUsername(currentUsername);
-  if (userFromDb.isEmpty()) {
-    return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-  }
-
-  // Update the email
-  User userToUpdate = userFromDb.get();
-  userToUpdate.setEmail(newEmail);
-  userRepo.save(userToUpdate);
-
-  Logger.info("User " + currentUsername + " updated their email to " + newEmail);
-  return new ResponseEntity<>("Email updated successfully", HttpStatus.OK);
-}
-
 }

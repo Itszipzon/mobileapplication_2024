@@ -35,10 +35,10 @@ public class JwtUtil {
    * Generates a JWT token for a user.
    *
    * @param user  The user to generate a token for.
-   * @param hours The amount of hours the token should be valid for.
+   * @param rememberMe Whether the token should be remembered.
    * @return The generated token.
    */
-  public String generateToken(User user, long hours) {
+  public String generateToken(User user, boolean rememberMe) {
     return Jwts.builder()
         .setSubject(user.getUsername())
         .claim("email", user.getEmail())
@@ -46,8 +46,10 @@ public class JwtUtil {
         .claim("id", user.getId())
         .claim("created", convertToDate(user.getCreatedAt()))
         .claim("updated", convertToDate(user.getUpdatedAt()))
+        .claim("rememberMe", rememberMe)
         .setIssuedAt(new Date())
-        .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * hours))
+        .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60
+            * (rememberMe ? 24 * 30 : 24)))
         .signWith(secretKey, SignatureAlgorithm.HS256)
         .compact();
   }
