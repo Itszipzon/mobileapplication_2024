@@ -34,4 +34,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
       """)
   Optional<UserDto> getUserLevelAndXp(String username);
 
+  @Query("SELECT u FROM User u WHERE u.resetToken = :token")
+  Optional<User> findUserByResetToken(String token);
+
 }

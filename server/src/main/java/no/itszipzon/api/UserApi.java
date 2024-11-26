@@ -446,6 +446,31 @@ public class UserApi {
       }
   }
 
+  @PostMapping("/verify-reset-token")
+  public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> payload) {
+    String token = payload.get("token");
+    if (token == null || token.isEmpty()) {
+        return new ResponseEntity<>("Token is missing", HttpStatus.BAD_REQUEST);
+    }
+
+    // Find user by the token
+    Optional<User> user = userRepo.findUserByResetToken(token);
+    if (user.isEmpty()) {
+        return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
+    }
+
+    User userToVerify = user.get();
+
+    // Check if token is expired
+    if (userToVerify.getResetTokenExpiration() == null || 
+        userToVerify.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
+        return new ResponseEntity<>("Token has expired", HttpStatus.BAD_REQUEST);
+    }
+
+    return new ResponseEntity<>("Token is valid", HttpStatus.OK);
+  }
+
+
 
   /**
    * Update user.
