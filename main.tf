@@ -135,23 +135,38 @@ resource "aws_security_group" "main" {
   }
 }
 
-# Create an EC2 instance
+# Data source to check for existing EC2 instance
+data "aws_instance" "existing" {
+  filter {
+    name   = "tag:Name"
+    values = ["pipeline-skytjenester-backup"]
+  }
+}
+
+# Create a new EC2 instance only if no existing instance is found
 resource "aws_instance" "main" {
+  count         = length(data.aws_instance.existing.ids) > 0 ? 0 : 1
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
   subnet_id     = local.subnet_id
   security_groups = [aws_security_group.main.id]
 
   tags = {
-    Name = "eu-west-2-instance"
+    Name = "pipeline-skytjenester-backup"
   }
+}
+
+# Use existing or newly created instance details
+locals {
+  instance_id       = length(data.aws_instance.existing.ids) > 0 ? data.aws_instance.existing.id : aws_instance.main[0].id
+  instance_public_ip = length(data.aws_instance.existing.ids) > 0 ? data.aws_instance.existing.public_ip : aws_instance.main[0].public_ip
 }
 
 # Outputs
 output "instance_id" {
-  value = aws_instance.main.id
+  value = local.instance_id
 }
 
 output "instance_public_ip" {
-  value = aws_instance.main.public_ip
+  value = local.instance_public_ip
 }
