@@ -473,6 +473,7 @@ public class UserApi {
       if (!newEmail.matches(".*@.*\\..*")) {
         return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
       }
+      //TODO: Send email to old email to confirm change
       userToUpdate.setEmail(newEmail);
     }
     
@@ -492,7 +493,7 @@ public class UserApi {
     if (oldPassword != null && newPassword != null && !oldPassword.isEmpty()
         && !newPassword.isEmpty()) {
       if (!Tools.matchPasswords(oldPassword, userToUpdate.getPassword())) {
-        return new ResponseEntity<>("Current password is incorrect", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Password is incorrect", HttpStatus.BAD_REQUEST);
       }
       if (newPassword.length() < 8) {
         return new ResponseEntity<>("New password must be at least 8 characters long",
@@ -503,7 +504,8 @@ public class UserApi {
     
     userRepo.save(userToUpdate);
     Logger.info("User " + currentUsername + " updated their profile");
-    return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
+    return new ResponseEntity<>(jwtUtil.generateToken(userToUpdate,
+        claims.get("rememberMe", Boolean.class)), HttpStatus.OK);
   }
 
   @PutMapping("/update-email")
