@@ -107,7 +107,7 @@ jobs:
           --comment "Download server folder from S3" \
           --parameters '{"commands":["aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"]}' \
           --region ${{ env.AWS_REGION }}
- 
+
     - name: Install Java, Maven, and MySQL on EC2
       run: |
         aws ec2 send-command \
