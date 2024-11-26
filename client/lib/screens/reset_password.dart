@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:client/tools/api_handler.dart';
 
 class ResetPassword extends StatelessWidget {
   final String token;
@@ -10,10 +11,42 @@ class ResetPassword extends StatelessWidget {
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
     bool loading = false;
+    //String? errorMessage;
 
     Future<void> handleResetPassword() async {
-      // Implement API logic to reset the password using the provided token and new password
-      // Example: await ApiHandler.resetPassword(token, newPasswordController.text);
+      if (newPasswordController.text != confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Passwords do not match")),
+        );
+        return;
+      }
+
+      if (newPasswordController.text.length < 8) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Password must be at least 8 characters long")),
+        );
+        return;
+      }
+
+      try {
+        loading = true;
+
+        await ApiHandler.resetPassword(token, newPasswordController.text);
+
+        // On success, navigate to the login screen or success message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Password reset successfully")),
+          );
+          Navigator.pushNamedAndRemoveUntil(context, "login", (route) => false);
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to reset password: $e")),
+        );
+      } finally {
+        loading = false;
+      }
     }
 
     return Scaffold(
