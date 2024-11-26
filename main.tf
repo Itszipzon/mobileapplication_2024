@@ -108,7 +108,6 @@ resource "aws_instance" "main" {
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.main.id
-  security_group_ids = [aws_security_group.main.id]
 
   tags = {
     Name = "eu-west-2-instance"
