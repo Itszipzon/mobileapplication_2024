@@ -98,7 +98,7 @@ jobs:
       run: |
         INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.EC2_TAG_NAME }}" --query "Reservations[0].Instances[0].InstanceId" --output text)
         echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
-
+ 
     - name: Download server folder from S3 on EC2
       run: |
         aws ssm send-command \
