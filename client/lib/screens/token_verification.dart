@@ -45,9 +45,8 @@ class TokenVerificationState extends ConsumerState<TokenVerification> {
     try {
        await ApiHandler.verifyToken(widget.email, enteredToken);
 
-      // On success, navigate to ResetPassword screen
       if (mounted) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => ResetPassword(token: enteredToken),
