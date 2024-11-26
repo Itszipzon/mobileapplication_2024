@@ -278,7 +278,7 @@ public class UserApi {
       Logger.log("User " + loggedInUser.get().getUsername() + " logged in");
       boolean rememberMe = values.get("rememberMe") == null ? false
           : Boolean.parseBoolean(values.get("rememberMe"));
-      String token = jwtUtil.generateToken(loggedInUser.get(), rememberMe);
+      String token = jwtUtil.generateToken(loggedInUser.get(), (rememberMe ? 24 * 30 : 24));
       return new ResponseEntity<>(token, HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Username or password is not correct", HttpStatus.UNAUTHORIZED);
@@ -403,9 +403,7 @@ public class UserApi {
       User userFromDb = userRepo.findUserByUsername(username).get();
       userFromDb.setProfilePicture(pfpName);
       userRepo.save(userFromDb);
-      return new ResponseEntity<>(
-          jwtUtil.generateToken(userFromDb, claims.get("rememberMe", Boolean.class)),
-          HttpStatus.OK);
+      return new ResponseEntity<>(HttpStatus.OK);
     } catch (Exception e) {
       e.printStackTrace();
       Logger.error(e.getMessage());
@@ -505,8 +503,7 @@ public class UserApi {
     userRepo.save(userToUpdate);
     Logger.info("User " + currentUsername + " updated their profile");
     String jwtToken =
-        jwtUtil.generateTokenWithExpirationDate(userToUpdate, claims.get("rememberMe",
-        Boolean.class), claims.getExpiration());
+        jwtUtil.generateTokenWithExpirationDate(userToUpdate, claims.getExpiration());
     
     return new ResponseEntity<>(jwtToken, HttpStatus.OK);
   }
