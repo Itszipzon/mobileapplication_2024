@@ -170,3 +170,6 @@ output "instance_id" {
 output "instance_public_ip" {
   value = local.instance_public_ip
 }
+
+#i-093ba426c6c3e1380
+#i-093ba426c6c3e1380
