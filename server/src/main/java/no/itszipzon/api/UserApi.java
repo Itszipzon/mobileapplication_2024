@@ -411,32 +411,41 @@ public class UserApi {
     }
   }
 
-  /**
-   * Reset password.
-   *
-   * @param entity User information.
-   * @return Response.
-   * @throws MessagingException MessagingException.
-   * @throws IOException        IOException.
-   */
   @PostMapping("/resetpassword")
-  public ResponseEntity<String> postMethodName(@RequestBody String entity)
-      throws MessagingException, IOException {
-    Optional<User> user = userRepo.findUserByUsernameOrEmail(entity);
-    if (user.isEmpty()) {
-      return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-    }
-    User userToUpdate = user.get();
-    Map<String, String> map = new HashMap<>();
-    map.put("EMAIL", userToUpdate.getEmail());
-    map.put("NAME", userToUpdate.getUsername());
-    map.put("TOKEN", "RANDOM TOKEN");
-    map.put("LINK", "Questionairy.com/resetpassword?token=RANDOM TOKEN");
-    String path = new Main().getResource("/static/email_html/forgot_password.html").getPath();
-    // emailService.sendHtmlEmail(userToUpdate.getEmail(), "TEST", path, map);
-    emailService.sendHtmlEmail("rmolande00@gmail.com", "TEST", path, map);
-    return new ResponseEntity<>("Email sent", HttpStatus.OK);
+  public ResponseEntity<String> requestPasswordReset(@RequestBody String email) {
+      email = email.replace("\"", "").trim().toLowerCase();
+      System.out.println("Email received: " + email);
+  
+      Optional<User> user = userRepo.findUserByUsernameOrEmail(email);
+      if (user.isEmpty()) {
+          System.out.println("User not found for email: " + email);
+          return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+      }
+  
+      User userToUpdate = user.get();
+  
+      String token = Tools.generateToken(5);
+      userToUpdate.setResetToken(token);
+      userToUpdate.setResetTokenExpiration(LocalDateTime.now().plusHours(1));
+      userRepo.save(userToUpdate);
+  
+      Map<String, String> map = new HashMap<>();
+      map.put("EMAIL", userToUpdate.getEmail());
+      map.put("NAME", userToUpdate.getUsername());
+      map.put("TOKEN", token);
+      map.put("LINK", "https://Questionairy.com/resetpassword?token=" + token);
+  
+      try {
+          Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
+          String path = resource.getFile().getAbsolutePath();
+          emailService.sendHtmlEmail(userToUpdate.getEmail(), "Password Reset", path, map);
+          return new ResponseEntity<>("Reset token sent", HttpStatus.OK);
+      } catch (MessagingException | IOException e) {
+          e.printStackTrace();
+          return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+      }
   }
+
 
   /**
    * Update user.
