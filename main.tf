@@ -2,37 +2,42 @@ provider "aws" {
   region = "eu-west-2"
 }
 
-# Use an existing VPC
-data "aws_vpc" "existing" {
-  default = true
+# Create a VPC
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "eu-west-2-vpc"
+  }
 }
 
-# Create a subnet in the existing VPC
+# Create a subnet
 resource "aws_subnet" "main" {
-  vpc_id                  = data.aws_vpc.existing.id
+  vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-west-2a"
   tags = {
     Name = "eu-west-2-subnet"
   }
-} 
+}
 
-# Reference an existing Internet Gateway
-data "aws_internet_gateway" "existing" {
-  filter {
-    name   = "attachment.vpc-id"
-    values = [data.aws_vpc.existing.id]
+# Create an internet gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "eu-west-2-igw"
   }
 }
 
-# Create a route table and associate it with the Internet Gateway
+# Create a route table
 resource "aws_route_table" "main" {
-  vpc_id = data.aws_vpc.existing.id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = data.aws_internet_gateway.existing.id
+    gateway_id = aws_internet_gateway.main.id
   }
 
   tags = {
@@ -40,9 +45,15 @@ resource "aws_route_table" "main" {
   }
 }
 
-# Create a security group
+# Associate route table with the subnet
+resource "aws_route_table_association" "main" {
+  subnet_id      = aws_subnet.main.id
+  route_table_id = aws_route_table.main.id
+}
+
+# Create a security group with rules for SSH, HTTP, and Spring Boot (8080)
 resource "aws_security_group" "main" {
-  vpc_id = data.aws_vpc.existing.id
+  vpc_id = aws_vpc.main.id
 
   ingress {
     from_port   = 22
@@ -77,20 +88,19 @@ resource "aws_security_group" "main" {
   }
 }
 
-# Launch an EC2 instance in the subnet with the security group
+# Create an EC2 instance
 resource "aws_instance" "main" {
-  ami           = "ami-0039f258703b10757"
+  ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.main.id
   security_groups = [aws_security_group.main.name]
-  iam_instance_profile = "pipeline_user"
 
   tags = {
     Name = "eu-west-2-instance"
   }
 }
 
-# Outputs to display instance details
+# Outputs
 output "instance_id" {
   value = aws_instance.main.id
 }
