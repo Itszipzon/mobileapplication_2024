@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    name: Build-and-Test
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +35,7 @@ jobs:
 
   deploy:
     name: Deploy to EC2
-    needs: Build-and-Test
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
