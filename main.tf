@@ -38,7 +38,7 @@ data "aws_subnets" "existing" {
 # Create a subnet (ensure no conflict)
 resource "aws_subnet" "main" {
   vpc_id                  = local.vpc_id
-  cidr_block              = "10.0.2.0/24" # Avoid conflicts by choosing a unique CIDR block
+  cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-west-2a"
   tags = {
@@ -131,7 +131,7 @@ resource "aws_instance" "main" {
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.main.id
-  security_groups = [aws_security_group.main.name]
+  security_groups = [aws_security_group.main.id]
 
   tags = {
     Name = "eu-west-2-instance"
