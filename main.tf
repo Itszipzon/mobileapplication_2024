@@ -90,15 +90,9 @@ resource "aws_route_table" "main" {
   }
 }
 
-# Associate route table with the subnet
-data "aws_route_table_association" "existing" {
-  for_each = toset(data.aws_subnets.existing.ids)
-
-  subnet_id = each.value
-}
-
+# Associate route table with the subnet (conditionally create association)
 resource "aws_route_table_association" "main" {
-  count = length(data.aws_route_table_association.existing) == 0 ? 1 : 0
+  count = length(data.aws_subnets.existing.ids) > 0 ? 0 : 1
 
   subnet_id      = local.subnet_id
   route_table_id = aws_route_table.main.id
@@ -145,7 +139,7 @@ resource "aws_security_group" "main" {
 resource "aws_instance" "main" {
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
-  subnet_id     = length(data.aws_subnets.existing.ids) > 0 ? data.aws_subnets.existing.ids[0] : aws_subnet.main[0].id
+  subnet_id     = local.subnet_id
   security_groups = [aws_security_group.main.id]
 
   tags = {
