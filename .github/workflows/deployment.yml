@@ -113,10 +113,6 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
         chmod 600 ec2-key.pem
 
-    - name: Upload server folder to S3
-      run: |
-        aws s3 sync ./server s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} --delete
-
     - name: Trigger script to sync from S3 to EC2
       run: |
         ssh -o StrictHostKeyChecking=no -i ec2-key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} \
