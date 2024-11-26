@@ -108,6 +108,7 @@ jobs:
           --comment "Download server folder from S3" \
           --parameters '{"commands":["aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"]}' \
           --region ${{ env.AWS_REGION }}
+
 #    - name: Add SSH key
 #      run: |
 #        echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
