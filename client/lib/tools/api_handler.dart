@@ -459,6 +459,20 @@ class ApiHandler {
     }
   }
 
+  static Future<void> verifyToken(String email, String token) async {
+  final response = await http.post(
+    Uri.parse('$_url/api/user/verify-reset-token'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'token': token}),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(jsonDecode(response.body)['message'] ??
+        'Failed to verify the reset token.');
+  }
+}
+
+
 static Future<void> updateUser(
   String token, {
   String? newEmail,
