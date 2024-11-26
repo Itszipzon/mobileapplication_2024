@@ -16,7 +16,7 @@ resource "aws_subnet" "main" {
   tags = {
     Name = "eu-west-2-subnet"
   }
-}
+} 
 
 # Reference an existing Internet Gateway
 data "aws_internet_gateway" "existing" {
