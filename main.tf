@@ -2,19 +2,33 @@ provider "aws" {
   region = "eu-west-2"
 }
 
-# Create a VPC
+# Data source to check for existing VPC
+data "aws_vpc" "existing" {
+  filter {
+    name   = "cidr-block"
+    values = ["10.0.0.0/16"]
+  }
+}
+
+# Create a new VPC if it does not exist
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  count                 = length(data.aws_vpc.existing.id) > 0 ? 0 : 1
+  cidr_block            = "10.0.0.0/16"
+  enable_dns_support    = true
+  enable_dns_hostnames  = true
   tags = {
     Name = "eu-west-2-vpc"
   }
 }
 
+# Use the existing VPC ID or the newly created VPC ID
+locals {
+  vpc_id = length(data.aws_vpc.existing.id) > 0 ? data.aws_vpc.existing.id : aws_vpc.main[0].id
+}
+
 # Create a subnet
 resource "aws_subnet" "main" {
-  vpc_id                  = aws_vpc.main.id
+  vpc_id                  = local.vpc_id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-west-2a"
@@ -25,7 +39,7 @@ resource "aws_subnet" "main" {
 
 # Create an internet gateway
 resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = local.vpc_id
   tags = {
     Name = "eu-west-2-igw"
   }
@@ -33,7 +47,7 @@ resource "aws_internet_gateway" "main" {
 
 # Create a route table
 resource "aws_route_table" "main" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = local.vpc_id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -53,7 +67,7 @@ resource "aws_route_table_association" "main" {
 
 # Create a security group with rules for SSH, HTTP, and Spring Boot (8080)
 resource "aws_security_group" "main" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = local.vpc_id
 
   ingress {
     from_port   = 22
