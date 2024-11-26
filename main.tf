@@ -137,7 +137,7 @@ resource "aws_security_group" "main" {
 resource "aws_instance" "main" {
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
-  subnet_id     = aws_subnet.main.id
+  subnet_id     = length(data.aws_subnets.existing.ids) > 0 ? data.aws_subnets.existing.ids[0] : aws_subnet.main[0].id
   security_groups = [aws_security_group.main.id]
 
   tags = {
