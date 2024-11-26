@@ -27,10 +27,18 @@ locals {
   vpc_id = length(data.aws_vpcs.existing.ids) > 0 ? data.aws_vpcs.existing.ids[0] : aws_vpc.main[0].id
 }
 
-# Create a subnet
+# Data source to check for existing subnets in the VPC
+data "aws_subnets" "existing" {
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
+}
+
+# Create a subnet (ensure no conflict)
 resource "aws_subnet" "main" {
   vpc_id                  = local.vpc_id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "10.0.2.0/24" # Avoid conflicts by choosing a unique CIDR block
   map_public_ip_on_launch = true
   availability_zone       = "eu-west-2a"
   tags = {
@@ -38,12 +46,27 @@ resource "aws_subnet" "main" {
   }
 }
 
-# Create an internet gateway
+# Data source to check for existing Internet Gateway
+data "aws_internet_gateway" "existing" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [local.vpc_id]
+  }
+}
+
+# Create an Internet Gateway only if it doesn't exist
 resource "aws_internet_gateway" "main" {
+  count = length(data.aws_internet_gateway.existing.id) > 0 ? 0 : 1
+
   vpc_id = local.vpc_id
   tags = {
     Name = "eu-west-2-igw"
   }
+}
+
+# Use existing or newly created Internet Gateway
+locals {
+  internet_gateway_id = length(data.aws_internet_gateway.existing.id) > 0 ? data.aws_internet_gateway.existing.id : aws_internet_gateway.main[0].id
 }
 
 # Create a route table
@@ -52,7 +75,7 @@ resource "aws_route_table" "main" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
+    gateway_id = local.internet_gateway_id
   }
 
   tags = {
@@ -108,6 +131,7 @@ resource "aws_instance" "main" {
   ami           = "ami-003b7d0393f95b818"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.main.id
+  security_groups = [aws_security_group.main.name]
 
   tags = {
     Name = "eu-west-2-instance"
