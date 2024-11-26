@@ -11,6 +11,7 @@ env:
   S3_FOLDER: server                             # Folder name in the S3 bucket
   TARGET_DIR: /home/ubuntu/server               # Path on the EC2 server to place the `server` folder
   EC2_TAG_NAME: pipeline_skytjenester           # Name tag to identify the EC2 instance
+  EC2_PUBLIC_IP: 18.171.54.189
 
 permissions:
   contents: read
@@ -99,14 +100,27 @@ jobs:
         INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.EC2_TAG_NAME }}" --query "Reservations[0].Instances[0].InstanceId" --output text)
         echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
-    - name: Download server folder from S3 on EC2
+#    - name: Download server folder from S3 on EC2
+#      run: |
+#        aws ssm send-command \
+#          --instance-ids ${{ env.INSTANCE_ID }} \
+#          --document-name "AWS-RunShellScript" \
+#          --comment "Download server folder from S3" \
+#          --parameters '{"commands":["aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"]}' \
+#          --region ${{ env.AWS_REGION }}
+    - name: Add SSH key
       run: |
-        aws ssm send-command \
-          --instance-ids ${{ env.INSTANCE_ID }} \
-          --document-name "AWS-RunShellScript" \
-          --comment "Download server folder from S3" \
-          --parameters '{"commands":["aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"]}' \
-          --region ${{ env.AWS_REGION }}
+        echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
+        chmod 600 ec2-key.pem
+
+    - name: Upload server folder to S3
+      run: |
+        aws s3 sync ./server s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} --delete
+
+    - name: Trigger script to sync from S3 to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2-key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} \
+          "aws s3 sync s3://${{ env.S3_BUCKET }}/${{ env.S3_FOLDER }} ${{ env.TARGET_DIR }}"
 
     - name: Install Java, Maven, and MySQL on EC2
       run: |
