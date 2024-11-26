@@ -38,7 +38,7 @@ public class JwtUtil {
    * @param hours The amount of hours the token should be valid for.
    * @return The generated token.
    */
-  public String generateToken(User user, long hours) {
+  public String generateToken(User user, int hours) {
     return Jwts.builder()
         .setSubject(user.getUsername())
         .claim("email", user.getEmail())
@@ -48,6 +48,27 @@ public class JwtUtil {
         .claim("updated", convertToDate(user.getUpdatedAt()))
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * hours))
+        .signWith(secretKey, SignatureAlgorithm.HS256)
+        .compact();
+  }
+
+  /**
+   * Generates a JWT token for a user with a specific expiration date.
+   *
+   * @param user  The user to generate a token for.
+   * @param expirationDate The expiration date of the token.
+   * @return The generated token.
+   */
+  public String generateTokenWithExpirationDate(User user, Date expirationDate) {
+    return Jwts.builder()
+        .setSubject(user.getUsername())
+        .claim("email", user.getEmail())
+        .claim("role", user.getRole())
+        .claim("id", user.getId())
+        .claim("created", convertToDate(user.getCreatedAt()))
+        .claim("updated", convertToDate(user.getUpdatedAt()))
+        .setIssuedAt(new Date())
+        .setExpiration(expirationDate)
         .signWith(secretKey, SignatureAlgorithm.HS256)
         .compact();
   }

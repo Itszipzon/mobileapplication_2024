@@ -27,6 +27,31 @@ class ApiHandler {
 
 
   ///////////////////////////////////////////////////////////////////////
+  ///
+  
+  /// Updates the user's email
+  static Future<void> updateEmail(String token, String newEmail) async {
+  final response = await http.put(
+    Uri.parse('$_url/api/user/update-email'),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "newEmail": newEmail,
+    }),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(
+      jsonDecode(response.body)['message'] ?? 'Failed to update email',
+    );
+  }
+}
+
+
+
+
 
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
@@ -433,4 +458,37 @@ class ApiHandler {
       throw Exception("Failed to request password reset");
     }
   }
+
+static Future<void> updateUser(
+  String token, {
+  String? newEmail,
+  String? newUsername,
+  String? oldPassword,
+  String? newPassword,
+}) async {
+  final response = await http.put(
+    Uri.parse('$_url/api/user/update'),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "email": newEmail ?? "",
+      "username": newUsername ?? "",
+      "oldPassword": oldPassword ?? "",
+      "newPassword": newPassword ?? "",
+    }),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(
+      jsonDecode(response.body)['message'] ?? 'Failed to update user',
+    );
+  }
 }
+
+
+
+}
+
+
