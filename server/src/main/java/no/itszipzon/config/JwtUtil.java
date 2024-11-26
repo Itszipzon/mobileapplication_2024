@@ -55,6 +55,30 @@ public class JwtUtil {
   }
 
   /**
+   * Generates a JWT token for a user with a specific expiration date.
+   *
+   * @param user  The user to generate a token for.
+   * @param rememberMe Whether the token should be remembered.
+   * @param expirationDate The expiration date of the token.
+   * @return The generated token.
+   */
+  public String generateTokenWithExpirationDate(User user, boolean rememberMe,
+      Date expirationDate) {
+    return Jwts.builder()
+        .setSubject(user.getUsername())
+        .claim("email", user.getEmail())
+        .claim("role", user.getRole())
+        .claim("id", user.getId())
+        .claim("created", convertToDate(user.getCreatedAt()))
+        .claim("updated", convertToDate(user.getUpdatedAt()))
+        .claim("rememberMe", rememberMe)
+        .setIssuedAt(new Date())
+        .setExpiration(expirationDate)
+        .signWith(secretKey, SignatureAlgorithm.HS256)
+        .compact();
+  }
+
+  /**
    * Extracts the claims from a token.
    *
    * @param token The token to extract claims from.

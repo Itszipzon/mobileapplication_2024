@@ -504,8 +504,11 @@ public class UserApi {
     
     userRepo.save(userToUpdate);
     Logger.info("User " + currentUsername + " updated their profile");
-    return new ResponseEntity<>(jwtUtil.generateToken(userToUpdate,
-        claims.get("rememberMe", Boolean.class)), HttpStatus.OK);
+    String jwtToken =
+        jwtUtil.generateTokenWithExpirationDate(userToUpdate, claims.get("rememberMe",
+        Boolean.class), claims.getExpiration());
+    
+    return new ResponseEntity<>(jwtToken, HttpStatus.OK);
   }
 
   @PutMapping("/update-email")
