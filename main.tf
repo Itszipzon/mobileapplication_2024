@@ -125,7 +125,7 @@ resource "aws_iam_role_policy_attachment" "ec2_s3_policy" {
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "ec2-instance-profile"
   role = aws_iam_role.ec2_role.name
-} 
+}
 
 # Create an EC2 instance
 resource "aws_instance" "main" {
@@ -134,7 +134,7 @@ resource "aws_instance" "main" {
   subnet_id     = aws_subnet.main.id
   security_groups = [aws_security_group.main.name]
 
-  iam_instance_profile = "pipeline_user " # Replace with your IAM Instance Profile name
+  iam_instance_profile = "pipeline_user "
 
   tags = {
     Name = "eu-west-2-instance"
