@@ -125,7 +125,7 @@ resource "aws_iam_role_policy_attachment" "ec2_s3_policy" {
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "ec2-instance-profile"
   role = aws_iam_role.ec2_role.name
-}
+} 
 
 # Create an EC2 instance
 resource "aws_instance" "main" {
