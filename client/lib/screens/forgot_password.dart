@@ -1,3 +1,4 @@
+import 'package:client/screens/token_verification.dart';
 import 'package:flutter/material.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
@@ -32,6 +33,15 @@ class ForgotPasswordScreenState extends ConsumerState<ForgotPassword> {
       setState(() {
         successMessage = "A password reset link has been sent to your email.";
       });
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TokenVerification(email: emailController.text)
+          ),
+        );
+      }
     } catch (e) {
       setState(() {
         errorMessage = "Failed to send password reset email. Please try again.";
