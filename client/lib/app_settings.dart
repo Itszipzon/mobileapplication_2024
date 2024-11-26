@@ -1,3 +1,4 @@
+import 'package:client/elements/custom_theme_extension.dart';
 import 'package:client/elements/loading.dart';
 import 'package:client/screens/categories.dart';
 import 'package:client/screens/category.dart';
@@ -54,6 +55,9 @@ class AppSettings {
         backgroundColor: backgroundColor,
       ),
       textTheme: GoogleFonts.robotoTextTheme(),
+      extensions: <ThemeExtension<dynamic>>[
+        CustomThemeExtension(primaryTextColor: Colors.white)
+      ]
     );
   }
 }
