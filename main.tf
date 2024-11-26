@@ -2,19 +2,14 @@ provider "aws" {
   region = "eu-west-2"
 }
 
-# Create a VPC
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags = {
-    Name = "eu-west-2-vpc"
-  }
+# Use an existing VPC
+data "aws_vpc" "existing" {
+  default = true
 }
- 
-# Create a subnet
+
+# Create a subnet in the existing VPC
 resource "aws_subnet" "main" {
-  vpc_id                  = aws_vpc.main.id
+  vpc_id                  = data.aws_vpc.existing.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-west-2a"
@@ -25,35 +20,15 @@ resource "aws_subnet" "main" {
 
 # Create an internet gateway
 resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = data.aws_vpc.existing.id
   tags = {
     Name = "eu-west-2-igw"
   }
 }
 
-# Create a route table
-resource "aws_route_table" "main" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
-  tags = {
-    Name = "eu-west-2-route-table"
-  }
-}
-
-# Associate route table with the subnet
-resource "aws_route_table_association" "main" {
-  subnet_id      = aws_subnet.main.id
-  route_table_id = aws_route_table.main.id
-}
-
 # Create a security group
 resource "aws_security_group" "main" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = data.aws_vpc.existing.id
 
   ingress {
     from_port   = 22
@@ -88,52 +63,12 @@ resource "aws_security_group" "main" {
   }
 }
 
-# IAM role for EC2
-resource "aws_iam_role" "ec2_role" {
-  name = "ec2-instance-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "ec2-role"
-  }
-}
-
-# Attach policies to the role
-resource "aws_iam_role_policy_attachment" "ec2_s3_ssm_policy" {
-  role       = aws_iam_role.ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
-}
-
-resource "aws_iam_role_policy_attachment" "ec2_s3_policy" {
-  role       = aws_iam_role.ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
-# Instance profile for EC2
-resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "ec2-instance-profile"
-  role = aws_iam_role.ec2_role.name
-}
-
-# Create an EC2 instance
+# Reference existing IAM instance profile
 resource "aws_instance" "main" {
   ami           = "ami-0039f258703b10757"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.main.id
   security_groups = [aws_security_group.main.name]
-
   iam_instance_profile = "pipeline_user"
 
   tags = {
