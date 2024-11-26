@@ -91,7 +91,15 @@ resource "aws_route_table" "main" {
 }
 
 # Associate route table with the subnet
+data "aws_route_table_association" "existing" {
+  for_each = toset(data.aws_subnets.existing.ids)
+
+  subnet_id = each.value
+}
+
 resource "aws_route_table_association" "main" {
+  count = length(data.aws_route_table_association.existing) == 0 ? 1 : 0
+
   subnet_id      = local.subnet_id
   route_table_id = aws_route_table.main.id
 }

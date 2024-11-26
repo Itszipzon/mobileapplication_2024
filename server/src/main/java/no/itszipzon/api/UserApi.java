@@ -466,15 +466,10 @@ public class UserApi {
     if (claims == null) {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
-    String username = claims.getSubject();
-    if (mapUsername.equalsIgnoreCase(username)
-        && mapEmail.equalsIgnoreCase(claims.get("email", String.class))
-        && mapUsername.equalsIgnoreCase(username) && mapNewPassword.isEmpty()) {
+    if (mapUsername == null || mapEmail == null || mapNewPassword == null) {
       return new ResponseEntity<>("No changes", HttpStatus.BAD_REQUEST);
     }
-    if (mapNewPassword.isEmpty() && mapNewPassword.length() < 8) {
-      return new ResponseEntity<>("New password is required", HttpStatus.BAD_REQUEST);
-    }
+    String username = claims.getSubject();
     Optional<User> userFromDb = userRepo.findUserByUsername(mapUsername);
     if (userFromDb.isEmpty()) {
       return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
