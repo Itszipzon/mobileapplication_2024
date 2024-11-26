@@ -11,7 +11,7 @@ resource "aws_vpc" "main" {
     Name = "eu-west-2-vpc"
   }
 }
-
+ 
 # Create a subnet
 resource "aws_subnet" "main" {
   vpc_id                  = aws_vpc.main.id
