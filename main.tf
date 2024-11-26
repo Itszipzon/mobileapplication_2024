@@ -18,7 +18,7 @@ resource "aws_subnet" "main" {
   }
 }
 
-# Create an internet gateway
+# Reference an existing Internet Gateway
 data "aws_internet_gateway" "existing" {
   filter {
     name   = "attachment.vpc-id"
@@ -26,7 +26,7 @@ data "aws_internet_gateway" "existing" {
   }
 }
 
-# Reference the existing Internet Gateway
+# Create a route table and associate it with the Internet Gateway
 resource "aws_route_table" "main" {
   vpc_id = data.aws_vpc.existing.id
 
@@ -77,7 +77,7 @@ resource "aws_security_group" "main" {
   }
 }
 
-# Reference existing IAM instance profile
+# Launch an EC2 instance in the subnet with the security group
 resource "aws_instance" "main" {
   ami           = "ami-0039f258703b10757"
   instance_type = "t2.micro"
@@ -90,7 +90,7 @@ resource "aws_instance" "main" {
   }
 }
 
-# Outputs
+# Outputs to display instance details
 output "instance_id" {
   value = aws_instance.main.id
 }
