@@ -25,7 +25,6 @@ class ApiHandler {
 
   static String get wsUrl => _wsUrl;
 
-  static const String baseUrl = "http://localhost:8080/api";
 
   ///////////////////////////////////////////////////////////////////////
 
@@ -425,7 +424,7 @@ class ApiHandler {
 
   static Future<void> requestPasswordReset(String email) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/user/resetpassword"),
+      Uri.parse('$_url/api/user/resetpassword'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(email),
     );
