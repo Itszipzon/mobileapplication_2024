@@ -2,6 +2,8 @@ package no.itszipzon.api;
 
 import io.jsonwebtoken.Claims;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -509,40 +511,43 @@ public class UserApi {
     return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
 } */
 
+
 @PostMapping("/resetpassword")
+@Transactional
 public ResponseEntity<String> requestPasswordReset(@RequestBody String email) {
     email = email.replace("\"", "").trim().toLowerCase();
+    Optional<User> userOptional = userRepo.findUserByUsernameOrEmail(email);
 
-    Optional<User> user = userRepo.findUserByUsernameOrEmail(email);
-    if (user.isEmpty()) {
+    if (userOptional.isEmpty()) {
         return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
     }
 
-    resetTokenRepository.deleteByUser_Email(email); // Remove old tokens for the user
+    User user = userOptional.get();
+
+    resetTokenRepository.deleteByUser(user);
 
     ResetToken resetToken = new ResetToken();
-    resetToken.setUser(user.get());
-    resetToken.setToken(Tools.generateToken(5));
-    resetToken.setExpiration(LocalDateTime.now().plusHours(1));
+    resetToken.setToken(Tools.generateToken(5)); // Generate a 6-character token
+    resetToken.setUser(user);
     resetTokenRepository.save(resetToken);
 
-    // Send the token in an email
-    Map<String, String> map = new HashMap<>();
-    map.put("EMAIL", email);
-    map.put("NAME", user.get().getUsername());
-    map.put("TOKEN", resetToken.getToken());
-    map.put("LINK", "https://Questionairy.com/resetpassword?token=" + resetToken.getToken());
+    Map<String, String> emailData = new HashMap<>();
+    emailData.put("EMAIL", user.getEmail());
+    emailData.put("TOKEN", resetToken.getToken());
+    emailData.put("LINK", "https://Questionairy.com/resetpassword?token=" + resetToken.getToken());
 
     try {
-        Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
-        String path = resource.getFile().getAbsolutePath();
-        emailService.sendHtmlEmail(email, "Password Reset", path, map);
+      Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
+      String path = resource.getFile().getAbsolutePath();
+      emailService.sendHtmlEmail(user.getEmail(), "Password Reset", path, emailData);
         return new ResponseEntity<>("Reset token sent", HttpStatus.OK);
-    } catch (MessagingException | IOException e) {
+    } catch (Exception e) {
         e.printStackTrace();
         return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+
+
 
 @PostMapping("/verify-reset-token")
 public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> payload) {
@@ -552,50 +557,57 @@ public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> 
         return new ResponseEntity<>("Invalid token", HttpStatus.BAD_REQUEST);
     }
 
-    Optional<ResetToken> resetToken = resetTokenRepository.findByToken(token);
+    Optional<ResetToken> resetTokenOpt = resetTokenRepository.findByToken(token);
 
-    if (resetToken.isEmpty()) {
+    if (resetTokenOpt.isEmpty() || !resetTokenOpt.get().isValid()) {
         return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
     }
 
-    if (resetToken.get().getExpiration().isBefore(LocalDateTime.now())) {
+    ResetToken resetToken = resetTokenOpt.get();
+
+    if (resetToken.getExpiration().isBefore(LocalDateTime.now())) {
         return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
     }
 
     return new ResponseEntity<>("Token is valid", HttpStatus.OK);
 }
 
+
 @PostMapping("/newpassword")
+@Transactional
 public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) {
     String token = payload.get("token");
     String newPassword = payload.get("newPassword");
 
-    if (token == null || newPassword == null || newPassword.isEmpty()) {
-        return new ResponseEntity<>("Invalid token or password", HttpStatus.BAD_REQUEST);
+    if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+        return new ResponseEntity<>("Invalid input", HttpStatus.BAD_REQUEST);
     }
 
-    Optional<ResetToken> resetToken = resetTokenRepository.findByToken(token);
+    Optional<ResetToken> resetTokenOpt = resetTokenRepository.findByToken(token);
 
-    if (resetToken.isEmpty()) {
+    if (resetTokenOpt.isEmpty() || !resetTokenOpt.get().isValid()) {
         return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
     }
 
-    if (resetToken.get().getExpiration().isBefore(LocalDateTime.now())) {
+    ResetToken resetToken = resetTokenOpt.get();
+
+    if (resetToken.getExpiration().isBefore(LocalDateTime.now())) {
         return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
     }
 
-    User user = resetToken.get().getUser();
-    if (newPassword.length() < 8) {
-        return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
-    }
-
+    // Accessing user within the transaction
+    User user = resetToken.getUser();
     user.setPassword(Tools.hashPassword(newPassword));
     userRepo.save(user);
 
-    resetTokenRepository.delete(resetToken.get()); // Clean up token after use
+    // Invalidate the token
+    resetToken.setValid(false);
+    resetTokenRepository.save(resetToken);
 
-    return new ResponseEntity<>("Password updated successfully", HttpStatus.OK);
+    return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
 }
+
+
 
 
 
