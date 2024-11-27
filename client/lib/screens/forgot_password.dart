@@ -17,6 +17,16 @@ class ForgotPasswordScreenState extends ConsumerState<ForgotPassword> {
   String? successMessage;
   String? errorMessage;
 
+  late final RouterNotifier router;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router = ref.read(routerProvider.notifier);
+    });
+  }
+
   void toggleLoading() {
     setState(() {
       loading = !loading;
@@ -38,7 +48,7 @@ class ForgotPasswordScreenState extends ConsumerState<ForgotPassword> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => TokenVerification(email: emailController.text)
+            builder: (context) => TokenVerification(email: emailController.text, router: router,)
           ),
         );
       }
