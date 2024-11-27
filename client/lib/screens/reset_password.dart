@@ -1,51 +1,47 @@
-import 'package:flutter/material.dart';
 import 'package:client/tools/api_handler.dart';
+import 'package:client/tools/router.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ResetPassword extends StatelessWidget {
+class ResetPassword extends ConsumerWidget {
   final String token;
+  final RouterNotifier router;
 
-  const ResetPassword({required this.token, super.key});
+  const ResetPassword({required this.token, super.key, required this.router});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
     bool loading = false;
-    //String? errorMessage;
 
-    Future<void> handleResetPassword() async {
+    Future<void> handleResetPassword(RouterNotifier router) async {
       if (newPasswordController.text != confirmPasswordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Passwords do not match")),
+          const SnackBar(content: Text("Passwords do not match")),
         );
         return;
       }
 
       if (newPasswordController.text.length < 8) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Password must be at least 8 characters long")),
+          const SnackBar(content: Text("Password must be at least 8 characters long")),
         );
         return;
       }
 
       try {
-        loading = true;
-
         await ApiHandler.resetPassword(token, newPasswordController.text);
 
-        // On success, navigate to the login screen or success message
+        // Navigate to the login screen and clear navigation history
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Password reset successfully")),
-          );
-          Navigator.pushNamedAndRemoveUntil(context, "login", (route) => false);
+          Navigator.pop(context);
+          router.setPath(context, "login");
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to reset password: $e")),
         );
-      } finally {
-        loading = false;
       }
     }
 
@@ -85,7 +81,7 @@ class ResetPassword extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: loading ? null : handleResetPassword,
+                onPressed: () => loading ? null : handleResetPassword(router),
                 child: loading
                     ? const CircularProgressIndicator(
                         color: Colors.white,
