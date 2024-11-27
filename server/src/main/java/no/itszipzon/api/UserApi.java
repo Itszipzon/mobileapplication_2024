@@ -17,6 +17,7 @@ import no.itszipzon.repo.LevelRepo;
 import no.itszipzon.repo.UserRepo;
 import no.itszipzon.service.EmailService;
 import no.itszipzon.tables.Level;
+import no.itszipzon.tables.ResetToken;
 import no.itszipzon.tables.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -49,6 +50,8 @@ public class UserApi {
   private EmailService emailService;
   @Autowired
   private LevelRepo levelRepo;
+  @Autowired
+  private ResetTokenRepo resetTokenRepository;
 
   /**
    * Get user.
@@ -504,6 +507,96 @@ public class UserApi {
 
     return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
 } */
+
+@PostMapping("/resetpassword")
+public ResponseEntity<String> requestPasswordReset(@RequestBody String email) {
+    email = email.replace("\"", "").trim().toLowerCase();
+
+    Optional<User> user = userRepo.findUserByUsernameOrEmail(email);
+    if (user.isEmpty()) {
+        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+    }
+
+    resetTokenRepository.deleteByUser_Email(email); // Remove old tokens for the user
+
+    ResetToken resetToken = new ResetToken();
+    resetToken.setUser(user.get());
+    resetToken.setToken(Tools.generateToken(5));
+    resetToken.setExpiration(LocalDateTime.now().plusHours(1));
+    resetTokenRepository.save(resetToken);
+
+    // Send the token in an email
+    Map<String, String> map = new HashMap<>();
+    map.put("EMAIL", email);
+    map.put("NAME", user.get().getUsername());
+    map.put("TOKEN", resetToken.getToken());
+    map.put("LINK", "https://Questionairy.com/resetpassword?token=" + resetToken.getToken());
+
+    try {
+        Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
+        String path = resource.getFile().getAbsolutePath();
+        emailService.sendHtmlEmail(email, "Password Reset", path, map);
+        return new ResponseEntity<>("Reset token sent", HttpStatus.OK);
+    } catch (MessagingException | IOException e) {
+        e.printStackTrace();
+        return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+@PostMapping("/verify-reset-token")
+public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> payload) {
+    String token = payload.get("token");
+
+    if (token == null || token.isEmpty()) {
+        return new ResponseEntity<>("Invalid token", HttpStatus.BAD_REQUEST);
+    }
+
+    Optional<ResetToken> resetToken = resetTokenRepository.findByToken(token);
+
+    if (resetToken.isEmpty()) {
+        return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
+    }
+
+    if (resetToken.get().getExpiration().isBefore(LocalDateTime.now())) {
+        return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+    }
+
+    return new ResponseEntity<>("Token is valid", HttpStatus.OK);
+}
+
+@PostMapping("/newpassword")
+public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) {
+    String token = payload.get("token");
+    String newPassword = payload.get("newPassword");
+
+    if (token == null || newPassword == null || newPassword.isEmpty()) {
+        return new ResponseEntity<>("Invalid token or password", HttpStatus.BAD_REQUEST);
+    }
+
+    Optional<ResetToken> resetToken = resetTokenRepository.findByToken(token);
+
+    if (resetToken.isEmpty()) {
+        return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
+    }
+
+    if (resetToken.get().getExpiration().isBefore(LocalDateTime.now())) {
+        return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+    }
+
+    User user = resetToken.get().getUser();
+    if (newPassword.length() < 8) {
+        return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
+    }
+
+    user.setPassword(Tools.hashPassword(newPassword));
+    userRepo.save(user);
+
+    resetTokenRepository.delete(resetToken.get()); // Clean up token after use
+
+    return new ResponseEntity<>("Password updated successfully", HttpStatus.OK);
+}
+
+
 
   /**
    * Update user.
