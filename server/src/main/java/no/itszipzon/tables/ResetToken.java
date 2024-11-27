@@ -17,8 +17,8 @@ public class ResetToken {
     @Column(nullable = false)
     private LocalDateTime expiration;
 
-    @Column(nullable = false, name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private boolean valid = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -26,7 +26,7 @@ public class ResetToken {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        expiration = LocalDateTime.now().plusMinutes(30);
     }
 
     public Long getId() {
@@ -53,14 +53,6 @@ public class ResetToken {
         this.expiration = expiration;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public User getUser() {
         return user;
     }
@@ -68,4 +60,13 @@ public class ResetToken {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+    
 }
