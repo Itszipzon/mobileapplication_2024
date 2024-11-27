@@ -6,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TokenVerification extends ConsumerStatefulWidget {
   final String email;
+  final RouterNotifier router;
 
-  const TokenVerification({required this.email, super.key});
+  const TokenVerification({required this.email, super.key, required this.router});
 
   @override
   TokenVerificationState createState() => TokenVerificationState();
@@ -49,7 +50,7 @@ class TokenVerificationState extends ConsumerState<TokenVerification> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ResetPassword(token: enteredToken),
+            builder: (context) => ResetPassword(token: enteredToken, router: widget.router,),
           ),
         );
       }
