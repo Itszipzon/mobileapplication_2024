@@ -15,6 +15,7 @@ import 'package:client/screens/quiz/quiz_game_socket.dart';
 import 'package:client/screens/quiz/quiz_lobby.dart';
 import 'package:client/screens/quiz/quiz_game_solo.dart';
 import 'package:client/screens/register.dart';
+import 'package:client/screens/reset_password.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
