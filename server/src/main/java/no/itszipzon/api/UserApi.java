@@ -411,7 +411,7 @@ public class UserApi {
     }
   }
 
-  @PostMapping("/resetpassword")
+/*   @PostMapping("/resetpassword")
   public ResponseEntity<String> requestPasswordReset(@RequestBody String email) {
       email = email.replace("\"", "").trim().toLowerCase();
       System.out.println("Email received: " + email);
@@ -503,7 +503,7 @@ public class UserApi {
     userRepo.save(userToUpdate);
 
     return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
-}
+} */
 
   /**
    * Update user.

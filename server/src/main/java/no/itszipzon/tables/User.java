@@ -76,19 +76,6 @@ public class User {
   @JsonManagedReference
   private List<Quiz> quizzes;
 
-  @Column(name = "reset_token")
-  private String resetToken;
-
-  @Column(name = "reset_token_expiration")
-  private LocalDateTime resetTokenExpiration;
-
-
-  /**
-   * Constructor.
-   */
-  public User() {
-  }
-
   @PrePersist
   protected void onCreate() {
     LocalDateTime now = LocalDateTime.now();
@@ -212,22 +199,5 @@ public class User {
   public void setXp(int xp) {
     this.xp = xp;
   }
-
-  public String getResetToken() {
-    return resetToken;
-  }
-
-  public void setResetToken(String resetToken) {
-    this.resetToken = resetToken;
-  }
-
-  public LocalDateTime getResetTokenExpiration() {
-    return resetTokenExpiration;
-  }
-
-  public void setResetTokenExpiration(LocalDateTime resetTokenExpiration) {
-    this.resetTokenExpiration = resetTokenExpiration;
-  }
-
 
 }
