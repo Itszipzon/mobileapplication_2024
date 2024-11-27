@@ -14,6 +14,7 @@ import no.itszipzon.Tools;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.UserDto;
 import no.itszipzon.repo.LevelRepo;
+import no.itszipzon.repo.ResetTokenRepo;
 import no.itszipzon.repo.UserRepo;
 import no.itszipzon.service.EmailService;
 import no.itszipzon.tables.Level;
