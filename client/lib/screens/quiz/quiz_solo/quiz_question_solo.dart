@@ -31,6 +31,7 @@ class QuizQuestionSoloState extends ConsumerState<QuizQuestionSolo> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final progress = (widget.currentQuestionIndex + 1) / widget.totalQuestions;
+    final questionText = _fixEncoding(widget.questionText);
     return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -51,7 +52,7 @@ class QuizQuestionSoloState extends ConsumerState<QuizQuestionSolo> {
                 ],
               ),
               child: Text(
-                widget.questionText,
+                questionText,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 20,
