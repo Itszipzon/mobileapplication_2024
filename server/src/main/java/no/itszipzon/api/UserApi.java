@@ -1,17 +1,13 @@
 package no.itszipzon.api;
 
 import io.jsonwebtoken.Claims;
-import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import no.itszipzon.Logger;
-import no.itszipzon.Main;
 import no.itszipzon.Tools;
 import no.itszipzon.config.JwtUtil;
 import no.itszipzon.dto.UserDto;
@@ -416,200 +412,164 @@ public class UserApi {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  /*
+   * @PostMapping("/resetpassword") public ResponseEntity<String> requestPasswordReset(@RequestBody
+   * String email) { email = email.replace("\"", "").trim().toLowerCase();
+   * System.out.println("Email received: " + email);
+   * 
+   * Optional<User> user = userRepo.findUserByUsernameOrEmail(email); if (user.isEmpty()) {
+   * System.out.println("User not found for email: " + email); return new
+   * ResponseEntity<>("User not found", HttpStatus.NOT_FOUND); }
+   * 
+   * User userToUpdate = user.get();
+   * 
+   * String token = Tools.generateToken(5); userToUpdate.setResetToken(token);
+   * userToUpdate.setResetTokenExpiration(LocalDateTime.now().plusHours(1));
+   * userRepo.save(userToUpdate);
+   * 
+   * Map<String, String> map = new HashMap<>(); map.put("EMAIL", userToUpdate.getEmail());
+   * map.put("NAME", userToUpdate.getUsername()); map.put("TOKEN", token); map.put("LINK",
+   * "https://Questionairy.com/resetpassword?token=" + token);
+   * 
+   * try { Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
+   * String path = resource.getFile().getAbsolutePath();
+   * emailService.sendHtmlEmail(userToUpdate.getEmail(), "Password Reset", path, map); return new
+   * ResponseEntity<>("Reset token sent", HttpStatus.OK); } catch (MessagingException | IOException
+   * e) { e.printStackTrace(); return new ResponseEntity<>("Failed to send email",
+   * HttpStatus.INTERNAL_SERVER_ERROR); } }
+   * 
+   * @PostMapping("/verify-reset-token") public ResponseEntity<String> verifyResetToken(@RequestBody
+   * Map<String, String> payload) { String token = payload.get("token"); if (token == null ||
+   * token.isEmpty()) { return new ResponseEntity<>("Token is missing", HttpStatus.BAD_REQUEST); }
+   * 
+   * Optional<User> user = userRepo.findUserByResetToken(token); if (user.isEmpty()) { return new
+   * ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND); }
+   * 
+   * User userToVerify = user.get();
+   * 
+   * if (userToVerify.getResetTokenExpiration() == null ||
+   * userToVerify.getResetTokenExpiration().isBefore(LocalDateTime.now())) { return new
+   * ResponseEntity<>("Token has expired", HttpStatus.BAD_REQUEST); }
+   * 
+   * return new ResponseEntity<>("Token is valid", HttpStatus.OK); }
+   * 
+   * @PostMapping("/newpassword") public ResponseEntity<String> resetPassword(@RequestBody
+   * Map<String, String> payload) { String token = payload.get("token"); String newPassword =
+   * payload.get("newPassword");
+   * 
+   * if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) { return
+   * new ResponseEntity<>("Token and new password are required", HttpStatus.BAD_REQUEST); }
+   * 
+   * Optional<User> user = userRepo.findUserByResetToken(token);
+   * 
+   * if (user.isEmpty()) { return new ResponseEntity<>("Invalid or expired token",
+   * HttpStatus.NOT_FOUND); }
+   * 
+   * User userToUpdate = user.get();
+   * 
+   * // Check token expiration if (userToUpdate.getResetTokenExpiration() == null ||
+   * userToUpdate.getResetTokenExpiration().isBefore(LocalDateTime.now())) { return new
+   * ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST); }
+   * 
+   * // Validate password if (newPassword.length() < 8) { return new
+   * ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST); }
+   * 
+   * // Update password and clear reset token
+   * userToUpdate.setPassword(Tools.hashPassword(newPassword)); userToUpdate.setResetToken(null);
+   * userToUpdate.setResetTokenExpiration(null); userRepo.save(userToUpdate);
+   * 
+   * return new ResponseEntity<>("Password reset successfully", HttpStatus.OK); }
+   */
 
-/*   @PostMapping("/resetpassword")
+  /**
+   * Request password reset.
+   *
+   * @param email Email.
+   * @return Response.
+   */
+  @PostMapping("/resetpassword")
+  @Transactional
   public ResponseEntity<String> requestPasswordReset(@RequestBody String email) {
-      email = email.replace("\"", "").trim().toLowerCase();
-      System.out.println("Email received: " + email);
-  
-      Optional<User> user = userRepo.findUserByUsernameOrEmail(email);
-      if (user.isEmpty()) {
-          System.out.println("User not found for email: " + email);
-          return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-      }
-  
-      User userToUpdate = user.get();
-  
-      String token = Tools.generateToken(5);
-      userToUpdate.setResetToken(token);
-      userToUpdate.setResetTokenExpiration(LocalDateTime.now().plusHours(1));
-      userRepo.save(userToUpdate);
-  
-      Map<String, String> map = new HashMap<>();
-      map.put("EMAIL", userToUpdate.getEmail());
-      map.put("NAME", userToUpdate.getUsername());
-      map.put("TOKEN", token);
-      map.put("LINK", "https://Questionairy.com/resetpassword?token=" + token);
-  
-      try {
-          Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
-          String path = resource.getFile().getAbsolutePath();
-          emailService.sendHtmlEmail(userToUpdate.getEmail(), "Password Reset", path, map);
-          return new ResponseEntity<>("Reset token sent", HttpStatus.OK);
-      } catch (MessagingException | IOException e) {
-          e.printStackTrace();
-          return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-  }
-
-  @PostMapping("/verify-reset-token")
-  public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> payload) {
-    String token = payload.get("token");
-    if (token == null || token.isEmpty()) {
-        return new ResponseEntity<>("Token is missing", HttpStatus.BAD_REQUEST);
-    }
-
-    Optional<User> user = userRepo.findUserByResetToken(token);
-    if (user.isEmpty()) {
-        return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
-    }
-
-    User userToVerify = user.get();
-
-    if (userToVerify.getResetTokenExpiration() == null || 
-        userToVerify.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
-        return new ResponseEntity<>("Token has expired", HttpStatus.BAD_REQUEST);
-    }
-
-    return new ResponseEntity<>("Token is valid", HttpStatus.OK);
-  }
-
-  @PostMapping("/newpassword")
-  public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) {
-    String token = payload.get("token");
-    String newPassword = payload.get("newPassword");
-
-    if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
-        return new ResponseEntity<>("Token and new password are required", HttpStatus.BAD_REQUEST);
-    }
-
-    Optional<User> user = userRepo.findUserByResetToken(token);
-
-    if (user.isEmpty()) {
-        return new ResponseEntity<>("Invalid or expired token", HttpStatus.NOT_FOUND);
-    }
-
-    User userToUpdate = user.get();
-
-    // Check token expiration
-    if (userToUpdate.getResetTokenExpiration() == null ||
-        userToUpdate.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
-        return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
-    }
-
-    // Validate password
-    if (newPassword.length() < 8) {
-        return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
-    }
-
-    // Update password and clear reset token
-    userToUpdate.setPassword(Tools.hashPassword(newPassword));
-    userToUpdate.setResetToken(null);
-    userToUpdate.setResetTokenExpiration(null);
-    userRepo.save(userToUpdate);
-
-    return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
-} */
-
-
-@PostMapping("/resetpassword")
-@Transactional
-public ResponseEntity<String> requestPasswordReset(@RequestBody String email) {
     email = email.replace("\"", "").trim().toLowerCase();
     Optional<User> userOptional = userRepo.findUserByUsernameOrEmail(email);
-
     if (userOptional.isEmpty()) {
-        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
     }
-
     User user = userOptional.get();
-
     resetTokenRepository.deleteByUser(user);
-
     ResetToken resetToken = new ResetToken();
     resetToken.setToken(Tools.generateToken(5)); // Generate a 6-character token
     resetToken.setUser(user);
     resetTokenRepository.save(resetToken);
-
     Map<String, String> emailData = new HashMap<>();
     emailData.put("EMAIL", user.getEmail());
     emailData.put("TOKEN", resetToken.getToken());
     emailData.put("LINK", "https://Questionairy.com/resetpassword?token=" + resetToken.getToken());
-
     try {
       Resource resource = new ClassPathResource("static/email_html/forgot_password.html");
       String path = resource.getFile().getAbsolutePath();
       emailService.sendHtmlEmail(user.getEmail(), "Password Reset", path, emailData);
-        return new ResponseEntity<>("Reset token sent", HttpStatus.OK);
+      return new ResponseEntity<>("Reset token sent", HttpStatus.OK);
     } catch (Exception e) {
-        e.printStackTrace();
-        return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
+      e.printStackTrace();
+      return new ResponseEntity<>("Failed to send email", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
+  }
 
-
-
-@PostMapping("/verify-reset-token")
-public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> payload) {
+  /**
+   * Verify reset token.
+   *
+   * @param payload Token.
+   * @return Response.
+   */
+  @PostMapping("/verify-reset-token")
+  public ResponseEntity<String> verifyResetToken(@RequestBody Map<String, String> payload) {
     String token = payload.get("token");
-
     if (token == null || token.isEmpty()) {
-        return new ResponseEntity<>("Invalid token", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>("Invalid token", HttpStatus.BAD_REQUEST);
     }
-
     Optional<ResetToken> resetTokenOpt = resetTokenRepository.findByToken(token);
-
     if (resetTokenOpt.isEmpty() || !resetTokenOpt.get().isValid()) {
-        return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
     }
-
     ResetToken resetToken = resetTokenOpt.get();
-
     if (resetToken.getExpiration().isBefore(LocalDateTime.now())) {
-        return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
     }
-
     return new ResponseEntity<>("Token is valid", HttpStatus.OK);
-}
+  }
 
-
-@PostMapping("/newpassword")
-@Transactional
-public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) {
+  /**
+   * Reset password.
+   *
+   * @param payload Token and new password.
+   * @return Response.
+   */
+  @PostMapping("/newpassword")
+  @Transactional
+  public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> payload) {
     String token = payload.get("token");
     String newPassword = payload.get("newPassword");
-
     if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
-        return new ResponseEntity<>("Invalid input", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>("Invalid input", HttpStatus.BAD_REQUEST);
     }
-
     Optional<ResetToken> resetTokenOpt = resetTokenRepository.findByToken(token);
-
     if (resetTokenOpt.isEmpty() || !resetTokenOpt.get().isValid()) {
-        return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>("Invalid token", HttpStatus.NOT_FOUND);
     }
-
     ResetToken resetToken = resetTokenOpt.get();
-
     if (resetToken.getExpiration().isBefore(LocalDateTime.now())) {
-        return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
     }
-
     // Accessing user within the transaction
     User user = resetToken.getUser();
     user.setPassword(Tools.hashPassword(newPassword));
     userRepo.save(user);
-
     // Invalidate the token
     resetToken.setValid(false);
     resetTokenRepository.save(resetToken);
-
     return new ResponseEntity<>("Password reset successfully", HttpStatus.OK);
-}
-
-
-
-
+  }
 
   /**
    * Update user.
@@ -630,24 +590,20 @@ public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> pay
       return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
     String currentUsername = claims.getSubject();
-
     String newEmail = requestBody.getOrDefault("email", null);
     String newUsername = requestBody.getOrDefault("username", null);
-    
     Optional<User> userFromDb = userRepo.findUserByUsername(currentUsername);
     if (userFromDb.isEmpty()) {
       return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
     }
     User userToUpdate = userFromDb.get();
-    
     if (newEmail != null && !newEmail.isEmpty()) {
       if (!newEmail.matches(".*@.*\\..*")) {
         return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
       }
-      //TODO: Send email to old email to confirm change
+      // TODO: Send email to old email to confirm change
       userToUpdate.setEmail(newEmail);
     }
-    
     if (newUsername != null && !newUsername.isEmpty()) {
       if (!newUsername.matches("^(?!.*\\.{2})(?!.*\\.$)[a-zA-Z0-9._]{1,30}$")
           || newUsername.contains(" ")) {
@@ -658,7 +614,6 @@ public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> pay
       }
       userToUpdate.setUsername(newUsername);
     }
-
     String oldPassword = requestBody.getOrDefault("oldPassword", null);
     String newPassword = requestBody.getOrDefault("newPassword", null);
     if (oldPassword != null && newPassword != null && !oldPassword.isEmpty()
@@ -672,42 +627,10 @@ public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> pay
       }
       userToUpdate.setPassword(Tools.hashPassword(newPassword));
     }
-    
     userRepo.save(userToUpdate);
     Logger.info("User " + currentUsername + " updated their profile");
-    String jwtToken =
-        jwtUtil.generateTokenWithExpirationDate(userToUpdate, claims.getExpiration());
-    
+    String jwtToken = jwtUtil.generateTokenWithExpirationDate(userToUpdate, claims.getExpiration());
     return new ResponseEntity<>(jwtToken, HttpStatus.OK);
   }
-
-  @PutMapping("/update-email")
-  public ResponseEntity<String> updateEmail(@RequestBody Map<String, String> requestBody,
-      @RequestHeader("Authorization") String authorizationHeader) {
-    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-    }
-    String token = authorizationHeader.substring(7);
-    Claims claims = jwtUtil.extractClaims(token);
-    if (claims == null) {
-      return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
-    }
-    String currentUsername = claims.getSubject();
-    // Validate request body
-    String newEmail = requestBody.get("newEmail");
-    if (newEmail == null || newEmail.isEmpty() || !newEmail.matches(".*@.*\\..*")) {
-      return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
-    }
-    // Find user in the database
-    Optional<User> userFromDb = userRepo.findUserByUsername(currentUsername);
-    if (userFromDb.isEmpty()) {
-      return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-    }
-    // Update the email
-    User userToUpdate = userFromDb.get();
-    userToUpdate.setEmail(newEmail);
-    userRepo.save(userToUpdate);
-    Logger.info("User " + currentUsername + " updated their email to " + newEmail);
-    return new ResponseEntity<>("Email updated successfully", HttpStatus.OK);
-  }
+  
 }
