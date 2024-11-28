@@ -254,7 +254,7 @@ Note: Make sure you're logged into Docker Hub with an account that has permissio
 
 This project exists thanks to the contributions from our development team:
 
-- 👤 **Rune Molander** (Project Manager, Lead Programmer [Frontend, Backend])
+- 👤 **Rune Molander** (Project Manager, Lead Programmer [Frontend, Backend], Database architect)
 - 👤 **Jan Christian Nordskog** (Lead UI/UX Designer, Programmer [Frontend, Backend])
 - 👤 **Phillip** (Frontend Developer, UI/UX Designer)
 - 👤 **Avnit** (Programmer [Frontend, Backend], Database developer)
