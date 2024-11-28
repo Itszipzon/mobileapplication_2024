@@ -112,6 +112,20 @@ class ForgotPasswordScreenState extends ConsumerState<ForgotPassword> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account? ",
+                      style: TextStyle(color: Colors.grey)),
+                  InkWell(
+                    onTap: () => router.setPath(context, 'login'),
+                    child: Text(
+                      'Sign in here.',
+                      style: TextStyle(color: theme.primaryColor),
+                    ),
+                  )
+                ],
+              )
             ],
           ),
         ),
