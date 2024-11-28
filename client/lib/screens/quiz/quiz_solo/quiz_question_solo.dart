@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:client/tools/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,15 +23,11 @@ class QuizQuestionSoloState extends ConsumerState<QuizQuestionSolo> {
 
   String? selectedAnswer;
 
-  String _fixEncoding(String text) {
-    return utf8.decode(text.runes.toList(), allowMalformed: true);
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final progress = (widget.currentQuestionIndex + 1) / widget.totalQuestions;
-    final questionText = _fixEncoding(widget.questionText);
+    final questionText = Tools.fixEncoding(widget.questionText);
     return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -65,7 +61,7 @@ class QuizQuestionSoloState extends ConsumerState<QuizQuestionSolo> {
               child: ListView.builder(
                 itemCount: widget.options.length,
                 itemBuilder: (context, index) {
-                  final optionText = _fixEncoding(widget.options[index]["option"]);
+                  final optionText = Tools.fixEncoding(widget.options[index]["option"]);
                   final isSelected = selectedAnswer == optionText;
                   final isSelectedOrNoAnswer = isSelected || selectedAnswer == null;
 

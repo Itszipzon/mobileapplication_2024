@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Tools {
 
     static String formatCreatedAt(List<dynamic> createdAt) {
@@ -45,6 +47,10 @@ class Tools {
     } else {
       return 'Just now';
     }
+  }
+
+  static String fixEncoding(String string) {
+    return utf8.decode(string.runes.toList(), allowMalformed: true);
   }
   
 }

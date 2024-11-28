@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:client/elements/loading.dart';
 import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -56,10 +55,6 @@ class QuizResultSoloState extends ConsumerState<QuizResultSolo> {
     await ApiHandler.playQuiz(widget.token, quiz);
   }
 
-  String fixEncoding(String text) {
-    return utf8.decode(text.runes.toList(), allowMalformed: true);
-  }
-
   String performanceComment() {
     if (quizScore["score"] >= widget.totalQuestions * 1000 * 0.9) {
       return "Excellent job! You're a quiz master!";
@@ -97,7 +92,7 @@ class QuizResultSoloState extends ConsumerState<QuizResultSolo> {
                     ],
                   ),
                   child: Text(
-                    "${performanceComment()} Scoring ${quizScore["score"]} out of ${widget.totalQuestions * 1000} shows your knowledge of ${fixEncoding(widget.quizData["title"] ?? "Unknown Title")}.",
+                    "${performanceComment()} Scoring ${quizScore["score"]} out of ${widget.totalQuestions * 1000} shows your knowledge of ${Tools.fixEncoding(widget.quizData["title"] ?? "Unknown Title")}.",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 18,
@@ -115,7 +110,7 @@ class QuizResultSoloState extends ConsumerState<QuizResultSolo> {
                             orElse: () => {});
 
                     final questionText =
-                        fixEncoding(questionData?["question"] ?? "No Question");
+                        Tools.fixEncoding(questionData?["question"] ?? "No Question");
 
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
