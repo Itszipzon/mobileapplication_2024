@@ -280,7 +280,7 @@ public class UserApi {
       Logger.log("User " + loggedInUser.get().getUsername() + " logged in");
       boolean rememberMe = values.get("rememberMe") == null ? false
           : Boolean.parseBoolean(values.get("rememberMe"));
-      String token = jwtUtil.generateToken(loggedInUser.get(), (rememberMe ? 24 * 30 : 24));
+      String token = jwtUtil.generateToken(loggedInUser.get(), rememberMe ? 24 * 30 : 24);
       return new ResponseEntity<>(token, HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Username or password is not correct", HttpStatus.UNAUTHORIZED);

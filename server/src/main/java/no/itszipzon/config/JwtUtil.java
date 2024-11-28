@@ -47,7 +47,7 @@ public class JwtUtil {
         .claim("created", convertToDate(user.getCreatedAt()))
         .claim("updated", convertToDate(user.getUpdatedAt()))
         .setIssuedAt(new Date())
-        .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * hours))
+        .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * hours))
         .signWith(secretKey, SignatureAlgorithm.HS256)
         .compact();
   }
