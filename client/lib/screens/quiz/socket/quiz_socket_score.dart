@@ -1,5 +1,6 @@
 import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/tools.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,7 +86,7 @@ class ScoreState extends ConsumerState<ScoreScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(players[index]['username'].toString()),
+                    Text(Tools.fixEncoding(players[index]['username'].toString())),
                     Text(players[index]['score'].toString()),
                   ],
                 ),

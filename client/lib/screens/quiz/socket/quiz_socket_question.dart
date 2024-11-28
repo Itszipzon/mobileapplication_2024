@@ -1,5 +1,6 @@
 import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/tools.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,7 +94,7 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                 ],
               ),
               child: Text(
-                questionData['question'] ?? "No question found",
+                questionData['question'] == null ? "No question found" : Tools.fixEncoding(questionData['question']),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -131,8 +132,8 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                questionData['quizOptions'][index]['option'] ??
-                                    "",
+                                questionData['quizOptions'][index]['option'] == null 
+                                ? "" : Tools.fixEncoding(questionData['quizOptions'][index]['option']),
                                 style: TextStyle(
                                   fontSize: 16,
                                 ),
@@ -176,9 +177,8 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  questionData['quizOptions'][index]
-                                          ['option'] ??
-                                      "",
+                                  questionData['quizOptions'][index]['option'] == null
+                                      ? "" : Tools.fixEncoding(questionData['quizOptions'][index]['option']),
                                   style: TextStyle(
                                     fontSize: 16,
                                   ),

@@ -1,5 +1,6 @@
 import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
+import 'package:client/tools/tools.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,7 +106,7 @@ Widget build(BuildContext context) {
               ],
             ),
             child: Text(
-              questionData['question'] ?? "No question found",
+              questionData['question'] == null ? "No question found" : Tools.fixEncoding(questionData['question']),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 18,
@@ -150,7 +151,7 @@ Widget build(BuildContext context) {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        option['option'] ?? "",
+                        option['option'] == null ? "" : Tools.fixEncoding(option['option']),
                         style: TextStyle(
                           fontSize: 16,
                         ),
