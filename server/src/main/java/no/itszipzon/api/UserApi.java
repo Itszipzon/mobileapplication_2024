@@ -435,6 +435,7 @@ public class UserApi {
     resetTokenRepository.save(resetToken);
     Map<String, String> emailData = new HashMap<>();
     emailData.put("EMAIL", user.getEmail());
+    emailData.put("NAME", user.getUsername());
     emailData.put("TOKEN", resetToken.getToken());
     emailData.put("LINK", "https://Questionairy.com/resetpassword?token=" + resetToken.getToken());
     try {
