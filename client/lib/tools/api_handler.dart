@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
+/// Handles API requests.
 class ApiHandler {
   //////////////////////////Remote rune//////////////////////////////////
 
@@ -25,33 +26,28 @@ class ApiHandler {
 
   static String get wsUrl => _wsUrl;
 
-
   ///////////////////////////////////////////////////////////////////////
   ///
-  
+
   /// Updates the user's email
   static Future<void> updateEmail(String token, String newEmail) async {
-  final response = await http.put(
-    Uri.parse('$_url/api/user/update-email'),
-    headers: {
-      "Authorization": "Bearer $token",
-      "Content-Type": "application/json",
-    },
-    body: jsonEncode({
-      "newEmail": newEmail,
-    }),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception(
-      jsonDecode(response.body)['message'] ?? 'Failed to update email',
+    final response = await http.put(
+      Uri.parse('$_url/api/user/update-email'),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "newEmail": newEmail,
+      }),
     );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        jsonDecode(response.body)['message'] ?? 'Failed to update email',
+      );
+    }
   }
-}
-
-
-
-
 
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
@@ -107,24 +103,28 @@ class ApiHandler {
     return jsonDecode(response.body);
   }
 
+  /// Checks if the username exists.
   static Future<bool> usernameExists(String username) async {
     final response =
         await http.get(Uri.parse('$_url/api/user/usernameexists/$username'));
     return jsonDecode(response.body);
   }
 
+  /// Checks if the email exists.
   static Future<bool> hasPfp(String username) async {
     final response =
         await http.get(Uri.parse('$_url/api/user/haspfp/$username'));
     return jsonDecode(response.body);
   }
 
+  /// Gets the user's profile.
   static Future<Map<String, dynamic>> getProfile(String token) async {
     final response = await http.get(Uri.parse('$_url/api/user'),
         headers: {"Authorization": "Bearer $token"});
     return jsonDecode(response.body);
   }
 
+  /// Gets the user's profile picture.
   static Future<String> getProfilePicture(String username) async {
     final response = await ApiHandler.hasPfp(username);
     if (response) {
@@ -134,6 +134,7 @@ class ApiHandler {
     }
   }
 
+  /// Gets the user's profile picture.
   static Future<List<Map<String, dynamic>>> getUserQuizzesByToken(
       String token, int page, int amount) async {
     final response = await http.get(
@@ -147,6 +148,7 @@ class ApiHandler {
     }
   }
 
+  /// Gets the user's profile picture.
   static Future<List<Map<String, dynamic>>> getUserQuizzesByUsername(
       String username, int page, int amount) async {
     final response = await http
@@ -160,6 +162,7 @@ class ApiHandler {
     }
   }
 
+  /// Gets the user's profile picture.
   static Future<List<Map<String, dynamic>>> getQuizzesByUserHistory(
       String token, int page, int amount) async {
     final response = await http.get(
@@ -186,6 +189,7 @@ class ApiHandler {
     }
   }
 
+  /// Fetches quizzes from the API.
   static Future<List<Map<String, dynamic>>> getQuizzesByFilter(
       int page, int size, String by, String orientation) async {
     final response = await http.get(
@@ -199,6 +203,7 @@ class ApiHandler {
     }
   }
 
+  /// Fetches quizzes from the API.
   static Future<http.Response> createQuiz(
       Map<String, dynamic> quizData, String token, File thumbnail) async {
     final uri = Uri.parse('$_url/api/quiz');
@@ -232,11 +237,13 @@ class ApiHandler {
     return response;
   }
 
+  /// Fetches quizzes from the API.
   static Future<List<String>> getQuizCategories() async {
     final response = await http.get(Uri.parse('$_url/api/quiz/categories'));
     return jsonDecode(response.body).cast<String>();
   }
 
+  /// Fetches quizzes from the API.
   static Future<List<Map<String, dynamic>>> getQuizzesByCategory(
       String category, int page) async {
     final response =
@@ -250,12 +257,15 @@ class ApiHandler {
     }
   }
 
+  /// Fetches quizzes from the API.
   static Future<Map<String, dynamic>> getQuiz(int id) async {
     final response = await http.get(Uri.parse('$_url/api/quiz/$id'));
     return jsonDecode(response.body);
   }
 
-  static Future<Map<String, dynamic>> checkQuiz(String token, Map<String, dynamic> quiz) async {
+  /// Fetches quizzes from the API.
+  static Future<Map<String, dynamic>> checkQuiz(
+      String token, Map<String, dynamic> quiz) async {
     final uri = Uri.parse('$_url/api/quiz/game/solo/check');
 
     final response = await http.post(
@@ -403,20 +413,7 @@ class ApiHandler {
     }
   }
 
-  /// Example usage of the friends list
-  /// This shows the structure of the data you'll get back
-  static Map<String, dynamic> _parseFriendData(Map<String, dynamic> data) {
-    return {
-      'friendId': data['friendId'] as int,
-      'username': data['username'] as String,
-      'status': data['status'] as String,
-      'createdAt': data['createdAt'] as String,
-      'acceptedAt': data['acceptedAt'] as String?,
-      'lastLoggedIn': data['lastLoggedIn'] as String?,
-      'profilePicture': data['profilePicture'] as String?,
-    };
-  }
-
+  /// Fetches the user's friend list.
   static Future<int> getCategoryQuizCount(String categoryName) async {
     final response = await http.get(
       Uri.parse('$_url/api/quiz/category/count/$categoryName'),
@@ -427,6 +424,7 @@ class ApiHandler {
     throw Exception('Failed to get category quiz count');
   }
 
+  /// Fetches the user's friend list.
   static Future<void> deleteQuiz(String token, int quizId) async {
     final response = await http.delete(
       Uri.parse('$_url/api/quiz/$quizId'),
@@ -447,6 +445,7 @@ class ApiHandler {
     }
   }
 
+  /// Fetches the user's friend list.
   static Future<void> requestPasswordReset(String email) async {
     final response = await http.post(
       Uri.parse('$_url/api/user/resetpassword'),
@@ -459,20 +458,22 @@ class ApiHandler {
     }
   }
 
+  /// Fetches the user's friend list.
   static Future<void> verifyToken(String email, String token) async {
-  final response = await http.post(
-    Uri.parse('$_url/api/user/verify-reset-token'),
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'token': token}),
-  );
+    final response = await http.post(
+      Uri.parse('$_url/api/user/verify-reset-token'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token}),
+    );
 
-  if (response.statusCode != 200) {
-    throw Exception(jsonDecode(response.body)['message'] ??
-        'Failed to verify the reset token.');
+    if (response.statusCode != 200) {
+      throw Exception(jsonDecode(response.body)['message'] ??
+          'Failed to verify the reset token.');
+    }
   }
-}
 
-static Future<void> resetPassword(String token, String newPassword) async {
+  /// Fetches the user's friend list.
+  static Future<void> resetPassword(String token, String newPassword) async {
     final response = await http.post(
       Uri.parse("$_url/api/user/newpassword"),
       headers: {"Content-Type": "application/json"},
@@ -487,37 +488,32 @@ static Future<void> resetPassword(String token, String newPassword) async {
     }
   }
 
-
-static Future<void> updateUser(
-  String token, {
-  String? newEmail,
-  String? newUsername,
-  String? oldPassword,
-  String? newPassword,
-}) async {
-  final response = await http.put(
-    Uri.parse('$_url/api/user/update'),
-    headers: {
-      "Authorization": "Bearer $token",
-      "Content-Type": "application/json",
-    },
-    body: jsonEncode({
-      "email": newEmail ?? "",
-      "username": newUsername ?? "",
-      "oldPassword": oldPassword ?? "",
-      "newPassword": newPassword ?? "",
-    }),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception(
-      jsonDecode(response.body)['message'] ?? 'Failed to update user',
+  /// Fetches the user's friend list.
+  static Future<void> updateUser(
+    String token, {
+    String? newEmail,
+    String? newUsername,
+    String? oldPassword,
+    String? newPassword,
+  }) async {
+    final response = await http.put(
+      Uri.parse('$_url/api/user/update'),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "email": newEmail ?? "",
+        "username": newUsername ?? "",
+        "oldPassword": oldPassword ?? "",
+        "newPassword": newPassword ?? "",
+      }),
     );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        jsonDecode(response.body)['message'] ?? 'Failed to update user',
+      );
+    }
   }
 }
-
-
-
-}
-
-

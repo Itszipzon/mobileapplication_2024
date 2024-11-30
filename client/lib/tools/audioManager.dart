@@ -2,29 +2,32 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 
+/// Manages audio playback
 class AudioManager {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final AudioPlayer _audioPlayer1 = AudioPlayer();
+  final AudioPlayer _backgroundAudio = AudioPlayer();
+  final AudioPlayer _soundEffect = AudioPlayer();
 
+  /// Plays background audio
   Future<void> playBackgroundAudio(List<String> audioFiles) async {
-    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    _backgroundAudio.setReleaseMode(ReleaseMode.loop);
     String selectedAudio = audioFiles[Random().nextInt(audioFiles.length)];
-    await _audioPlayer.play(AssetSource(selectedAudio));
+    await _backgroundAudio.play(AssetSource(selectedAudio));
   }
 
+  /// Plays sound effects
   Future<void> playSoundEffect(String file) async {
-    await _audioPlayer1.play(AssetSource(file));
+    await _soundEffect.play(AssetSource(file));
   }
 
-  // Stops all audio playback
+  /// Stops all audio playback
   Future<void> stopAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer1.stop();
+    await _backgroundAudio.stop();
+    await _soundEffect.stop();
   }
 
-  // Disposes audio resources
+  /// Disposes audio resources
   Future<void> dispose() async {
-    await _audioPlayer.dispose();
-    await _audioPlayer1.dispose();
+    await _backgroundAudio.dispose();
+    await _soundEffect.dispose();
   }
 }

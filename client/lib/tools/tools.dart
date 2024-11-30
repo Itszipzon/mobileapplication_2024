@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+/// Tools class to hold static methods
 class Tools {
 
+  /// Format the date and time of a post
     static String formatCreatedAt(List<dynamic> createdAt) {
       List<int> date = createdAt.map((e) => int.parse(e.toString())).toList();
       final dateFromParameter = DateTime(
@@ -49,6 +51,7 @@ class Tools {
     }
   }
 
+  /// Fix the encoding of a string
   static String fixEncoding(String string) {
     return utf8.decode(string.runes.toList(), allowMalformed: true);
   }

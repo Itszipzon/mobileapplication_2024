@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// The main function to run the app
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) => runApp(const ProviderScope(child: MainApp())));
 }
 
+/// The main app widget
 class MainApp extends ConsumerStatefulWidget {
   const MainApp({super.key});
 
