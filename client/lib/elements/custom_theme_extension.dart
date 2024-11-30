@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// The custom theme extension
 class CustomThemeExtension extends ThemeExtension<CustomThemeExtension> {
   final Color primaryTextColor;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A loading logo widget
 class LogoLoading extends StatefulWidget {
   static const String path = 'assets/logo.png';
 

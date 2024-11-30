@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A profile picture widget
 class ProfilePicture extends StatelessWidget {
   final String url;
   final double size;

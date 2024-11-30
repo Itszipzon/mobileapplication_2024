@@ -6,6 +6,7 @@ import 'package:client/tools/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A widget that displays a quiz post
 class QuizPost extends ConsumerWidget {
   const QuizPost({
     super.key,

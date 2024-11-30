@@ -3,6 +3,7 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// The bottom navigation bar
 class BottomNavbar extends ConsumerWidget {
   final String path;
   const BottomNavbar({super.key, required this.path});

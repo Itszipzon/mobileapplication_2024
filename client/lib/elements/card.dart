@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A category card widget
 class CategoryCard extends StatelessWidget {
   final GestureTapCallback? onTap;
   final IconData icon;

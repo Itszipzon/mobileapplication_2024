@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A counter widget
 class Counter extends ConsumerStatefulWidget {
   final VoidCallback onCountdownComplete;
   final int duration;

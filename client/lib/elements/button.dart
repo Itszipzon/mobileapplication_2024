@@ -48,6 +48,7 @@ class SmallTextButton extends StatelessWidget {
   }
 }
 
+/// A large button with text.
 class LargeImageButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
@@ -74,6 +75,7 @@ class LargeImageButton extends StatelessWidget {
   }
 }
 
+/// A button with an icon and text.
 class IconTextButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
@@ -116,6 +118,7 @@ class IconTextButton extends StatelessWidget {
   }
 }
 
+/// A button with a large icon.
 class BigIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
@@ -155,6 +158,7 @@ class BigIconButton extends StatelessWidget {
   }
 }
 
+/// A button with text and an icon.
 class SizedTextButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;

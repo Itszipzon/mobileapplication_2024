@@ -1,6 +1,7 @@
 import 'package:client/elements/quiz_post.dart';
 import 'package:flutter/material.dart';
 
+/// A widget that displays a feed category
 class FeedCategory extends StatelessWidget {
   const FeedCategory({
     super.key,
