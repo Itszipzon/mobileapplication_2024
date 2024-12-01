@@ -423,7 +423,7 @@ public class QuizApi {
       }
       newQuiz.setCategories(quizCategoryList);
     }
-    String thumbnailString = Tools.addImage(quizUser.getUsername(), thumbnail, "quiz");
+    String thumbnailString = Tools.addImage(quizUser.getId(), thumbnail, "quiz");
     if (thumbnailString.isBlank()) {
       return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }

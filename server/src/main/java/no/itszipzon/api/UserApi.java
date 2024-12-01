@@ -398,7 +398,8 @@ public class UserApi {
         return new ResponseEntity<>("File too big", HttpStatus.BAD_REQUEST);
       }
       String username = claims.getSubject();
-      String pfpName = Tools.addImage(username, image, "pfp");
+      Long id = claims.get("id", Long.class);
+      String pfpName = Tools.addImage(id, image, "pfp");
       if (pfpName.isEmpty()) {
         return new ResponseEntity<>("Could not update image", HttpStatus.INTERNAL_SERVER_ERROR);
       }

@@ -53,12 +53,12 @@ public class Tools {
   /**
    * Add image to user.
    *
-   * @param username username of the user
+   * @param id    id of the user.
    * @param image    image to add.
    * @return true if the image was added, false if not.
    */
   @SuppressWarnings("null")
-  public static String addImage(String username, MultipartFile image, String type) {
+  public static String addImage(Long id, MultipartFile image, String type) {
     String staticLocation = new Main().getResource("/static").getPath();
     if (!Files.exists(Path.of(Tools.getCorrectUrl(staticLocation + "/images")))) {
       try {
@@ -74,15 +74,14 @@ public class Tools {
     }
     path += "/";
     pathBefore += "/../../../src/main/resources/static/images/";
-    username = username.toLowerCase();
     try {
       byte[] bytes = image.getBytes();
       if (type.equalsIgnoreCase("pfp")) {
-        if (!Files.exists(Path.of(Tools.getCorrectUrl(path + username + "/pfp")))) {
-          Files.createDirectories((Path.of(Tools.getCorrectUrl(path + username + "/pfp"))));
+        if (!Files.exists(Path.of(Tools.getCorrectUrl(path + id + "/pfp")))) {
+          Files.createDirectories((Path.of(Tools.getCorrectUrl(path + id + "/pfp"))));
         }
-        if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + username + "/pfp")))) {
-          Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + username + "/pfp")));
+        if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + id + "/pfp")))) {
+          Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + id + "/pfp")));
         }
         UUID uid = UUID.randomUUID();
         String filename = uid.toString();
@@ -95,18 +94,18 @@ public class Tools {
         } else {
           throw new IOException("Invalid file type");
         }
-        Path filePath = Path.of(Tools.getCorrectUrl(path + username + "/pfp/" + filename));
+        Path filePath = Path.of(Tools.getCorrectUrl(path + id + "/pfp/" + filename));
         Path filePathBefore = Path
-            .of(Tools.getCorrectUrl(pathBefore + username + "/pfp/" + filename));
+            .of(Tools.getCorrectUrl(pathBefore + id + "/pfp/" + filename));
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
         return filename;
       } else if (type.equalsIgnoreCase("quiz")) {
-        if (!Files.exists(Path.of(Tools.getCorrectUrl(path + username + "/quiz")))) {
-          Files.createDirectories((Path.of(Tools.getCorrectUrl(path + username + "/quiz"))));
+        if (!Files.exists(Path.of(Tools.getCorrectUrl(path + id + "/quiz")))) {
+          Files.createDirectories((Path.of(Tools.getCorrectUrl(path + id + "/quiz"))));
         }
-        if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + username + "/quiz")))) {
-          Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + username + "/quiz")));
+        if (!Files.exists(Path.of(Tools.getCorrectUrl(pathBefore + id + "/quiz")))) {
+          Files.createDirectories(Path.of(Tools.getCorrectUrl(pathBefore + id + "/quiz")));
         }
         UUID uid = UUID.randomUUID();
         String filename = uid.toString();
@@ -119,9 +118,9 @@ public class Tools {
         } else {
           throw new IOException("Invalid file type");
         }
-        Path filePath = Path.of(Tools.getCorrectUrl(path + username + "/quiz/" + filename));
+        Path filePath = Path.of(Tools.getCorrectUrl(path + id + "/quiz/" + filename));
         Path filePathBefore = Path
-            .of(Tools.getCorrectUrl(pathBefore + username + "/quiz/" + filename));
+            .of(Tools.getCorrectUrl(pathBefore + id + "/quiz/" + filename));
         Files.write(filePath, bytes);
         Files.write(filePathBefore, bytes);
         System.out.println("\n\n"
