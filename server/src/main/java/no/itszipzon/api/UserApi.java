@@ -132,7 +132,7 @@ public class UserApi {
       return ResponseEntity.ok().contentType(mediaType).body(resource);
     }
     User user = userOpt.get();
-    String imageFolder = "static/images/" + username + "/pfp/";
+    String imageFolder = "static/images/" + user.getId() + "/pfp/";
     Resource resource;
     String filetype;
     resource = new ClassPathResource(imageFolder + user.getProfilePicture());

@@ -129,9 +129,8 @@ public class QuizApi {
   @GetMapping("/thumbnail/{id}")
   public ResponseEntity<Resource> getQuizImage(@PathVariable Long id) {
     Optional<QuizDto> quiz = quizRepo.findQuizSummaryById(id);
-    String username = quiz.get().getUsername();
     String thumbnail = quiz.get().getThumbnail();
-    String imageFolder = "static/images/" + username + "/quiz/";
+    String imageFolder = "static/images/" + id + "/quiz/";
     Resource resource;
     String filetype;
     resource = new ClassPathResource(imageFolder + thumbnail);
