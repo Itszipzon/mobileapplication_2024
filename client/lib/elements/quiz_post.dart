@@ -48,7 +48,7 @@ class QuizPost extends ConsumerWidget {
               children: [
                 ClipOval(
                   child: ProfilePicture(
-                    url: profilePicture == "" ? DummyData.profilePicture : "${ApiHandler.url}/api/user/pfp/$profilePicture",
+                    url: profilePicture == "" ? DummyData.profilePicture : "${ApiHandler.url}/api/user/pfp/$username",
                     size: 50,
                   ),
                 ),
