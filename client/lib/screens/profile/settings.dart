@@ -72,6 +72,13 @@ class SettingsState extends ConsumerState<Settings> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Email updated successfully!")),
       );
+
+      // Clear the token and navigate to login
+      user.logout(
+        context,
+        router,
+      );
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update email: $e")),
@@ -97,6 +104,12 @@ class SettingsState extends ConsumerState<Settings> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Username updated successfully!")),
+      );
+
+      // Clear the token and navigate to login
+      user.logout(
+        context,
+        router,
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -135,6 +148,13 @@ class SettingsState extends ConsumerState<Settings> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Password updated successfully!")),
       );
+
+      // Clear the token and navigate to login
+      user.logout(
+        context,
+        router,
+      );
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update password: $e")),
@@ -147,166 +167,172 @@ class SettingsState extends ConsumerState<Settings> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Change Username Section
-        const Text(
-          "Change Username",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Flexible(
-              child: Input(
-                labelText: "Username",
-                icon: Icons.person,
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Change Username Section
+          const Text(
+            "Change Username",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Flexible(
+                child: Input(
+                  labelText: "Username",
+                  icon: Icons.person,
+                  onChanged: (value) {
+                    setState(() {
+                      newUsername = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              isUpdatingUsername
+                  ? const CircularProgressIndicator()
+                  : SizedTextButton(
+                      text: "Update",
+                      onPressed: () {
+                        if (newUsername.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Please enter a new username.")),
+                          );
+                          return;
+                        }
+                        _updateUsername();
+                      },
+                      height: 50,
+                      width: 75,
+                      textStyle:
+                          const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+            ],
+          ),
+          const Divider(),
+          const SizedBox(height: 10),
+
+          // Change Password Section
+          const Text(
+            "Change Password",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Column(
+            children: [
+              Input(
+                labelText: "Old Password",
+                obscureText: true,
+                icon: Icons.lock,
                 onChanged: (value) {
                   setState(() {
-                    newUsername = value;
+                    oldPassword = value;
                   });
                 },
               ),
-            ),
-            const SizedBox(width: 10),
-            isUpdatingUsername
-                ? const CircularProgressIndicator()
-                : SizedTextButton(
-                    text: "Update",
-                    onPressed: () {
-                      if (newUsername.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Please enter a new username.")),
-                        );
-                        return;
-                      }
-                      _updateUsername();
-                    },
-                    height: 50,
-                    width: 75,
-                    textStyle: const TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-          ],
-        ),
-        const Divider(),
-        const SizedBox(height: 10),
-
-        // Change Password Section
-        const Text(
-          "Change Password",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Column(
-          children: [
-            Input(
-              labelText: "Old Password",
-              obscureText: true,
-              icon: Icons.lock,
-              onChanged: (value) {
-                setState(() {
-                  oldPassword = value;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            Input(
-              labelText: "New Password",
-              obscureText: true,
-              icon: Icons.lock,
-              onChanged: (value) {
-                setState(() {
-                  newPassword = value;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            Input(
-              labelText: "Confirm Password",
-              obscureText: true,
-              icon: Icons.lock,
-              onChanged: (value) {
-                setState(() {
-                  confirmPassword = value;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Spacer(),
-                isUpdatingPassword
-                    ? const CircularProgressIndicator()
-                    : SizedTextButton(
-                        text: "Update",
-                        onPressed: () {
-                          if (oldPassword.isEmpty ||
-                              newPassword.isEmpty ||
-                              confirmPassword.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Please fill in all password fields.")),
-                            );
-                            return;
-                          }
-                          _updatePassword();
-                        },
-                        height: 50,
-                        width: 75,
-                        textStyle: const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-              ],
-            ),
-          ],
-        ),
-        const Divider(),
-        const SizedBox(height: 10),
-
-        // Change Email Section
-        const Text(
-          "Change Email",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Flexible(
-              child: Input(
-                labelText: "Email",
-                icon: Icons.email,
+              const SizedBox(height: 10),
+              Input(
+                labelText: "New Password",
+                obscureText: true,
+                icon: Icons.lock,
                 onChanged: (value) {
                   setState(() {
-                    newEmail = value;
+                    newPassword = value;
                   });
                 },
               ),
-            ),
-            const SizedBox(width: 10),
-            isUpdatingEmail
-                ? const CircularProgressIndicator()
-                : SizedTextButton(
-                    text: "Update",
-                    onPressed: () {
-                      if (newEmail.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Please enter a new email.")),
-                        );
-                        return;
-                      }
-                      _updateEmail();
-                    },
-                    height: 50,
-                    width: 75,
-                    textStyle: const TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-          ],
-        ),
-        const Divider(),
-      ],
-    ),
-  );
-}
+              const SizedBox(height: 10),
+              Input(
+                labelText: "Confirm Password",
+                obscureText: true,
+                icon: Icons.lock,
+                onChanged: (value) {
+                  setState(() {
+                    confirmPassword = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Spacer(),
+                  isUpdatingPassword
+                      ? const CircularProgressIndicator()
+                      : SizedTextButton(
+                          text: "Update",
+                          onPressed: () {
+                            if (oldPassword.isEmpty ||
+                                newPassword.isEmpty ||
+                                confirmPassword.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        "Please fill in all password fields.")),
+                              );
+                              return;
+                            }
+                            _updatePassword();
+                          },
+                          height: 50,
+                          width: 75,
+                          textStyle: const TextStyle(
+                              fontSize: 16, color: Colors.white),
+                        ),
+                ],
+              ),
+            ],
+          ),
+          const Divider(),
+          const SizedBox(height: 10),
+
+          // Change Email Section
+          const Text(
+            "Change Email",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Flexible(
+                child: Input(
+                  labelText: "Email",
+                  icon: Icons.email,
+                  onChanged: (value) {
+                    setState(() {
+                      newEmail = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              isUpdatingEmail
+                  ? const CircularProgressIndicator()
+                  : SizedTextButton(
+                      text: "Update",
+                      onPressed: () {
+                        if (newEmail.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Please enter a new email.")),
+                          );
+                          return;
+                        }
+                        _updateEmail();
+                      },
+                      height: 50,
+                      width: 75,
+                      textStyle:
+                          const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+            ],
+          ),
+          const Divider(),
+        ],
+      ),
+    );
+  }
 }
