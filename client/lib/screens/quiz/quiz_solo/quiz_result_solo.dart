@@ -1,5 +1,6 @@
 import 'package:client/elements/loading.dart';
 import 'package:client/tools/api_handler.dart';
+import 'package:client/tools/audioManager.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/tools.dart';
 import 'package:flutter/material.dart';
@@ -28,10 +29,13 @@ class QuizResultSoloState extends ConsumerState<QuizResultSolo> {
   late final RouterNotifier router;
   bool loading = true;
   Map<String, dynamic> quizScore = {};
+  late final AudioManager audioManager;
 
   @override
   void initState() {
     super.initState();
+    audioManager = AudioManager();
+    audioManager.playSoundEffect("countup.mp3");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       router = ref.read(routerProvider.notifier);
       _initCheck();
