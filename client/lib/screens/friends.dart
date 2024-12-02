@@ -289,7 +289,7 @@ class FriendsState extends ConsumerState<Friends> {
               ],
             ),
       bottomNavigationBar: const BottomNavbar(
-        path: "profile",
+        path: "friends",
       ),
     );
   }
