@@ -59,6 +59,42 @@ class SettingsState extends ConsumerState<Settings> {
     });
   }
 
+  // Function to show logout dialog
+  Future<void> _showLogoutDialog(BuildContext context) async {
+  final navigator = Navigator.of(context);
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Logout Required"),
+        content: const Text(
+          "You need to log out for changes to take effect. Press 'Confirm' to log out.",
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: SizedTextButton(
+              text: "Confirm",
+              onPressed: () {
+                navigator.pop();
+                user.logout(context, router);
+              },
+              height: 40,
+              textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
+
+
   // Function to update email
   Future<void> _updateEmail() async {
     setState(() {
@@ -75,8 +111,7 @@ class SettingsState extends ConsumerState<Settings> {
         const SnackBar(content: Text("Email updated successfully!")),
       );
 
-      // Clear the token and navigate to login
-      user.logout(context, router);
+      await _showLogoutDialog(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update email: $e")),
@@ -104,8 +139,7 @@ class SettingsState extends ConsumerState<Settings> {
         const SnackBar(content: Text("Username updated successfully!")),
       );
 
-      // Clear the token and navigate to login
-      user.logout(context, router);
+      await _showLogoutDialog(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update username: $e")),
@@ -144,8 +178,7 @@ class SettingsState extends ConsumerState<Settings> {
         const SnackBar(content: Text("Password updated successfully!")),
       );
 
-      // Clear the token and navigate to login
-      user.logout(context, router);
+      await _showLogoutDialog(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update password: $e")),
@@ -370,3 +403,4 @@ class SettingsState extends ConsumerState<Settings> {
     );
   }
 }
+
