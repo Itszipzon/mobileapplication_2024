@@ -7,27 +7,10 @@ import 'package:http_parser/http_parser.dart';
 
 /// Handles API requests.
 class ApiHandler {
-  //////////////////////////Remote rune//////////////////////////////////
 
-/*   
-  static final String _url = "http://10.24.37.76:8080";
-
-  static String get url => _url; */
-
-  //////////////////////////local//////////////////////////////////
-
-  static final String _url =
-      Platform.isAndroid ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
-
-  static final String _wsUrl =
-      Platform.isAndroid ? 'ws://10.0.2.2:8080' : 'ws://localhost:8080';
+  static final String _url = "http://10.212.25.78:8080";
 
   static String get url => _url;
-
-  static String get wsUrl => _wsUrl;
-
-  ///////////////////////////////////////////////////////////////////////
-  ///
 
   /// Updates the user's email
   static Future<void> updateEmail(String token, String newEmail) async {
