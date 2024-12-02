@@ -130,7 +130,7 @@ public class QuizApi {
   public ResponseEntity<Resource> getQuizImage(@PathVariable Long id) {
     Optional<QuizDto> quiz = quizRepo.findQuizSummaryById(id);
     String thumbnail = quiz.get().getThumbnail();
-    String imageFolder = "static/images/" + id + "/quiz/";
+    String imageFolder = "static/images/" + quiz.get().getUserId() + "/quiz/";
     Resource resource;
     String filetype;
     resource = new ClassPathResource(imageFolder + thumbnail);

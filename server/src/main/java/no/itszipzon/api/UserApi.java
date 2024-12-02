@@ -535,7 +535,9 @@ public class UserApi {
       if (!newEmail.matches(".*@.*\\..*")) {
         return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
       }
-      // TODO: Send email to old email to confirm change
+      if (userRepo.findUserByUsernameOrEmail(newEmail).isPresent()) {
+        return new ResponseEntity<>("Email already exist", HttpStatus.BAD_REQUEST);
+      }
       userToUpdate.setEmail(newEmail);
     }
     if (newUsername != null && !newUsername.isEmpty()) {

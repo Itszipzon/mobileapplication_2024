@@ -198,7 +198,7 @@ public class QuizSession {
   }
 
   public double getQuestionTime() {
-    Duration duration = Duration.between(questionStartTime, LocalDateTime.now());
+    Duration duration = questionStartTime == null ? Duration.ofSeconds(1) : Duration.between(questionStartTime, LocalDateTime.now());
     return duration.toMillis() / 1000;
   }
 

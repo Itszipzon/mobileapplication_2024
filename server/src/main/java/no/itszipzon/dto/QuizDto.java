@@ -17,6 +17,7 @@ public class QuizDto {
   @JsonProperty("profile_picture")
   private String profilePicture;
   private LocalDateTime createdAt;
+  private long userId;
 
   /**
    * Constructor.
@@ -42,6 +43,19 @@ public class QuizDto {
     this.createdAt = createdAt;
   }
 
+  public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
+      String username, String profilePicture, LocalDateTime createdAt, long userId) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.thumbnail = thumbnail;
+    this.timer = timer;
+    this.username = username;
+    this.profilePicture = profilePicture;
+    this.createdAt = createdAt;
+    this.userId = userId;
+  }
+
   /**
    * Constructor.
    *
@@ -53,7 +67,7 @@ public class QuizDto {
    * @param username       username.
    * @param profilePicture profilePicture.
    * @param createdAt      createdAt.
-   * @param expEarned       xpGained.
+   * @param expEarned      xpGained.
    */
   public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
       String username, String profilePicture, LocalDateTime createdAt, int expEarned) {
@@ -66,6 +80,20 @@ public class QuizDto {
     this.profilePicture = profilePicture;
     this.createdAt = createdAt;
     this.expEarned = expEarned;
+  }
+
+  public QuizDto(long id, String title, String description, String thumbnail, Integer timer,
+      String username, String profilePicture, LocalDateTime createdAt, int expEarned, long userId) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.thumbnail = thumbnail;
+    this.timer = timer;
+    this.username = username;
+    this.profilePicture = profilePicture;
+    this.createdAt = createdAt;
+    this.expEarned = expEarned;
+    this.userId = userId;
   }
 
   public QuizDto() {
@@ -141,5 +169,13 @@ public class QuizDto {
 
   public void setXpEarned(int xpGained) {
     this.expEarned = xpGained;
+  }
+
+  public void setUserId(long id) {
+    this.userId = id;
+  }
+
+  public long getUserId() {
+    return this.userId;
   }
 }

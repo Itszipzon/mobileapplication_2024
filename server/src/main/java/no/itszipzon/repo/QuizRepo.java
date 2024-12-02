@@ -35,7 +35,7 @@ public interface QuizRepo extends JpaRepository<Quiz, Long> {
 
   @Query("""
       SELECT new no.itszipzon.dto.QuizDto(q.quizId, q.title, q.description, q.thumbnail, q.timer,
-                                           u.username, u.profilePicture, q.createdAt)
+                                           u.username, u.profilePicture, q.createdAt, u.userId)
       FROM Quiz q JOIN q.user u
       WHERE q.quizId = :id
       """)
