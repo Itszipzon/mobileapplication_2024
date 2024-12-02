@@ -47,7 +47,12 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
   void initState() {
     super.initState();
     audioManager = AudioManager();
-    List<String> sounds = ["audio.mp3", "audio1.mp3", "audio2.mp3", "audio3.mp3"];
+    List<String> sounds = [
+      "audio.mp3",
+      "audio1.mp3",
+      "audio2.mp3",
+      "audio3.mp3"
+    ];
     audioManager!.playBackgroundAudio(sounds);
     _initStates();
   }
@@ -94,7 +99,9 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                 ],
               ),
               child: Text(
-                questionData['question'] == null ? "No question found" : Tools.fixEncoding(questionData['question']),
+                questionData['question'] == null
+                    ? "No question found"
+                    : Tools.fixEncoding(questionData['question']),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -111,7 +118,6 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                       itemCount: questionData['quizOptions'].length ?? 0,
                       itemBuilder: (context, index) {
                         return Container(
-                          width: 50,
                           decoration: BoxDecoration(
                             color: answer["option"] ==
                                     questionData['quizOptions'][index]["option"]
@@ -125,18 +131,24 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                                     : Colors.grey),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            // Use Column for better text wrapping
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                questionData['quizOptions'][index]['option'] == null 
-                                ? "" : Tools.fixEncoding(questionData['quizOptions'][index]['option']),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
+                                questionData['quizOptions'][index]['option'] ==
+                                        null
+                                    ? ""
+                                    : Tools.fixEncoding(
+                                        questionData['quizOptions'][index]
+                                            ['option']),
+                                style: const TextStyle(fontSize: 16),
+                                softWrap: true,
+                                overflow: TextOverflow
+                                    .visible, // Allow text to wrap naturally
                               ),
                             ],
                           ),
@@ -170,20 +182,19 @@ class QuizSocketQuestionState extends ConsumerState<QuizSocketQuestion> {
                               border: Border.all(color: theme.primaryColor),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  questionData['quizOptions'][index]['option'] == null
-                                      ? "" : Tools.fixEncoding(questionData['quizOptions'][index]['option']),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              questionData['quizOptions'][index]['option'] ==
+                                      null
+                                  ? ""
+                                  : Tools.fixEncoding(
+                                      questionData['quizOptions'][index]
+                                          ['option']),
+                              style: TextStyle(fontSize: 16),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
                             ),
                           ),
                         );
