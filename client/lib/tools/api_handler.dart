@@ -541,31 +541,19 @@ static const String baseUrl = "http://localhost:8080";
   }
 
   /// Fetches the user's friend list.
-  static Future<void> updateUser(
+  static Future<Response> updateUser(
     String token, {
     String? newEmail,
     String? newUsername,
     String? oldPassword,
     String? newPassword,
   }) async {
-    final response = await http.put(
+    return await http.put(
       Uri.parse('$_url/api/user/update'),
       headers: {
         "Authorization": "Bearer $token",
         "Content-Type": "application/json",
       },
-      body: jsonEncode({
-        "email": newEmail ?? "",
-        "username": newUsername ?? "",
-        "oldPassword": oldPassword ?? "",
-        "newPassword": newPassword ?? "",
-      }),
     );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        jsonDecode(response.body)['message'] ?? 'Failed to update user',
-      );
-    }
   }
 }
