@@ -44,14 +44,16 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
         router.setPath(context, 'login');
         return;
       }
-      _initUsername();
       _connect();
     });
   }
 
   Future<void> _initUsername() async {
-    username = await ApiHandler.getProfile(user.token!)
-        .then((value) => value['username']);
+    String userString = await ApiHandler.getProfile(user.token!)
+          .then((value) => value['username']);
+    setState(() {
+      username = userString;
+    });
   }
 
   @override
@@ -60,7 +62,8 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     super.dispose();
   }
 
-  void _connect() {
+  Future<void> _connect() async {
+    await _initUsername();
     stompClient = StompClient(
       config: StompConfig(
         url: '${ApiHandler.url}/socket',
@@ -115,7 +118,6 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
           });
           quizIdCompleter.complete();
         } else {
-          print('Empty body');
         }
       },
     );
