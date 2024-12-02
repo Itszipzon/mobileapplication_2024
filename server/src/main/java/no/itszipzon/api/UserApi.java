@@ -554,6 +554,9 @@ public class UserApi {
     String newPassword = requestBody.getOrDefault("newPassword", null);
     if (oldPassword != null && newPassword != null && !oldPassword.isEmpty()
         && !newPassword.isEmpty()) {
+      if (!newPassword.equals(requestBody.get("confirmPassword"))) {
+        return new ResponseEntity<>("Passwords do not match", HttpStatus.BAD_REQUEST);
+      }
       if (!Tools.matchPasswords(oldPassword, userToUpdate.getPassword())) {
         return new ResponseEntity<>("Old password is incorrect", HttpStatus.BAD_REQUEST);
       }

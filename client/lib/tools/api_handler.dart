@@ -528,6 +528,7 @@ class ApiHandler {
     String? newUsername,
     String? oldPassword,
     String? newPassword,
+    String? confirmPassword,
   }) async {
     final response = await http.put(
       Uri.parse('$_url/api/user/update'),
@@ -540,6 +541,7 @@ class ApiHandler {
         "username": newUsername ?? "",
         "oldPassword": oldPassword ?? "",
         "newPassword": newPassword ?? "",
+        "confirmPassword": confirmPassword ?? "",
       }),
     );
 

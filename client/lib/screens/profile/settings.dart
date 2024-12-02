@@ -283,6 +283,7 @@ class SettingsState extends ConsumerState<Settings> {
       token,
       oldPassword: oldPassword,
       newPassword: newPassword,
+      confirmPassword: confirmPassword,
     ).then((value) => {
           if (value.statusCode == 200)
             {
