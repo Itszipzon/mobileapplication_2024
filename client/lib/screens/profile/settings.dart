@@ -3,7 +3,7 @@ import 'package:client/elements/button.dart';
 import 'package:client/elements/input.dart';
 import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
-import 'package:client/tools/api_handler.dart'; // Import ApiHandler
+import 'package:client/tools/api_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +37,7 @@ class SettingsState extends ConsumerState<Settings> {
 
   Map<String, dynamic> profile = {
     "username": "",
+    "email": "",
     "pfp": DummyData.profilePicture,
   };
 
@@ -59,41 +60,85 @@ class SettingsState extends ConsumerState<Settings> {
     });
   }
 
-  // Function to show logout dialog
-  Future<void> _showLogoutDialog(BuildContext context) async {
-  final navigator = Navigator.of(context);
+  // Show the logout confirmation dialog
+  Future<bool> _showLogoutDialog(BuildContext context) async {
+    final navigator = Navigator.of(context);
 
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Logout Required"),
-        content: const Text(
-          "You need to log out for changes to take effect. Press 'Confirm' to log out.",
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: SizedTextButton(
-              text: "Confirm",
-              onPressed: () {
-                navigator.pop();
-                user.logout(context, router);
-              },
-              height: 40,
-              textStyle: const TextStyle(fontSize: 16, color: Colors.white),
-            ),
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Logout Required"),
+          content: const Text(
+            "You need to log out for changes to take effect. Press 'Confirm' to log out or 'Cancel' to discard changes.",
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Confirm button
+                SizedTextButton(
+                  text: "Confirm",
+                  onPressed: () {
+                    navigator.pop(true); // Close dialog and return true
+                  },
+                  height: 40,
+                  textStyle:
+                      const TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                const SizedBox(height: 10),
+                // Cancel button
+                SizedTextButton(
+                  text: "Cancel",
+                  onPressed: () {
+                    navigator.pop(false); // Close dialog and return false
+                  },
+                  height: 40,
+                  textStyle:
+                      const TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    ).then((value) => value ?? false); // Default to false if null
+  }
 
+  // Handle username change
+  Future<void> _handleUsernameChange() async {
+    final previousUsername = profile["username"]; // Store previous value
+    final confirm = await _showLogoutDialog(context);
+    if (confirm) {
+      await _updateUsername(); // Call API if confirmed
+    } else {
+      setState(() {
+        newUsername = previousUsername; // Restore old username
+      });
+    }
+  }
 
+  // Handle email change
+  Future<void> _handleEmailChange() async {
+    final previousEmail = profile["email"]; // Store previous value
+    final confirm = await _showLogoutDialog(context);
+    if (confirm) {
+      await _updateEmail(); // Call API if confirmed
+    } else {
+      setState(() {
+        newEmail = previousEmail; // Restore old email
+      });
+    }
+  }
 
-
+  // Handle password change
+  Future<void> _handlePasswordChange() async {
+    final confirm = await _showLogoutDialog(context);
+    if (confirm) {
+      await _updatePassword(); // Call API if confirmed
+    }
+  }
 
   // Function to update email
   Future<void> _updateEmail() async {
@@ -111,7 +156,7 @@ class SettingsState extends ConsumerState<Settings> {
         const SnackBar(content: Text("Email updated successfully!")),
       );
 
-      await _showLogoutDialog(context);
+      user.logout(context, router); // Logout user
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update email: $e")),
@@ -139,7 +184,7 @@ class SettingsState extends ConsumerState<Settings> {
         const SnackBar(content: Text("Username updated successfully!")),
       );
 
-      await _showLogoutDialog(context);
+      user.logout(context, router); // Logout user
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update username: $e")),
@@ -178,7 +223,7 @@ class SettingsState extends ConsumerState<Settings> {
         const SnackBar(content: Text("Password updated successfully!")),
       );
 
-      await _showLogoutDialog(context);
+      user.logout(context, router); // Logout user
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update password: $e")),
@@ -208,7 +253,7 @@ class SettingsState extends ConsumerState<Settings> {
                 child: Input(
                   labelText: "Username",
                   icon: Icons.person,
-                  hintText: profile["username"], // Current username as placeholder
+                  hintText: profile["username"],
                   onChanged: (value) {
                     setState(() {
                       newUsername = value;
@@ -221,16 +266,7 @@ class SettingsState extends ConsumerState<Settings> {
                   ? const CircularProgressIndicator()
                   : SizedTextButton(
                       text: "Update",
-                      onPressed: () {
-                        if (newUsername.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Please enter a new username.")),
-                          );
-                          return;
-                        }
-                        _updateUsername();
-                      },
+                      onPressed: _handleUsernameChange,
                       height: 50,
                       width: 75,
                       textStyle:
@@ -249,7 +285,6 @@ class SettingsState extends ConsumerState<Settings> {
           const SizedBox(height: 10),
           Column(
             children: [
-              // Old Password Field with "Show" Button
               Row(
                 children: [
                   Flexible(
@@ -272,15 +307,14 @@ class SettingsState extends ConsumerState<Settings> {
                         showOldPassword = !showOldPassword;
                       });
                     },
-                    height: 50,
+                    height: 40,
                     width: 75,
-                    textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+                    textStyle:
+                        const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-
-              // New Password Field with "Show" Button
               Row(
                 children: [
                   Flexible(
@@ -303,15 +337,14 @@ class SettingsState extends ConsumerState<Settings> {
                         showNewPassword = !showNewPassword;
                       });
                     },
-                    height: 50,
+                    height: 40,
                     width: 75,
-                    textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+                    textStyle:
+                        const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-
-              // Confirm Password Field with Update Button
               Row(
                 children: [
                   Flexible(
@@ -331,22 +364,11 @@ class SettingsState extends ConsumerState<Settings> {
                       ? const CircularProgressIndicator()
                       : SizedTextButton(
                           text: "Update",
-                          onPressed: () {
-                            if (oldPassword.isEmpty ||
-                                newPassword.isEmpty ||
-                                confirmPassword.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        "Please fill in all password fields.")),
-                              );
-                              return;
-                            }
-                            _updatePassword();
-                          },
+                          onPressed: _handlePasswordChange,
                           height: 50,
                           width: 75,
-                          textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+                          textStyle:
+                              const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                 ],
               ),
@@ -367,7 +389,7 @@ class SettingsState extends ConsumerState<Settings> {
                 child: Input(
                   labelText: "Email",
                   icon: Icons.email,
-                  hintText: profile["email"], // Current email as placeholder
+                  hintText: profile["email"],
                   onChanged: (value) {
                     setState(() {
                       newEmail = value;
@@ -380,16 +402,7 @@ class SettingsState extends ConsumerState<Settings> {
                   ? const CircularProgressIndicator()
                   : SizedTextButton(
                       text: "Update",
-                      onPressed: () {
-                        if (newEmail.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Please enter a new email.")),
-                          );
-                          return;
-                        }
-                        _updateEmail();
-                      },
+                      onPressed: _handleEmailChange,
                       height: 50,
                       width: 75,
                       textStyle:
@@ -403,4 +416,3 @@ class SettingsState extends ConsumerState<Settings> {
     );
   }
 }
-
