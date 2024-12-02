@@ -266,7 +266,6 @@ class SettingsState extends ConsumerState<Settings> {
   // Function to update password
   Future<void> _updatePassword() async {
 
-
     setState(() {
       isUpdatingPassword = true;
     });
