@@ -109,7 +109,6 @@ class ProfileState extends ConsumerState<Profile> {
 
   void _getQuizzes(String token) async {
     ApiHandler.getUserQuizzesByToken(token, 0, 5).then((value) {
-      print(value);
       setState(() {
         quizzes = value;
       });

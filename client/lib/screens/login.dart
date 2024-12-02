@@ -150,7 +150,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                   const Text("Don't have an account? ",
                       style: TextStyle(color: Colors.grey)),
                   InkWell(
-                    onTap: () => {router.setPath(context, 'register'), print("Register")},
+                    onTap: () => router.setPath(context, 'register'),
                     child: Text(
                       'Sign up here.',
                       style: TextStyle(color: theme.primaryColor),

@@ -232,7 +232,6 @@ class FriendsState extends ConsumerState<Friends> {
                     itemCount: _friendsData!.length,
                     itemBuilder: (context, index) {
                       final friend = _friendsData![index];
-                      print(friend);
                       return ListTile(
                         leading: buildAvatar(
                           friend['username'],
