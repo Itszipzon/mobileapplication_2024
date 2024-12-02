@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:client/dummy_data.dart';
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:client/elements/button.dart';
@@ -10,6 +11,7 @@ import 'package:client/tools/router.dart';
 import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Profile extends ConsumerStatefulWidget {
   const Profile({super.key});
@@ -35,6 +37,8 @@ class ProfileState extends ConsumerState<Profile> {
 
   String page = "main";
 
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -51,11 +55,42 @@ class ProfileState extends ConsumerState<Profile> {
   }
 
   void _getProfile() async {
-    user.getProfile().then((value) {
-      setState(() {
-        profile = value;
-      });
+  user.getProfile().then((value) {
+    print("Profile data: $value");
+    setState(() {
+      profile = value;
     });
+  });
+}
+
+
+  Future<void> _selectAndUploadImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        File image = File(pickedFile.path);
+        await _uploadImage(image);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error selecting image: $e')),
+      );
+    }
+  }
+
+  Future<void> _uploadImage(File image) async {
+    final response = await ApiHandler.uploadProfilePicture(image, user.token!);
+
+    if (response["success"]) {
+      _getProfile();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response["message"])),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response["message"])),
+      );
+    }
   }
 
   Widget profileScreen() {
@@ -97,20 +132,19 @@ class ProfileState extends ConsumerState<Profile> {
         margin: const EdgeInsets.all(10),
         child: Column(
           children: [
-            // Profile header section
+            // profile header section
             Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    print("Not implemented yet");
-                  },
+                  onTap: _selectAndUploadImage,
                   child: ClipOval(
-                    child: ProfilePicture(url: profile["pfp"]),
+                    child: ProfilePicture(
+                      url: profile["pfp"] +
+                          "?t=${DateTime.now().millisecondsSinceEpoch}",
+                    ),
                   ),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
                 Text(
                   "${profile["username"]}",
                   style: const TextStyle(
@@ -164,15 +198,13 @@ class ProfileState extends ConsumerState<Profile> {
                   Expanded(
                     child: SizedTextButton(
                       text: page == "settings" ? "Profile" : "Settings",
-                      icon: Icon(page == "settings" ? Icons.person : Icons.settings, color: Colors.white),
+                      icon: Icon(
+                          page == "settings" ? Icons.person : Icons.settings,
+                          color: Colors.white),
                       onPressed: () => {
                         setState(
                           () {
-                            if (page == "settings") {
-                              page = "main";
-                            } else {
-                              page = "settings";
-                            }
+                            page = page == "settings" ? "main" : "settings";
                           },
                         )
                       },
