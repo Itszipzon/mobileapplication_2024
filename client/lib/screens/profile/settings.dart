@@ -9,6 +9,8 @@ import 'package:client/tools/api_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// The settings screen allows users to update their profile information,
+/// including username, email, and password.
 class Settings extends ConsumerStatefulWidget {
   const Settings({super.key});
 
@@ -21,17 +23,17 @@ class SettingsState extends ConsumerState<Settings> {
   late final UserNotifier user;
   bool loading = true;
 
-  // State variables for Change Email
+  // Variables for managing email updates
   String newEmail = '';
   bool isUpdatingEmail = false;
   String emailErrorMessage = '';
 
-  // State variables for Change Username
+  // Variables for managing username updates
   String newUsername = '';
   bool isUpdatingUsername = false;
   String usernameErrorMessage = "";
 
-  // State variables for Change Password
+  // Variables for managing password updates
   String oldPassword = '';
   String newPassword = '';
   String confirmPassword = '';
@@ -40,6 +42,7 @@ class SettingsState extends ConsumerState<Settings> {
   bool showNewPassword = false;
   String passwordErrorMessage = '';
 
+  // Stores user profile information
   Map<String, dynamic> profile = {
     "username": "",
     "email": "",
@@ -57,6 +60,7 @@ class SettingsState extends ConsumerState<Settings> {
     });
   }
 
+  /// Fetches the user's profile information
   Future<void> _getProfile() async {
     user.getProfile().then((value) {
       setState(() {
@@ -65,7 +69,7 @@ class SettingsState extends ConsumerState<Settings> {
     });
   }
 
-  // Show the logout confirmation dialog
+  /// Displays a logout confirmation dialog
   Future<bool> _showLogoutDialog(BuildContext context) async {
     final navigator = Navigator.of(context);
 
@@ -109,7 +113,7 @@ class SettingsState extends ConsumerState<Settings> {
     ).then((value) => value ?? false); // Default to false if null
   }
 
-  // Handle username change
+  /// Handles username change logic with validation and confirmation
   Future<void> _handleUsernameChange() async {
     final previousUsername = profile["username"]; // Store previous value
     if (newUsername.isEmpty) {
@@ -128,7 +132,7 @@ class SettingsState extends ConsumerState<Settings> {
     }
   }
 
-  // Handle email change
+  /// Handles email change logic with validation and confirmation
   Future<void> _handleEmailChange() async {
     final previousEmail = profile["email"]; // Store previous value
     if (newEmail.isEmpty) {

@@ -5,6 +5,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Widget to display and manage quiz questions in a socket-based quiz
 class QuizSocketQuestion extends ConsumerStatefulWidget {
   const QuizSocketQuestion(
       {super.key,

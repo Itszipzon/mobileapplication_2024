@@ -2,6 +2,8 @@ import 'package:client/tools/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A widget representing a solo quiz question.
+/// Displays a question, its options, and manages user interaction.
 class QuizQuestionSolo extends ConsumerStatefulWidget {
   const QuizQuestionSolo(
       {super.key,

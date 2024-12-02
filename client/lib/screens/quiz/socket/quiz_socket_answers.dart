@@ -5,6 +5,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Widget to display quiz answers in a socket-based real-time quiz
 class QuizSocketAnswers extends ConsumerStatefulWidget {
   const QuizSocketAnswers({
     super.key,
@@ -49,6 +50,7 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
     _setAnswer();
   }
 
+  /// Initializes states such as quiz title and question data
   void _initStates() {
     audioManager = AudioManager();
     setState(() {
@@ -58,6 +60,7 @@ class QuizSocketAnswersState extends ConsumerState<QuizSocketAnswers> {
     });
   }
 
+  /// Sets the user's last answer, if available
   void _setAnswer() {
     final username = widget.values["username"];
     final players = widget.values["players"] as List<dynamic>;

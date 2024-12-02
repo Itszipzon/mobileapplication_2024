@@ -5,6 +5,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Widget to display the score screen for a quiz
 class ScoreScreen extends ConsumerStatefulWidget {
   const ScoreScreen({
     super.key,
@@ -46,6 +47,7 @@ class ScoreState extends ConsumerState<ScoreScreen> {
     super.dispose();
   }
 
+  /// initializes values and plays sound effect
   void _initializeValues() {
     setState(() {
       quizId = widget.values["quiz"]['id'];

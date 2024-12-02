@@ -6,6 +6,7 @@ import 'package:client/tools/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Displays the quiz results in solo mode.
 class QuizResultSolo extends ConsumerStatefulWidget {
   const QuizResultSolo(
       {super.key,
