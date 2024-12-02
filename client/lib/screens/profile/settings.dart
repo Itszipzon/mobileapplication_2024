@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:client/dummy_data.dart';
 import 'package:client/elements/button.dart';
 import 'package:client/elements/input.dart';
@@ -22,10 +24,12 @@ class SettingsState extends ConsumerState<Settings> {
   // State variables for Change Email
   String newEmail = '';
   bool isUpdatingEmail = false;
+  String emailErrorMessage = '';
 
   // State variables for Change Username
   String newUsername = '';
   bool isUpdatingUsername = false;
+  String usernameErrorMessage = "";
 
   // State variables for Change Password
   String oldPassword = '';
@@ -34,6 +38,7 @@ class SettingsState extends ConsumerState<Settings> {
   bool isUpdatingPassword = false;
   bool showOldPassword = false;
   bool showNewPassword = false;
+  String passwordErrorMessage = '';
 
   Map<String, dynamic> profile = {
     "username": "",
@@ -84,8 +89,7 @@ class SettingsState extends ConsumerState<Settings> {
                     navigator.pop(true); // Close dialog and return true
                   },
                   height: 40,
-                  textStyle:
-                      const TextStyle(fontSize: 16, color: Colors.white),
+                  textStyle: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 const SizedBox(height: 10),
                 // Cancel button
@@ -95,8 +99,7 @@ class SettingsState extends ConsumerState<Settings> {
                     navigator.pop(false); // Close dialog and return false
                   },
                   height: 40,
-                  textStyle:
-                      const TextStyle(fontSize: 16, color: Colors.white),
+                  textStyle: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -109,6 +112,12 @@ class SettingsState extends ConsumerState<Settings> {
   // Handle username change
   Future<void> _handleUsernameChange() async {
     final previousUsername = profile["username"]; // Store previous value
+    if (newUsername.isEmpty) {
+      setState(() {
+        usernameErrorMessage = "Username can not be empty";
+      });
+      return;
+    }
     final confirm = await _showLogoutDialog(context);
     if (confirm) {
       await _updateUsername(); // Call API if confirmed
@@ -122,21 +131,60 @@ class SettingsState extends ConsumerState<Settings> {
   // Handle email change
   Future<void> _handleEmailChange() async {
     final previousEmail = profile["email"]; // Store previous value
+    if (newEmail.isEmpty) {
+      setState(() {
+        emailErrorMessage = "Email can not be empty";
+      });
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$'); 
+    if (!emailRegex.hasMatch(newEmail)) {
+      setState(() {
+        emailErrorMessage = "Invalid email format";
+      });
+      return;
+    }
+
     final confirm = await _showLogoutDialog(context);
     if (confirm) {
-      await _updateEmail(); // Call API if confirmed
+      await _updateEmail();
     } else {
       setState(() {
-        newEmail = previousEmail; // Restore old email
+        newEmail = previousEmail;
       });
     }
   }
 
   // Handle password change
   Future<void> _handlePasswordChange() async {
+    if (newPassword.isEmpty) {
+      setState(() {
+        passwordErrorMessage = "Password can not be empty";
+      });
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      setState(() {
+        passwordErrorMessage = "Password must be at least 8 characters long";
+      });
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match")),
+      );
+      return;
+    }
     final confirm = await _showLogoutDialog(context);
     if (confirm) {
       await _updatePassword(); // Call API if confirmed
+    } else {
+      setState(() {
+        newPassword = oldPassword;
+      });
     }
   }
 
@@ -146,26 +194,32 @@ class SettingsState extends ConsumerState<Settings> {
       isUpdatingEmail = true;
     });
 
-    try {
-      final token = user.token;
-      if (token == null) throw Exception("User is not authenticated.");
-
-      await ApiHandler.updateUser(token, newEmail: newEmail);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email updated successfully!")),
-      );
-
-      user.logout(context, router); // Logout user
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update email: $e")),
-      );
-    } finally {
+    final token = user.token;
+    if (token == null) {
       setState(() {
-        isUpdatingEmail = false;
+        emailErrorMessage = "Currently not in session";
       });
+      return;
     }
+
+    await ApiHandler.updateUser(token, newEmail: newEmail).then((value) => {
+          if (value.statusCode == 200)
+            {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Username updated sucessfully!"))),
+              setState(() {
+                isUpdatingEmail = false;
+              }),
+              user.logout(context, router)
+            }
+          else
+            {
+              setState(() {
+                emailErrorMessage = jsonDecode(value.body)["message"];
+                isUpdatingEmail = false;
+              })
+            }
+        });
   }
 
   // Function to update username
@@ -174,65 +228,75 @@ class SettingsState extends ConsumerState<Settings> {
       isUpdatingUsername = true;
     });
 
-    try {
-      final token = user.token;
-      if (token == null) throw Exception("User is not authenticated.");
-
-      await ApiHandler.updateUser(token, newUsername: newUsername);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Username updated successfully!")),
-      );
-
-      user.logout(context, router); // Logout user
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update username: $e")),
-      );
-    } finally {
+    final token = user.token;
+    if (token == null) {
       setState(() {
-        isUpdatingUsername = false;
+        usernameErrorMessage = "Currently not in a session";
       });
+      return;
     }
+
+    await ApiHandler.updateUser(token, newUsername: newUsername)
+        .then((value) => {
+              if (value.statusCode == 200)
+                {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("Username updated successfully!")),
+                  ),
+                  setState(() {
+                    isUpdatingUsername = false;
+                  }),
+                  user.logout(context, router)
+                }
+              else
+                {
+                  setState(() {
+                    usernameErrorMessage = jsonDecode(value.body)["message"];
+                    isUpdatingUsername = false;
+                  })
+                }
+            });
   }
 
   // Function to update password
   Future<void> _updatePassword() async {
-    if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
-      return;
-    }
+
 
     setState(() {
       isUpdatingPassword = true;
     });
 
-    try {
-      final token = user.token;
-      if (token == null) throw Exception("User is not authenticated.");
-
-      await ApiHandler.updateUser(
-        token,
-        oldPassword: oldPassword,
-        newPassword: newPassword,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password updated successfully!")),
-      );
-
-      user.logout(context, router); // Logout user
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update password: $e")),
-      );
-    } finally {
+    final token = user.token;
+    if (token == null) {
       setState(() {
-        isUpdatingPassword = false;
+        passwordErrorMessage = "Currently not in session";
       });
+      return;
     }
+
+    await ApiHandler.updateUser(
+      token,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    ).then((value) => {
+          if (value.statusCode == 200)
+            {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Password updated sucessfully!"))),
+              setState(() {
+                isUpdatingPassword = false;
+              }),
+              user.logout(context, router)
+            }
+          else
+            {
+              setState(() {
+                passwordErrorMessage = value.body;
+                isUpdatingPassword = false;
+              })
+            }
+        });
   }
 
   @override
@@ -274,6 +338,10 @@ class SettingsState extends ConsumerState<Settings> {
                     ),
             ],
           ),
+          Text(
+            usernameErrorMessage,
+            style: TextStyle(color: Colors.red),
+          ),
           const Divider(),
           const SizedBox(height: 10),
 
@@ -284,6 +352,7 @@ class SettingsState extends ConsumerState<Settings> {
           ),
           const SizedBox(height: 10),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -367,10 +436,14 @@ class SettingsState extends ConsumerState<Settings> {
                           onPressed: _handlePasswordChange,
                           height: 50,
                           width: 75,
-                          textStyle:
-                              const TextStyle(fontSize: 16, color: Colors.white),
+                          textStyle: const TextStyle(
+                              fontSize: 16, color: Colors.white),
                         ),
                 ],
+              ),
+              Text(
+                passwordErrorMessage,
+                style: TextStyle(color: Colors.red),
               ),
             ],
           ),
@@ -409,6 +482,10 @@ class SettingsState extends ConsumerState<Settings> {
                           const TextStyle(fontSize: 16, color: Colors.white),
                     ),
             ],
+          ),
+          Text(
+            emailErrorMessage,
+            style: TextStyle(color: Colors.red),
           ),
           const Divider(),
         ],

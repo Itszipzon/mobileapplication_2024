@@ -555,7 +555,7 @@ public class UserApi {
     if (oldPassword != null && newPassword != null && !oldPassword.isEmpty()
         && !newPassword.isEmpty()) {
       if (!Tools.matchPasswords(oldPassword, userToUpdate.getPassword())) {
-        return new ResponseEntity<>("Password is incorrect", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Old password is incorrect", HttpStatus.BAD_REQUEST);
       }
       if (newPassword.length() < 8) {
         return new ResponseEntity<>("New password must be at least 8 characters long",
