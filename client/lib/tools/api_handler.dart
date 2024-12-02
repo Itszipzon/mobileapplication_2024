@@ -529,12 +529,20 @@ class ApiHandler {
     String? oldPassword,
     String? newPassword,
   }) async {
-    return await http.put(
+    final response = await http.put(
       Uri.parse('$_url/api/user/update'),
       headers: {
         "Authorization": "Bearer $token",
         "Content-Type": "application/json",
       },
+      body: jsonEncode({
+        "email": newEmail ?? "",
+        "username": newUsername ?? "",
+        "oldPassword": oldPassword ?? "",
+        "newPassword": newPassword ?? "",
+      }),
     );
+
+    return response;
   }
 }
