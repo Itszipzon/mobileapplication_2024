@@ -32,6 +32,8 @@ class SettingsState extends ConsumerState<Settings> {
   String newPassword = '';
   String confirmPassword = '';
   bool isUpdatingPassword = false;
+  bool showOldPassword = false;
+  bool showNewPassword = false;
 
   Map<String, dynamic> profile = {
     "username": "",
@@ -74,11 +76,7 @@ class SettingsState extends ConsumerState<Settings> {
       );
 
       // Clear the token and navigate to login
-      user.logout(
-        context,
-        router,
-      );
-
+      user.logout(context, router);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update email: $e")),
@@ -107,10 +105,7 @@ class SettingsState extends ConsumerState<Settings> {
       );
 
       // Clear the token and navigate to login
-      user.logout(
-        context,
-        router,
-      );
+      user.logout(context, router);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update username: $e")),
@@ -150,11 +145,7 @@ class SettingsState extends ConsumerState<Settings> {
       );
 
       // Clear the token and navigate to login
-      user.logout(
-        context,
-        router,
-      );
-
+      user.logout(context, router);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update password: $e")),
@@ -224,42 +215,84 @@ class SettingsState extends ConsumerState<Settings> {
           const SizedBox(height: 10),
           Column(
             children: [
-              Input(
-                labelText: "Old Password",
-                obscureText: true,
-                icon: Icons.lock,
-                onChanged: (value) {
-                  setState(() {
-                    oldPassword = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
-              Input(
-                labelText: "New Password",
-                obscureText: true,
-                icon: Icons.lock,
-                onChanged: (value) {
-                  setState(() {
-                    newPassword = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
-              Input(
-                labelText: "Confirm Password",
-                obscureText: true,
-                icon: Icons.lock,
-                onChanged: (value) {
-                  setState(() {
-                    confirmPassword = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
+              // Old Password Field with "Show" Button
               Row(
                 children: [
-                  const Spacer(),
+                  Flexible(
+                    child: Input(
+                      labelText: "Old Password",
+                      obscureText: !showOldPassword,
+                      icon: Icons.lock,
+                      onChanged: (value) {
+                        setState(() {
+                          oldPassword = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedTextButton(
+                    text: showOldPassword ? "Hide" : "Show",
+                    onPressed: () {
+                      setState(() {
+                        showOldPassword = !showOldPassword;
+                      });
+                    },
+                    height: 50,
+                    width: 75,
+                    textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // New Password Field with "Show" Button
+              Row(
+                children: [
+                  Flexible(
+                    child: Input(
+                      labelText: "New Password",
+                      obscureText: !showNewPassword,
+                      icon: Icons.lock,
+                      onChanged: (value) {
+                        setState(() {
+                          newPassword = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedTextButton(
+                    text: showNewPassword ? "Hide" : "Show",
+                    onPressed: () {
+                      setState(() {
+                        showNewPassword = !showNewPassword;
+                      });
+                    },
+                    height: 50,
+                    width: 75,
+                    textStyle: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Confirm Password Field with Update Button
+              Row(
+                children: [
+                  Flexible(
+                    child: Input(
+                      labelText: "Confirm Password",
+                      obscureText: true,
+                      icon: Icons.lock,
+                      onChanged: (value) {
+                        setState(() {
+                          confirmPassword = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   isUpdatingPassword
                       ? const CircularProgressIndicator()
                       : SizedTextButton(
@@ -279,8 +312,7 @@ class SettingsState extends ConsumerState<Settings> {
                           },
                           height: 50,
                           width: 75,
-                          textStyle: const TextStyle(
-                              fontSize: 16, color: Colors.white),
+                          textStyle: const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                 ],
               ),
