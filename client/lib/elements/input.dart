@@ -11,6 +11,7 @@ class Input extends StatelessWidget {
   final FocusNode? focusNode;
   final IconData? icon;
   final bool enabled;
+  final String? hintText; 
 
   const Input({
     super.key,
@@ -23,6 +24,7 @@ class Input extends StatelessWidget {
     this.focusNode,
     this.icon,
     this.enabled = true,
+    this.hintText, 
   });
 
   @override
@@ -46,6 +48,7 @@ class Input extends StatelessWidget {
         focusNode: focusNode,
         decoration: InputDecoration(
           labelText: labelText,
+          hintText: hintText, 
           labelStyle: const TextStyle(color: Colors.black),
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(6)),
@@ -61,3 +64,4 @@ class Input extends StatelessWidget {
     );
   }
 }
+
