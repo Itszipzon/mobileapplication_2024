@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/tools/api_handler.dart'; // Import the API handler
 
+/// The Home screen serves as the main landing page, displaying recent and popular quizzes.
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
 

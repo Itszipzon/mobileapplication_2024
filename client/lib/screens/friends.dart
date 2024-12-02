@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client/tools/api_handler.dart';
 
+/// A screen for managing friends and pending friend requests.
 class Friends extends ConsumerStatefulWidget {
   const Friends({super.key});
 
@@ -54,6 +55,7 @@ class FriendsState extends ConsumerState<Friends> {
     }
   }
 
+  /// Fetches friends and pending friend requests from the API.
   Future<void> _initFriends() async {
     final token = user.token;
     if (token == null) return;
@@ -75,6 +77,7 @@ class FriendsState extends ConsumerState<Friends> {
     }
   }
 
+  /// Sends a friend request to a user.
   Future<void> _sendFriendRequest(String username) async {
     final token = user.token;
     if (token == null) return;
@@ -92,6 +95,7 @@ class FriendsState extends ConsumerState<Friends> {
     }
   }
 
+  /// Accepts a pending friend request.
   Future<void> _acceptFriendRequest(int friendRequestId) async {
     final token = user.token;
     if (token == null) return;
@@ -106,6 +110,7 @@ class FriendsState extends ConsumerState<Friends> {
     }
   }
 
+  /// Removes a friend.
   Future<void> _removeFriend(String username) async {
     final token = user.token;
     if (token == null) return;
@@ -120,6 +125,7 @@ class FriendsState extends ConsumerState<Friends> {
     }
   }
 
+  /// Builds a user's avatar, using a profile picture if available.
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -154,6 +160,7 @@ class FriendsState extends ConsumerState<Friends> {
     );
   }
 
+  /// Builds the search bar for adding friends.
   Widget _buildFriendsList() {
     return Expanded(
       child: ListView(

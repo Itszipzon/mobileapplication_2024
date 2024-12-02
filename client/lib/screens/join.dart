@@ -5,6 +5,7 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A screen that allows users to join a game by entering a game PIN.
 class Join extends ConsumerStatefulWidget {
   const Join({super.key});
 
@@ -25,10 +26,15 @@ class JoinState extends ConsumerState<Join> {
     });
   }
 
+  /// Handles the "Join" button press.
+  ///
+  /// Navigates the user to the quiz lobby screen with the entered game PIN.
   void onPressed() {
     setState(() {
       loading = true;
     });
+
+    // Navigate to the quiz lobby
     router.setPath(context, 'quiz/lobby', values: {'id': codeController.text.toUpperCase(), 'create': false});
     setState(() {
       loading = false;

@@ -6,6 +6,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A screen for user login
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -16,9 +17,15 @@ class LoginScreen extends ConsumerStatefulWidget {
 class LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  bool rememberMe = false;
 
+  // State to track "Remember Me" checkbox and loading status
+  bool rememberMe = false;
+  bool loading = false;
+
+  // Focus node for password input field
   final passwordFocusNode = FocusNode();
+
+  // Router and user session management
   late final RouterNotifier router;
   late final UserNotifier user;
 
@@ -46,14 +53,18 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  bool loading = false;
-
+  
+  /// Toggles the loading state.
   void toggleLoading() {
     setState(() {
       loading = !loading;
     });
   }
 
+  /// Handles the login process.
+  ///
+  /// Sends the email and password to the API for authentication.
+  /// If successful, navigates to the home screen.
   Future<void> handleLogin() async {
     toggleLoading();
 
