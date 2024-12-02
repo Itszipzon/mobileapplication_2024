@@ -10,8 +10,9 @@ class Tools {
         date[0],
         date[1],
         date[2],
-        date[3],
+        date[3] + 1,
         date[4],
+        date[5]
       );
     final now = DateTime.now();
     final difference = now.difference(dateFromParameter);
