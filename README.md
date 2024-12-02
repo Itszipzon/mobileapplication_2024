@@ -254,10 +254,10 @@ Note: Make sure you're logged into Docker Hub with an account that has permissio
 
 This project exists thanks to the contributions from our development team:
 
-- 👤 **Rune Molander** (Project Manager, Lead Programmer [Frontend, Backend], Database architect, Feature designer)
+- 👤 **Rune Molander** (Project/Engineer Manager, Lead Programmer [Frontend, Backend], Software architect, Database architect, Feature designer, QA)
 - 👤 **Jan Christian Nordskog** (Lead UI/UX Designer, Programmer [Frontend, Backend])
-- 👤 **Phillip** (Frontend Developer, UI/UX Designer)
-- 👤 **Avnit** (Programmer [Frontend, Backend], Database developer, QA Lead)
+- 👤 **Phillip** (Programmer [Frontend, Backend], UI/UX Designer)
+- 👤 **Avnit** (Programmer [Frontend, Backend], Database developer, QA Engineer)
 
 [Next.js]: https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white
 [Next-url]: https://spring.io/
