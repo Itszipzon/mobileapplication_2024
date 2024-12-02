@@ -49,6 +49,58 @@ class ApiHandler {
     }
   }
 
+static const String baseUrl = "http://localhost:8080";
+
+  /// Uploads a profile picture for the user.
+  static Future<Map<String, dynamic>> uploadProfilePicture(
+      File image, String token) async {
+    final uri = Uri.parse('$baseUrl/api/user/pfp');
+
+    // Get the file extension
+    String extension = image.path.split('.').last.toLowerCase();
+    if (!['png', 'jpg', 'jpeg', 'gif'].contains(extension)) {
+      return {
+        "success": false,
+        "message": "Invalid file type: .$extension. Only PNG, JPG, and GIF are allowed."
+      };
+    }
+
+    // Map extension to MIME type
+    String mimeType = 'image/$extension';
+    if (extension == 'jpg') mimeType = 'image/jpeg';
+
+    try {
+      final request = http.MultipartRequest('POST', uri)
+        ..headers['Authorization'] = 'Bearer $token'
+        ..files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            image.path,
+            contentType: MediaType.parse(mimeType),
+          ),
+        );
+
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
+
+      if (response.statusCode == 200) {
+        return {"success": true, "message": "Profile picture uploaded successfully"};
+      } else {
+        return {
+          "success": false,
+          "message": "Failed to upload profile picture: ${responseBody.body}"
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "Error uploading profile picture: $e"};
+    }
+  }
+
+
+
+
+
+
   /// Checks if the user is in session.
   static Future<bool> userInSession(String token) async {
     final response = await http.get(Uri.parse('$_url/api/user/insession'),
