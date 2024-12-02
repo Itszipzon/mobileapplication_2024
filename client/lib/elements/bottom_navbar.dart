@@ -3,11 +3,15 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The bottom navigation bar
+/// The bottom navigation bar widget used for navigating between different app sections.
 class BottomNavbar extends ConsumerWidget {
   final String path;
+
+  /// Constructs the BottomNavbar with the provided [path].
   const BottomNavbar({super.key, required this.path});
 
+  /// Handles navigation when a navigation button is pressed.
+  /// Updates the [RouterNotifier] with the selected [path].
   void onPressed(BuildContext context, String path, RouterNotifier router) {
     router.setPath(context, path);
   }
