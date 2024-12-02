@@ -167,7 +167,7 @@ class ApiHandler {
     }
   }
 
-  /// Gets the user's profile picture.
+  /// Get a users quizzes by token
   static Future<List<Map<String, dynamic>>> getUserQuizzesByToken(
       String token, int page, int amount) async {
     final response = await http.get(
@@ -181,7 +181,7 @@ class ApiHandler {
     }
   }
 
-  /// Gets the user's profile picture.
+  /// Get a users quizzes by username
   static Future<List<Map<String, dynamic>>> getUserQuizzesByUsername(
       String username, int page, int amount) async {
     final response = await http
@@ -195,7 +195,7 @@ class ApiHandler {
     }
   }
 
-  /// Gets the user's profile picture.
+  /// Get a users history by token
   static Future<List<Map<String, dynamic>>> getQuizzesByUserHistory(
       String token, int page, int amount) async {
     final response = await http.get(
@@ -222,7 +222,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches quizzes from the API.
+  /// Fetches quizzes from the API by filter.
   static Future<List<Map<String, dynamic>>> getQuizzesByFilter(
       int page, int size, String by, String orientation) async {
     final response = await http.get(
@@ -236,7 +236,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches quizzes from the API.
+  /// Create a quiz
   static Future<http.Response> createQuiz(
       Map<String, dynamic> quizData, String token, File thumbnail) async {
     final uri = Uri.parse('$_url/api/quiz');
@@ -270,13 +270,13 @@ class ApiHandler {
     return response;
   }
 
-  /// Fetches quizzes from the API.
+  /// Fetches categories from the API.
   static Future<List<String>> getQuizCategories() async {
     final response = await http.get(Uri.parse('$_url/api/quiz/categories'));
     return jsonDecode(response.body).cast<String>();
   }
 
-  /// Fetches quizzes from the API.
+  /// Fetches quizzes by category.
   static Future<List<Map<String, dynamic>>> getQuizzesByCategory(
       String category, int page) async {
     final response =
@@ -296,7 +296,7 @@ class ApiHandler {
     return jsonDecode(response.body);
   }
 
-  /// Fetches quizzes from the API.
+  /// Check quiz results
   static Future<Map<String, dynamic>> checkQuiz(
       String token, Map<String, dynamic> quiz) async {
     final uri = Uri.parse('$_url/api/quiz/game/solo/check');
@@ -317,7 +317,7 @@ class ApiHandler {
     }
   }
 
-  // Modify ApiHandler.playQuiz
+  // Inputs a quiz game to the API.
   static Future<Map<String, dynamic>> playQuiz(
       String token, Map<String, dynamic> quiz) async {
     final uri = Uri.parse('$_url/api/quiz/game/solo');
@@ -446,7 +446,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches the user's friend list.
+  /// Get amount of quizzes in given category
   static Future<int> getCategoryQuizCount(String categoryName) async {
     final response = await http.get(
       Uri.parse('$_url/api/quiz/category/count/$categoryName'),
@@ -457,7 +457,7 @@ class ApiHandler {
     throw Exception('Failed to get category quiz count');
   }
 
-  /// Fetches the user's friend list.
+  /// Delete a quiz
   static Future<void> deleteQuiz(String token, int quizId) async {
     final response = await http.delete(
       Uri.parse('$_url/api/quiz/$quizId'),
@@ -478,7 +478,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches the user's friend list.
+  /// Reset the password
   static Future<void> requestPasswordReset(String email) async {
     final response = await http.post(
       Uri.parse('$_url/api/user/resetpassword'),
@@ -491,7 +491,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches the user's friend list.
+  /// Verify the reset token
   static Future<void> verifyToken(String email, String token) async {
     final response = await http.post(
       Uri.parse('$_url/api/user/verify-reset-token'),
@@ -505,7 +505,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches the user's friend list.
+  /// Reset the password
   static Future<void> resetPassword(String token, String newPassword) async {
     final response = await http.post(
       Uri.parse("$_url/api/user/newpassword"),
@@ -521,7 +521,7 @@ class ApiHandler {
     }
   }
 
-  /// Fetches the user's friend list.
+  /// Update the user's password and email and username
   static Future<Response> updateUser(
     String token, {
     String? newEmail,
