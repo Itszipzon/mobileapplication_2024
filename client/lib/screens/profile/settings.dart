@@ -175,6 +175,7 @@ class SettingsState extends ConsumerState<Settings> {
                 child: Input(
                   labelText: "Username",
                   icon: Icons.person,
+                  hintText: profile["username"], // Current username as placeholder
                   onChanged: (value) {
                     setState(() {
                       newUsername = value;
@@ -333,6 +334,7 @@ class SettingsState extends ConsumerState<Settings> {
                 child: Input(
                   labelText: "Email",
                   icon: Icons.email,
+                  hintText: profile["email"], // Current email as placeholder
                   onChanged: (value) {
                     setState(() {
                       newEmail = value;
