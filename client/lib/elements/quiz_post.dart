@@ -26,6 +26,7 @@ class QuizPost extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.read(routerProvider.notifier);
+
     return GestureDetector(
       onTap: () {
         router.setPath(context, "quiz", values: {"id": id});
@@ -48,7 +49,7 @@ class QuizPost extends ConsumerWidget {
               children: [
                 ClipOval(
                   child: ProfilePicture(
-                    url: profilePicture == "" ? DummyData.profilePicture : "${ApiHandler.url}/api/user/pfp/$username",
+                    url: profilePicture == "" ? DummyData.profilePicture : "${ApiHandler.url}/api/user/pfp/$username?t=${DateTime.now().millisecondsSinceEpoch}",
                     size: 50,
                   ),
                 ),
