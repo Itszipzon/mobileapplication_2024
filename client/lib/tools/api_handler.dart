@@ -32,12 +32,10 @@ class ApiHandler {
     }
   }
 
-static const String baseUrl = "http://localhost:8080";
-
   /// Uploads a profile picture for the user.
   static Future<Map<String, dynamic>> uploadProfilePicture(
       File image, String token) async {
-    final uri = Uri.parse('$baseUrl/api/user/pfp');
+    final uri = Uri.parse('$_url/api/user/pfp');
 
     // Get the file extension
     String extension = image.path.split('.').last.toLowerCase();
