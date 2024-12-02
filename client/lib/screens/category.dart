@@ -5,6 +5,8 @@ import 'package:client/tools/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A screen that displays quizzes filtered by category.
+/// Users can select a category from a dropdown and view a list of quizzes.
 class Category extends ConsumerStatefulWidget {
   const Category({super.key});
 
@@ -30,6 +32,10 @@ class CategoryState extends ConsumerState<Category> {
     });
   }
 
+  /// Fetches all available categories from the server.
+  ///
+  /// Sets the initial category to the one provided in the router or the first available category.
+  /// Then fetches quizzes for the selected category.
   Future<void> _fetchCategories() async {
     try {
       List<String> categories = await ApiHandler.getQuizCategories();
@@ -46,6 +52,9 @@ class CategoryState extends ConsumerState<Category> {
     }
   }
 
+  /// Fetches quizzes for the currently selected category.
+  ///
+  /// Updates the list of quizzes and toggles the loading state.
   Future<void> _initiateQuizzes() async {
     setState(() {
       loading = true;

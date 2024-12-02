@@ -9,6 +9,8 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A screen displaying details about a selected quiz.
+/// Users can choose to play the quiz solo or with friends.
 class QuizScreen extends ConsumerStatefulWidget {
   const QuizScreen({super.key});
 
@@ -39,7 +41,11 @@ class QuizScreenState extends ConsumerState<QuizScreen> {
       }
     });
   }
-
+  
+  /// Fetches the quiz details from the server.
+  ///
+  /// Retrieves the quiz data using the API handler and sets the state.
+  /// If the response is empty, shows an error and redirects to the home page.
   Future<void> _getQuiz() async {
     final response =
         await ApiHandler.getQuiz(int.parse(router.getValues!['id'].toString()));

@@ -33,7 +33,8 @@ class CreateQuizState extends ConsumerState<CreateQuiz> {
       Option(optionText: ""),
     ])
   ];
-
+  
+  // Controllers for managing user input
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController timeController = TextEditingController();

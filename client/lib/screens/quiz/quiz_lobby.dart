@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
+/// A stateful widget to manage the quiz lobby interactions and WebSocket connections.
 class QuizLobby extends ConsumerStatefulWidget {
   const QuizLobby({super.key});
 
@@ -19,15 +20,20 @@ class QuizLobby extends ConsumerStatefulWidget {
 }
 
 class QuizLobbyState extends ConsumerState<QuizLobby> {
+  // Router and user-related objects
   late RouterNotifier router;
   late UserNotifier user;
+
+  // WebSocket client
   StompClient? stompClient;
 
+  // Lobby-specific properties
   String quizToken = '';
   String? leader;
   List<String> players = [];
   Completer<void> quizIdCompleter = Completer<void>();
 
+  // User and quiz-specific data
   String username = "";
   String quizName = "";
   String quizId = "";
@@ -48,6 +54,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     });
   }
 
+  /// Initializes the username by fetching it from the API.
   Future<void> _initUsername() async {
     String userString = await ApiHandler.getProfile(user.token!)
           .then((value) => value['username']);
@@ -62,6 +69,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     super.dispose();
   }
 
+  /// Establishes a WebSocket connection and sets up subscriptions.
   Future<void> _connect() async {
     await _initUsername();
     stompClient = StompClient(
@@ -84,6 +92,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     stompClient!.activate();
   }
 
+  /// Callback for WebSocket connection. Subscribes to appropriate topics and sends messages.
   Future<void> _onConnect(StompFrame frame) async {
     if (bool.parse(router.getValues!["create"].toString())) {
       _subscribeToCreate();
@@ -102,6 +111,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     }
   }
 
+  /// Subscribes to the topic for quiz creation updates.
   void _subscribeToCreate() {
     stompClient!.subscribe(
       destination: "/topic/quiz/create/$username",
@@ -123,6 +133,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Subscribes to the topic for quiz session updates.
   void _subscribeToJoin(String quizId) {
     stompClient!.subscribe(
       destination: "/topic/quiz/session/$quizId",
@@ -163,6 +174,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Sends a message to create a new quiz.
   Future<void> _createQuiz() async {
     stompClient!.send(
       destination: '/app/quiz/create',
@@ -171,6 +183,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Sends a message to join an existing quiz.
   void _joinQuiz() {
     stompClient!.send(
       destination: '/app/quiz/join',
@@ -181,6 +194,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Sends a message to start the quiz.
   void _startQuiz() {
     stompClient!.send(
       destination: '/app/quiz/start',
@@ -191,6 +205,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Sends a message to leave the quiz.
   void _leaveQuiz() {
     stompClient!.send(
       destination: '/app/quiz/leave',
@@ -201,6 +216,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Sends a message to change the quiz settings.
   void _changeQuiz(int newQuizId) {
     stompClient!.send(
       destination: '/app/quiz/session/settings',
@@ -216,6 +232,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Sends a message to change the quiz timer.
   void _changeTimer(int newTime) {
     stompClient!.send(
       destination: '/app/quiz/session/settings',
@@ -227,6 +244,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Shows a dialog for changing the quiz timer.
   void changeTimerClick() {
     final TextEditingController timerController = TextEditingController();
     showDialog(
@@ -265,6 +283,7 @@ class QuizLobbyState extends ConsumerState<QuizLobby> {
     );
   }
 
+  /// Shows a dialog for changing the quiz.
   void changeQuizClick() {
     final TextEditingController quizController = TextEditingController();
     showDialog(

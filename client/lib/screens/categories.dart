@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:client/elements/bottom_navbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A screen displaying a list of quiz categories.
+/// Users can select a category from a dropdown menu or choose predefined categories from a grid.
 class Categories extends ConsumerWidget {
   const Categories({super.key});
 

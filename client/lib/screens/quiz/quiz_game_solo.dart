@@ -9,6 +9,7 @@ import 'package:client/tools/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A stateful widget for managing a solo quiz game session
 class QuizGameSolo extends ConsumerStatefulWidget {
   const QuizGameSolo({super.key});
 
@@ -19,22 +20,29 @@ class QuizGameSolo extends ConsumerStatefulWidget {
 class QuizGameSoloState extends ConsumerState<QuizGameSolo>
     with TickerProviderStateMixin {
   QuizGameSoloState();
+
+  // Router and user-related notifiers
   late final RouterNotifier router;
   late final UserNotifier user;
+
+  // Audio manager for background music and sound effects
   late final AudioManager audioManager;
+
+  // Data structures to manage quiz data and progress
   Map<String, dynamic>? quizData;
   Map<String, dynamic> quizTaken = {};
 
+  // UI components and state variables
   Widget? counter;
   int currentQuestionIndex = 0;
   int duration = 0;
   DateTime? questionStartTime;
   String page = "question";
+  bool loading = true;
 
+  // Score animation variables
   AnimationController? scoreAnimationController;
   Animation<int>? scoreAnimation;
-
-  bool loading = true;
 
   @override
   void initState() {

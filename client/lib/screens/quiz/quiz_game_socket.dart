@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
+/// A stateful widget for managing the Quiz game logic over a WebSocket connection.
 class QuizGameSocket extends ConsumerStatefulWidget {
   const QuizGameSocket({super.key});
 
@@ -24,8 +25,11 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     with TickerProviderStateMixin {
   late RouterNotifier router;
   late UserNotifier user;
+
+  // WebSocket client
   StompClient? stompClient;
 
+  // Game state and properties
   String username = "";
   String thumbnail = "";
   String title = "Loading...";
@@ -62,11 +66,13 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     });
   }
 
+  /// Initializes the username by fetching it from the API.
   Future<void> _initUsername() async {
     username = await ApiHandler.getProfile(user.token!)
         .then((value) => value['username']);
   }
 
+  /// Initializes the states and properties of the game.
   void _initStates() {
     if (router.getValues == null) {
       router.setPath(context, 'join');
@@ -77,6 +83,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
       return;
     }
 
+    // Set initial state values
     setState(() {
       title = router.getValues!['quiz']['title'];
       timer = router.getValues!['quiz']['timer'];
@@ -88,6 +95,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     });
   }
 
+  /// Establishes a connection to the WebSocket server.
   void _connectToSocket() {
     stompClient = StompClient(
       config: StompConfig(
@@ -110,7 +118,8 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
 
     stompClient!.activate();
   }
-
+  
+  /// Handles WebSocket connection setup.
   void _onConnect(StompFrame frame) {
     stompClient!.subscribe(
       destination: "/topic/quiz/game/session/${router.getValues!['token']}",
@@ -133,6 +142,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     );
   }
 
+  /// Handles the quiz timer logic and progresses the game state.
   Future<void> _handleQuizTimer(bool showAnswers) async {
     stompClient!.send(
       destination: "/app/quiz/game",
@@ -149,6 +159,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     _displaySelectedScene();
   }
 
+  /// Progresses to the next state in the game.
   Future<void> _handleNext() async {
     stompClient!.send(
       destination: "/app/quiz/game",
@@ -162,6 +173,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     _displaySelectedScene();
   }
 
+  /// Handles the answer submission process.
   _handleAnswer(Map<String, dynamic> data) async {
     final String answer = data['answer'];
     final int answerId = data['answerId'];
@@ -185,6 +197,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     );
   }
 
+  /// Displays the appropriate UI component based on the game state.
   Widget _displaySelectedScene() {
     if (state == "quiz") {
       if (message == "showAnswer") {
@@ -224,6 +237,7 @@ class QuizGameSocketState extends ConsumerState<QuizGameSocket>
     }
   }
 
+  /// Retrieves the animation controller for displaying the final score.
   Animation<int> getScoreAnimationController(AnimationController controller) {
     final finalScore = values['players']
         .firstWhere((element) => element['username'] == username)['score'];

@@ -4,6 +4,7 @@ import 'package:client/tools/api_handler.dart';
 import 'package:client/tools/router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// A screen where users can request a password reset by providing their email adress.
 class ForgotPassword extends ConsumerStatefulWidget {
   const ForgotPassword({super.key});
 
@@ -33,13 +34,20 @@ class ForgotPasswordScreenState extends ConsumerState<ForgotPassword> {
     });
   }
 
+  /// Handles the password reset process.
+  ///
+  /// Sends a password reset request using the provided email.
+  /// Displays success or error messages based on the outcome.
   Future<void> handleForgotPassword() async {
     toggleLoading();
     successMessage = null;
     errorMessage = null;
 
     try {
+      // Request password reset via API
       await ApiHandler.requestPasswordReset(emailController.text);
+
+      // Display success message and navigate to token verification screen
       setState(() {
         successMessage = "A password reset link has been sent to your email.";
       });
